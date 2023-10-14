@@ -104,6 +104,7 @@ dist
 .tern-port
 
 # auto generated wildcard
+<<<<<<< HEAD
 db/.env
 
 mta_archives/BTPdemoPortal_1.0.0.mtar
@@ -117,3 +118,6 @@ data/.csv
 core 
 
 /node_modules
+=======
+db/.env
+>>>>>>> parent of 05d8d10 (Commit)
