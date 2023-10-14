@@ -105,3 +105,5 @@ dist
 
 # auto generated wildcard
 db/.env
+
+/mta_archives
