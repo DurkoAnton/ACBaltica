@@ -1,46 +1,116 @@
 {
-  "name": "BTPdemoPortal",
-  "version": "1.0.0",
-  "description": "A simple CAP project.",
-  "repository": "<Add your repository here>",
-  "license": "UNLICENSED",
-  "private": true,
-  "dependencies": {
-    "@sap/cds": "^6",
-    "express": "^4"
-  },
-  "devDependencies": {
-    "sqlite3": "^5.0.4"
-  },
-  "scripts": {
-    "start": "cds run"
-  },
-  "engines": {
-    "node": "^16.15"
-  },
-  "eslintConfig": {
-    "extends": "eslint:recommended",
-    "env": {
-      "es2020": true,
-      "node": true,
-      "jest": true,
-      "mocha": true
+    "name": "BTPdemoPortal",
+    "version": "1.0.0",
+    "description": "A simple CAP project.",
+    "repository": "<Add your repository here>",
+    "license": "UNLICENSED",
+    "private": true,
+    "dependencies": {
+        "@sap-cloud-sdk/core": "^1.54.2",
+        "@sap-cloud-sdk/http-client": "^3.6.0",
+        "@sap/audit-logging": "^5.7.0",
+        "@sap/cds": "^6",
+        "@sap/xsenv": "^3.4.0",
+        "@sap/xssec": "^3.2.17",
+        "circular-json": "^0.5.9",
+        "express": "^4",
+        "hdb": "^0.19.0",
+        "jwt-decode": "^3.1.2",
+        "passport": "^0.6.0"
     },
-    "globals": {
-      "SELECT": true,
-      "INSERT": true,
-      "UPDATE": true,
-      "DELETE": true,
-      "CREATE": true,
-      "DROP": true,
-      "CDL": true,
-      "CQL": true,
-      "CXL": true,
-      "cds": true
+    "devDependencies": {
+        "@sap/ux-specification": "^1.108.12",
+        "rimraf": "^3.0.2",
+        "sqlite3": "^5.0.4"
     },
-    "rules": {
-      "no-console": "off",
-      "require-atomic-updates": "off"
-    }
-  }
+    "scripts": {
+        "start": "cds run",
+        "watch-partner_profile": "cds watch --open partner_profile/webapp/index.html?sap-ui-xx-viewCache=false",
+        "undeploy": "cf undeploy BTPdemoPortal --delete-services --delete-service-keys --delete-service-brokers",
+        "build": "rimraf resources mta_archives && mbt build --mtar archive",
+        "deploy": "cf deploy mta_archives/archive.mtar --retries 1",
+        "watch-test": "cds watch --open test/webapp/index.html?sap-ui-xx-viewCache=false",
+        "watch-btp_portal": "cds watch --open btp_portal/webapp/index.html?sap-ui-xx-viewCache=false",
+        "watch-partner_porta": "cds watch --open partner_porta/webapp/index.html?sap-ui-xx-viewCache=false",
+        "watch-customer": "cds watch --open customer/webapp/index.html?sap-ui-xx-viewCache=false",
+        "watch-portal": "cds watch --open portal/webapp/index.html?sap-ui-xx-viewCache=false",
+        "watch-customer_portal_updated": "cds watch --open customer_portal_updated/webapp/index.html?sap-ui-xx-viewCache=false",
+        "watch-opportunities": "cds watch --open opportunities/webapp/index.html?sap-ui-xx-viewCache=false",
+        "watch-partner_page": "cds watch --open partner_page/webapp/index.html?sap-ui-xx-viewCache=false",
+        "watch-service_requests": "cds watch --open service_requests/webapp/index.html?sap-ui-xx-viewCache=false",
+        "watch-opportunities_portal": "cds watch --open opportunities_portal/webapp/index.html?sap-ui-xx-viewCache=false",
+        "watch-newmodule": "cds watch --open newmodule/webapp/index.html?sap-ui-xx-viewCache=false"
+    },
+    "engines": {
+        "node": "^16.15"
+    },
+    "eslintConfig": {
+        "extends": "eslint:recommended",
+        "env": {
+            "es2020": true,
+            "node": true,
+            "jest": true,
+            "mocha": true
+        },
+        "globals": {
+            "SELECT": true,
+            "INSERT": true,
+            "UPDATE": true,
+            "DELETE": true,
+            "CREATE": true,
+            "DROP": true,
+            "CDL": true,
+            "CQL": true,
+            "CXL": true,
+            "cds": true
+        },
+        "rules": {
+            "no-console": "off",
+            "require-atomic-updates": "off"
+        }
+    },
+    "cds": {
+        "requires": {
+            "uaa": {
+                "kind": "xsuaa"
+            },
+            "auth": {
+                "[development]": {
+                    "strategy": "mock",
+                    "users": {
+                        "admin": {
+                            "roles": [
+                                "uaa.user"
+                            ]
+                        }
+                    }
+                },
+                "[production]": {
+                    "kind": "jwt-auth"
+                }
+            },
+            "db": {
+                "kind": "hana-cloud"
+            },
+            "workflowService": {
+                "kind": "rest",
+                "credentials": {
+                    "destination": "workflowDestination"
+                }
+            }
+        }
+    },
+    "sapux": [
+        "app/btp_portal",
+        "app/partner_porta",
+        "app/customer",
+        "app/portal",
+        "app/customer_portal_updated",
+        "app/opportunities",
+        "app/opportunities",
+        "app/partner_page",
+        "app/service_requests",
+        "app/opportunities_portal",
+        "app/newmodule"
+    ]
 }

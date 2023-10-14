@@ -1,0 +1,343 @@
+{
+    "_version": "1.49.0",
+    "sap.app": {
+        "id": "customer",
+        "type": "application",
+        "i18n": "i18n/i18n.properties",
+        "applicationVersion": {
+            "version": "0.0.1"
+        },
+        "title": "Customers",
+        "description": "Customers",
+        "resources": "resources.json",
+        "sourceTemplate": {
+            "id": "@sap/generator-fiori:lrop",
+            "version": "1.9.3",
+            "toolsId": "583af05d-a494-4de3-acb6-7e59bfa771c3"
+        },
+        "crossNavigation": {
+            "inbounds": {
+                "Customer-display": {
+                    "signature": {
+                        "parameters": {},
+                        "additionalParameters": "allowed"
+                    },
+                    "semanticObject": "Customer",
+                    "action": "display"
+                }
+            }
+        },
+        "dataSources": {
+            "mainService": {
+                "uri": "/customer/",
+                "type": "OData",
+                "settings": {
+                    "annotations": [],
+                    "localUri": "localService/metadata.xml",
+                    "odataVersion": "4.0"
+                }
+            }
+        }
+    },
+    "sap.ui": {
+        "technology": "UI5",
+        "icons": {
+            "icon": "",
+            "favIcon": "",
+            "phone": "",
+            "phone@2": "",
+            "tablet": "",
+            "tablet@2": ""
+        },
+        "deviceTypes": {
+            "desktop": true,
+            "tablet": true,
+            "phone": true
+        }
+    },
+    "sap.ui5": {
+        "flexEnabled": true,
+        "dependencies": {
+            "minUI5Version": "1.112.1",
+            "libs": {
+                "sap.m": {},
+                "sap.ui.core": {},
+                "sap.ushell": {},
+                "sap.fe.templates": {},
+                "sap.f": {}
+            }
+        },
+        "contentDensities": {
+            "compact": true,
+            "cozy": true
+        },
+        "models": {
+            "i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "settings": {
+                    "bundleName": "customer.i18n.i18n"
+                }
+            },
+            "": {
+                "dataSource": "mainService",
+                "preload": true,
+                "settings": {
+                    "synchronizationMode": "None",
+                    "operationMode": "Server",
+                    "autoExpandSelect": true,
+                    "earlyRequests": true
+                }
+            },
+            "@i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "uri": "i18n/i18n.properties"
+            }
+        },
+        "resources": {
+            "css": []
+        },
+        "routing": {
+            "routes": [
+                {
+                    "pattern": ":?query:",
+                    "name": "CustomerList",
+                    "target": [
+                        "CustomerList"
+                    ]
+                },
+                {
+                    "pattern": "Customer({key}):?query:",
+                    "name": "CustomerObjectPage",
+                    "target": [
+                        "CustomerObjectPage"
+                    ]
+                },
+                {
+                    "pattern": "Customer({key})/ToOpportunities({key2}):?query:",
+                    "name": "Customer_ToOpportunitiesObjectPage",
+                    "target": [
+                        "Customer_ToOpportunitiesObjectPage"
+                    ]
+                },
+                {
+                    "pattern": "Customer({key})/ToOpportunities({key2})/Items({key3}):?query:",
+                    "name": "Customer_ToOpportunitiesItemsObjectPage",
+                    "target": [
+                        "Customer_ToOpportunitiesItemsObjectPage",
+                        "Customer_ToOpportunitiesObjectPage"
+                    ]
+                },
+                {
+                    "pattern": "Customer({key})/ToServiceRequests({key2}):?query:",
+                    "name": "Customer_ToServiceRequestsObjectPage",
+                    "target": [
+                        "Customer_ToServiceRequestsObjectPage"
+                    ]
+                }
+                
+            ],
+            "targets": {
+                "CustomerList": {
+                    "type": "Component",
+                    "id": "CustomerList",
+                    "name": "sap.fe.templates.ListReport",
+                    "options": {
+                        "settings": {
+                            "entitySet": "Customer",
+                            "variantManagement": "Page",
+                            "controlConfiguration": {
+                                "@com.sap.vocabularies.UI.v1.LineItem": {
+                                    "columns": {
+                                        "DataField::Note": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::JuridicalAddress_HomeID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::JuridicalAddress_RoomID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::JuridicalAddress_Street": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::JuridicalAddress_City": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::JuridicalCountry::name": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::ResponsibleManager": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Status_code": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CustomerFormattedName": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::InternalID": {
+                                            "width": "auto"
+                                        }
+                                    },
+                                    "tableSettings": {
+                                        "type": "ResponsiveTable"
+                                    }
+                                }
+                            },
+                            "navigation": {
+                                "Customer": {
+                                    "detail": {
+                                        "route": "CustomerObjectPage"
+                                    }
+                                }
+                            },
+                            "initialLoad": true,
+                            "hideFilterBar": false
+                        }
+                    },
+                    "controlAggregation": "beginColumnPages",
+                    "contextPattern": ""
+                },
+                "CustomerObjectPage": {
+                    "type": "Component",
+                    "id": "CustomerObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "editableHeaderContent": false,
+                            "entitySet": "Customer",
+                            "navigation": {
+                                "ToOpportunities": {
+                                    "detail": {
+                                        "route": "Customer_ToOpportunitiesObjectPage"
+                                    }
+                                },
+                                "ToServiceRequests": {
+                                    "detail": {
+                                        "route": "Customer_ToServiceRequestsObjectPage"
+                                    }
+                                }
+                            },
+                            "controlConfiguration": {
+                                "ToOpportunities/@com.sap.vocabularies.UI.v1.LineItem#Opportunities": {
+                                    "tableSettings": {
+                                        "type": "GridTable"
+                                    }
+                                },
+                                "ToServiceRequests/@com.sap.vocabularies.UI.v1.LineItem#ServiceRequests": {
+                                    "tableSettings": {
+                                        "type": "GridTable"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "controlAggregation": "beginColumnPages",
+                    "contextPattern": "/Customer({key})"
+                },
+                "Customer_ToServiceRequestsObjectPage": {
+                    "type": "Component",
+                    "id": "Customer_ToServiceRequestsObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "editableHeaderContent": false,
+                            "contextPath": "/Customer/ToServiceRequests",
+                            "navigation": {}
+                        }
+                    },
+                    "controlAggregation": "midColumnPages",
+                    "contextPattern": "/Customer({key})/ToServiceRequests({key2})"
+                },
+                "Customer_ToOpportunitiesObjectPage": {
+                    "type": "Component",
+                    "id": "Customer_ToOpportunitiesObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "editableHeaderContent": false,
+                            "contextPath": "/Customer/ToOpportunities",
+                            "navigation": {
+                                "Items": {
+                                    "detail": {
+                                        "route": "Customer_ToOpportunitiesItemsObjectPage"
+                                    }
+                                }
+                            },
+                            "controlConfiguration": {
+                                "Items/@com.sap.vocabularies.UI.v1.LineItem#Items": {
+                                    "columns": {
+                                        "DataField::toItemProduct::UnitMeasure": {
+                                            "width": "auto"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "controlAggregation": "beginColumnPages",
+                    "contextPattern": "/Customer({key})/ToOpportunities({key2})"
+                },
+                "Customer_ToOpportunitiesItemsObjectPage": {
+                    "type": "Component",
+                    "id": "Customer_ToOpportunitiesItemsObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "contextPath": "/Customer/ToOpportunities/Items",
+                            "navigation": {},
+                            "controlConfiguration": {
+                                "toItemProduct/SalesPriceLists/@com.sap.vocabularies.UI.v1.LineItem#SalesPriceLists": {
+                                    "columns": {
+                                        "DataField::AmountCurrencyCode_code": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::PriceUnitCode": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::PriceUnitContent": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Amount": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::PriceListID": {
+                                            "width": "auto"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "controlAggregation": "midColumnPages",
+                    "contextPattern": "/Customer({key})/ToOpportunities({key2})/Items({key3})"
+                }
+            },
+            "config": {
+                "flexibleColumnLayout": {
+                    "defaultTwoColumnLayoutType": "TwoColumnsBeginExpanded"
+                },
+                "routerClass": "sap.f.routing.Router"
+            }
+        },
+        "extends": {
+            "extensions": {
+                "sap.ui.controllerExtensions": {}
+            }
+        },
+        "rootView": {
+            "viewName": "sap.fe.templates.RootContainer.view.Fcl",
+            "type": "XML",
+            "async": true,
+            "id": "appRootView"
+        }
+    },
+    "sap.fiori": {
+        "registrationIds": [],
+        "archeType": "transactional"
+    },
+    "sap.cloud": {
+        "public": true,
+        "service": "BTPdemoPortal"
+    }
+}

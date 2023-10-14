@@ -1,0 +1,40 @@
+{
+  "xsappname": "btpdemoportal",
+  "tenant-mode": "dedicated",
+  "description": "Security profile of called application",
+  "scopes": [
+    {
+      "name": "uaa.user",
+      "description": "UAA"
+    },
+    {
+      "name": "$XSAPPNAME.PartnerRole",
+      "description": "PartnerRole"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "Token_Exchange",
+      "description": "UAA",
+      "scope-references": [
+        "uaa.user"
+      ]
+    },
+    {
+      "name": "PartnerRole",
+      "description": "generated",
+      "scope-references": [
+        "$XSAPPNAME.PartnerRole"
+      ],
+      "attribute-references": []
+    },
+    {
+      "name": "RoleForAccount",
+      "description": "generated2",
+      "scope-references": [
+        "$XSAPPNAME.RoleForAccount"
+      ],
+      "attribute-references": []
+    }
+  ]
+}

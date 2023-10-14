@@ -1,0 +1,150 @@
+{
+	"VCAP_SERVICES": {
+		"hana": [
+			{
+				"label": "hana",
+				"provider": null,
+				"plan": "hdi-shared",
+				"name": "BTPdemoPortal-db",
+				"tags": [
+					"hana",
+					"database",
+					"relational"
+				],
+				"instance_guid": "953c57b6-c68c-41c3-a2c0-513efbcd94fe",
+				"instance_name": "BTPdemoPortal-db",
+				"binding_guid": "5dade306-8829-40b7-9938-13b61505bf4b",
+				"binding_name": null,
+				"credentials": {
+					"database_id": "ff4e2d44-ad5a-4eac-b27b-e2726bfcc934",
+					"host": "ff4e2d44-ad5a-4eac-b27b-e2726bfcc934.hna0.prod-eu20.hanacloud.ondemand.com",
+					"port": "443",
+					"driver": "com.sap.db.jdbc.Driver",
+					"url": "jdbc:sap://ff4e2d44-ad5a-4eac-b27b-e2726bfcc934.hna0.prod-eu20.hanacloud.ondemand.com:443?encrypt=true&validateCertificate=true&currentschema=D334B1ED11AA4959A45FCEC7FB8846BB",
+					"schema": "D334B1ED11AA4959A45FCEC7FB8846BB",
+					"hdi_user": "D334B1ED11AA4959A45FCEC7FB8846BB_BH7UMH09OX0FZ2PLMMODJMS67_DT",
+					"hdi_password": "Zz9rMTHfejO3c7oSIOc8zu2fOqvI09I88.qv4OMqfkQdajDZT2zk-eDo_Y9.BJ_SWDuQc.mQzBynYBZsD_sef-YiJ8WC8gMgZS.DaQIulMiCFeWvr1roKCvVINEkBebc",
+					"user": "D334B1ED11AA4959A45FCEC7FB8846BB_BH7UMH09OX0FZ2PLMMODJMS67_RT",
+					"password": "Bs1wjyGUEONFjtKAC94MjGEv3ToDsTTi.EWWgfYY6RJVS5UjEukbgZ1JHTg3NZyokuo7Vhn3.oWtKg.S5ZM3sZRoeZ-jc71SIw8-YQBbUjW3sGeE7kyDhp0k5Ie4mDo1",
+					"certificate": "-----BEGIN CERTIFICATE-----\nMIIDrzCCApegAwIBAgIQCDvgVpBCRrGhdWrJWZHHSjANBgkqhkiG9w0BAQUFADBh\nMQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3\nd3cuZGlnaWNlcnQuY29tMSAwHgYDVQQDExdEaWdpQ2VydCBHbG9iYWwgUm9vdCBD\nQTAeFw0wNjExMTAwMDAwMDBaFw0zMTExMTAwMDAwMDBaMGExCzAJBgNVBAYTAlVT\nMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5j\nb20xIDAeBgNVBAMTF0RpZ2lDZXJ0IEdsb2JhbCBSb290IENBMIIBIjANBgkqhkiG\n9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4jvhEXLeqKTTo1eqUKKPC3eQyaKl7hLOllsB\nCSDMAZOnTjC3U/dDxGkAV53ijSLdhwZAAIEJzs4bg7/fzTtxRuLWZscFs3YnFo97\nnh6Vfe63SKMI2tavegw5BmV/Sl0fvBf4q77uKNd0f3p4mVmFaG5cIzJLv07A6Fpt\n43C/dxC//AH2hdmoRBBYMql1GNXRor5H4idq9Joz+EkIYIvUX7Q6hL+hqkpMfT7P\nT19sdl6gSzeRntwi5m3OFBqOasv+zbMUZBfHWymeMr/y7vrTC0LUq7dBMtoM1O/4\ngdW7jVg/tRvoSSiicNoxBN33shbyTApOB6jtSj1etX+jkMOvJwIDAQABo2MwYTAO\nBgNVHQ8BAf8EBAMCAYYwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUA95QNVbR\nTLtm8KPiGxvDl7I90VUwHwYDVR0jBBgwFoAUA95QNVbRTLtm8KPiGxvDl7I90VUw\nDQYJKoZIhvcNAQEFBQADggEBAMucN6pIExIK+t1EnE9SsPTfrgT1eXkIoyQY/Esr\nhMAtudXH/vTBH1jLuG2cenTnmCmrEbXjcKChzUyImZOMkXDiqw8cvpOp/2PV5Adg\n06O/nVsJ8dWO41P0jmP6P6fbtGbfYmbW0W5BjfIttep3Sp+dWOIrWcBAI+0tKIJF\nPnlUkiaY4IBIqDfv8NZ5YBberOgOzW6sRBc4L0na4UU+Krk2U886UAb3LujEV0ls\nYSEY1QSteDwsOoBrp+uvFRTp2InBuThs4pFsiv9kuXclVzDAGySj4dzp30d8tbQk\nCAUw7C29C79Fv1C5qfPrmAESrciIxpg0X40KPMbp1ZWVbd4=\n-----END CERTIFICATE-----"
+				},
+				"syslog_drain_url": null,
+				"volume_mounts": []
+			}
+		],
+		"destination": [
+			{
+				"label": "destination",
+				"provider": null,
+				"plan": "lite",
+				"name": "BTPdemoPortal-destination-service",
+				"tags": [
+					"destination",
+					"conn",
+					"connsvc"
+				],
+				"instance_guid": "4b55a2cf-46a0-4f5d-bce8-1db858796cf2",
+				"instance_name": "BTPdemoPortal-destination-service",
+				"binding_guid": "49fb1062-b2be-4583-bfd5-a5594de32f77",
+				"binding_name": null,
+				"credentials": {
+					"tenantmode": "dedicated",
+					"clientid": "sb-clone4b55a2cf46a04f5dbce81db858796cf2!b22412|destination-xsappname!b2",
+					"credential-type": "binding-secret",
+					"xsappname": "clone4b55a2cf46a04f5dbce81db858796cf2!b22412|destination-xsappname!b2",
+					"clientsecret": "49fb1062-b2be-4583-bfd5-a5594de32f77$SfOBap16xvF2zboK9srT091jhsmFzSgZlEZvmPj_pWk=",
+					"uri": "https://destination-configuration.cfapps.eu20.hana.ondemand.com",
+					"url": "https://btp-demo-hij0smff.authentication.eu20.hana.ondemand.com",
+					"uaadomain": "authentication.eu20.hana.ondemand.com",
+					"instanceid": "4b55a2cf-46a0-4f5d-bce8-1db858796cf2",
+					"verificationkey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArwUZV8ktr530R8zSVh5M\ns2Zz3LT/0mpXmM0M3Gz3eYZO4TEiW5alDHwRehwZZoGSchaZqzyw/N6S5qYwMKcV\n7i4EQ/zbjvU/eI/Hcwn961qqWVo/pCvF6zPG+JKSoIWVdQaUh4UC50bHeS/7FB5o\n+5xIjpGhsemujz2jrqQklHi+QqzCAj3K17qBifMVlZkZKC0tUd29SRfhZ8s2uzsV\nS+BzumlZoSe7fCe5n2cWA67gTzja7RigOZRoduk7jyvNH0ilc4HB7bzYfLy12dDT\nEdWmjC3lw8xEK7rkPXMQANTcGLFeUbbE+ghnrt1M6abpt3aVtuz7QZf7FU2QqqxB\nawIDAQAB\n-----END PUBLIC KEY-----",
+					"identityzone": "btp-demo-hij0smff",
+					"tenantid": "3d8e6c5c-8ad3-428f-b1ef-f222f9c2d3f2"
+				},
+				"syslog_drain_url": null,
+				"volume_mounts": []
+			}
+		],
+		"xsuaa": [
+			{
+				"label": "xsuaa",
+				"provider": null,
+				"plan": "application",
+				"name": "BTPdemoPortal-auth",
+				"tags": [
+					"xsuaa"
+				],
+				"instance_guid": "7cd806f1-a4f7-416e-88a6-ebf892acb8f4",
+				"instance_name": "BTPdemoPortal-auth",
+				"binding_guid": "b7eb933f-bd29-4812-9b32-7f6d5d3d2b39",
+				"binding_name": null,
+				"credentials": {
+					"tenantmode": "dedicated",
+					"sburl": "https://internal-xsuaa.authentication.eu20.hana.ondemand.com",
+					"subaccountid": "3d8e6c5c-8ad3-428f-b1ef-f222f9c2d3f2",
+					"credential-type": "instance-secret",
+					"clientid": "sb-btpdemoportal-BTP_DEMO_SPACE!t22412",
+					"xsappname": "btpdemoportal-BTP_DEMO_SPACE!t22412",
+					"clientsecret": "LlLDg9ZewcAGNnGfeJG8asir3CY=",
+					"url": "https://btp-demo-hij0smff.authentication.eu20.hana.ondemand.com",
+					"uaadomain": "authentication.eu20.hana.ondemand.com",
+					"verificationkey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArwUZV8ktr530R8zSVh5M\ns2Zz3LT/0mpXmM0M3Gz3eYZO4TEiW5alDHwRehwZZoGSchaZqzyw/N6S5qYwMKcV\n7i4EQ/zbjvU/eI/Hcwn961qqWVo/pCvF6zPG+JKSoIWVdQaUh4UC50bHeS/7FB5o\n+5xIjpGhsemujz2jrqQklHi+QqzCAj3K17qBifMVlZkZKC0tUd29SRfhZ8s2uzsV\nS+BzumlZoSe7fCe5n2cWA67gTzja7RigOZRoduk7jyvNH0ilc4HB7bzYfLy12dDT\nEdWmjC3lw8xEK7rkPXMQANTcGLFeUbbE+ghnrt1M6abpt3aVtuz7QZf7FU2QqqxB\nawIDAQAB\n-----END PUBLIC KEY-----",
+					"apiurl": "https://api.authentication.eu20.hana.ondemand.com",
+					"identityzone": "btp-demo-hij0smff",
+					"identityzoneid": "3d8e6c5c-8ad3-428f-b1ef-f222f9c2d3f2",
+					"tenantid": "3d8e6c5c-8ad3-428f-b1ef-f222f9c2d3f2",
+					"zoneid": "3d8e6c5c-8ad3-428f-b1ef-f222f9c2d3f2"
+				},
+				"syslog_drain_url": null,
+				"volume_mounts": []
+			}
+		],
+		"workflow": [
+			{
+				"label": "workflow",
+				"provider": null,
+				"plan": "standard",
+				"name": "workflow",
+				"tags": [],
+				"instance_guid": "517e2897-a2c4-45d3-8744-546b4513375b",
+				"instance_name": "workflow",
+				"binding_guid": "1b4fda7d-1892-4618-a29f-27a640a12762",
+				"binding_name": null,
+				"credentials": {
+					"endpoints": {
+						"workflow_odata_url": "https://api.workflow-sap.cfapps.eu20.hana.ondemand.com/workflow-service/odata",
+						"workflow_rest_url": "https://api.workflow-sap.cfapps.eu20.hana.ondemand.com/workflow-service/rest"
+					},
+					"html5-apps-repo": {
+						"app_host_id": "9ab9c78d-3d24-4555-99db-0e5be4bc0c2a,c6b9021a-329c-4438-a2e6-bb391ca4a78f,318f56c8-6a74-48da-85f6-4f0eb6b5f524,9d02b9f3-fb81-45db-8ab2-58c7e734dcc1"
+					},
+					"portal_content_provider": {
+						"instance_id": "cc622e97-bf59-4879-971a-b37ab994e529"
+					},
+					"uaa": {
+						"tenantmode": "dedicated",
+						"sburl": "https://internal-xsuaa.authentication.eu20.hana.ondemand.com",
+						"subaccountid": "3d8e6c5c-8ad3-428f-b1ef-f222f9c2d3f2",
+						"credential-type": "binding-secret",
+						"clientid": "sb-clone-517e2897-a2c4-45d3-8744-546b4513375b!b22412|workflow!b246",
+						"xsappname": "clone-517e2897-a2c4-45d3-8744-546b4513375b!b22412|workflow!b246",
+						"clientsecret": "1b4fda7d-1892-4618-a29f-27a640a12762$VtRdgFKT1ATs3ojYz__ZpJI-n15niShGc8Sn72fXxhU=",
+						"url": "https://btp-demo-hij0smff.authentication.eu20.hana.ondemand.com",
+						"uaadomain": "authentication.eu20.hana.ondemand.com",
+						"verificationkey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArwUZV8ktr530R8zSVh5M\ns2Zz3LT/0mpXmM0M3Gz3eYZO4TEiW5alDHwRehwZZoGSchaZqzyw/N6S5qYwMKcV\n7i4EQ/zbjvU/eI/Hcwn961qqWVo/pCvF6zPG+JKSoIWVdQaUh4UC50bHeS/7FB5o\n+5xIjpGhsemujz2jrqQklHi+QqzCAj3K17qBifMVlZkZKC0tUd29SRfhZ8s2uzsV\nS+BzumlZoSe7fCe5n2cWA67gTzja7RigOZRoduk7jyvNH0ilc4HB7bzYfLy12dDT\nEdWmjC3lw8xEK7rkPXMQANTcGLFeUbbE+ghnrt1M6abpt3aVtuz7QZf7FU2QqqxB\nawIDAQAB\n-----END PUBLIC KEY-----",
+						"apiurl": "https://api.authentication.eu20.hana.ondemand.com",
+						"identityzone": "btp-demo-hij0smff",
+						"identityzoneid": "3d8e6c5c-8ad3-428f-b1ef-f222f9c2d3f2",
+						"tenantid": "3d8e6c5c-8ad3-428f-b1ef-f222f9c2d3f2",
+						"zoneid": "3d8e6c5c-8ad3-428f-b1ef-f222f9c2d3f2"
+					},
+					"sap.cloud.service": "com.sap.bpm.workflow",
+					"saasregistryappname": "workflow",
+					"content_endpoint": "https://api.workflow-sap.cfapps.eu20.hana.ondemand.com/workflow-deploy/rest/internal/v1"
+				},
+				"syslog_drain_url": null,
+				"volume_mounts": []
+			}
+		]
+	}
+}

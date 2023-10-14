@@ -1,0 +1,256 @@
+{
+    "_version": "1.49.0",
+    "sap.app": {
+        "id": "opportunitiesportal",
+        "type": "application",
+        "i18n": "i18n/i18n.properties",
+        "applicationVersion": {
+            "version": "0.0.1"
+        },
+        "title": "Opportunities",
+        "description": "Opportunities",
+        "resources": "resources.json",
+        "sourceTemplate": {
+            "id": "@sap/generator-fiori:lrop",
+            "version": "1.9.3",
+            "toolsId": "a7ff01cf-0efd-4b38-a0be-e9764765870f"
+        },
+        "dataSources": {
+            "mainService": {
+                "uri": "/opportunity/",
+                "type": "OData",
+                "settings": {
+                    "annotations": [],
+                    "localUri": "localService/metadata.xml",
+                    "odataVersion": "4.0"
+                }
+            }
+        },
+        "crossNavigation": {
+            "inbounds": {
+                "opportunitiesportal-inbound": {
+                    "signature": {
+                        "parameters": {},
+                        "additionalParameters": "allowed"
+                    },
+                    "semanticObject": "Opportunity",
+                    "action": "display",
+                    "title": "{{flpTitle}}",
+                    "subTitle": "{{flpSubtitle}}",
+                    "icon": ""
+                }
+            }
+        }
+    },
+    "sap.ui": {
+        "technology": "UI5",
+        "icons": {
+            "icon": "",
+            "favIcon": "",
+            "phone": "",
+            "phone@2": "",
+            "tablet": "",
+            "tablet@2": ""
+        },
+        "deviceTypes": {
+            "desktop": true,
+            "tablet": true,
+            "phone": true
+        }
+    },
+    "sap.ui5": {
+        "flexEnabled": true,
+        "dependencies": {
+            "minUI5Version": "1.117.0",
+            "libs": {
+                "sap.m": {},
+                "sap.ui.core": {},
+                "sap.ushell": {},
+                "sap.fe.templates": {},
+                "sap.f": {}
+            }
+        },
+        "contentDensities": {
+            "compact": true,
+            "cozy": true
+        },
+        "models": {
+            "i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "settings": {
+                    "bundleName": "opportunitiesportal.i18n.i18n"
+                }
+            },
+            "": {
+                "dataSource": "mainService",
+                "preload": true,
+                "settings": {
+                    "synchronizationMode": "None",
+                    "operationMode": "Server",
+                    "autoExpandSelect": true,
+                    "earlyRequests": true
+                }
+            },
+            "@i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "uri": "i18n/i18n.properties"
+            }
+        },
+        "resources": {
+            "css": []
+        },
+        "routing": {
+            "routes": [
+                {
+                    "pattern": ":?query:",
+                    "name": "OpportunityList",
+                    "target": [
+                        "OpportunityList"
+                    ]
+                },
+                {
+                    "pattern": "Opportunity({key}):?query:",
+                    "name": "OpportunityObjectPage",
+                    "target": [
+                        "OpportunityObjectPage"
+                    ]
+                },
+                {
+                    "pattern": "Opportunity({key})/Items({key2}):?query:",
+                    "name": "Opportunity_ItemsObjectPage",
+                    "target": [
+                        "Opportunity_ItemsObjectPage",
+                        "OpportunityObjectPage"
+                    ]
+                }
+            ],
+            "targets": {
+                "OpportunityList": {
+                    "type": "Component",
+                    "id": "OpportunityList",
+                    "name": "sap.fe.templates.ListReport",
+                    "options": {
+                        "settings": {
+                            "entitySet": "Opportunity",
+                            "variantManagement": "Page",
+                            "navigation": {
+                                "Opportunity": {
+                                    "detail": {
+                                        "route": "OpportunityObjectPage"
+                                    }
+                                }
+                            },
+                            "initialLoad": true,
+                            "controlConfiguration": {
+                                "@com.sap.vocabularies.UI.v1.LineItem": {
+                                    "tableSettings": {
+                                        "type": "GridTable",
+                                        "personalization": {
+                                            "column": true,
+                                            "filter": true,
+                                            "sort": true
+                                        },
+                                        "quickVariantSelection": {
+                                            "showCounts": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "controlAggregation": "beginColumnPages",
+                    "contextPattern": ""
+                },
+                "OpportunityObjectPage": {
+                    "type": "Component",
+                    "id": "OpportunityObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "editableHeaderContent": false,
+                            "entitySet": "Opportunity",
+                            "navigation": {
+                                "Items": {
+                                    "detail": {
+                                        "route": "OpportunityItemsObjectPage"
+                                    }
+                                }
+                            },
+                            "controlConfiguration": {
+                                "Items/@com.sap.vocabularies.UI.v1.LineItem#Items": {
+                                    "columns": {
+                                        "DataField::toItemProduct::UnitMeasure": {
+                                            "width": "auto"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "controlAggregation": "beginColumnPages",
+                    "contextPattern": "/Opportunity({key})"
+                },
+                "Opportunity_ItemsObjectPage": {
+                    "type": "Component",
+                    "id": "OpportunityItemsObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "editableHeaderContent": false,
+                            "contextPath": "/Opportunity/Items",
+                            "navigation": {},
+                            "controlConfiguration": {
+                                "toItemProduct/SalesPriceLists/@com.sap.vocabularies.UI.v1.LineItem#SalesPriceLists": {
+                                    "columns": {
+                                        "DataField::AmountCurrencyCode_code": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::PriceUnitCode": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::PriceUnitContent": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Amount": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::PriceListID": {
+                                            "width": "auto"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "controlAggregation": "midColumnPages",
+                    "contextPattern": "/Opportunity({key})/Items({key2})"
+                }
+            },
+            "config": {
+                "flexibleColumnLayout": {
+                    "defaultTwoColumnLayoutType": "TwoColumnsBeginExpanded"
+                },
+                "routerClass": "sap.f.routing.Router"
+            }
+        },
+        "extends": {
+            "extensions": {
+                "sap.ui.controllerExtensions": {}
+            }
+        },
+        "rootView": {
+            "viewName": "sap.fe.templates.RootContainer.view.Fcl",
+            "type": "XML",
+            "async": true,
+            "id": "appRootView"
+        }
+    },
+    "sap.fiori": {
+        "registrationIds": [],
+        "archeType": "transactional"
+    },
+    "sap.cloud": {
+        "public": true,
+        "service": "BTPdemoPortal"
+    }
+}

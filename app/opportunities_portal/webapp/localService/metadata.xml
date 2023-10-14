@@ -1,0 +1,758 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Capabilities.V1.xml">
+        <edmx:Include Alias="Capabilities" Namespace="Org.OData.Capabilities.V1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Common.xml">
+        <edmx:Include Alias="Common" Namespace="com.sap.vocabularies.Common.v1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+        <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/UI.xml">
+        <edmx:Include Alias="UI" Namespace="com.sap.vocabularies.UI.v1"/>
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema Namespace="OpportunityService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+            <EntityContainer Name="EntityContainer">
+                <EntitySet Name="Opportunity" EntityType="OpportunityService.Opportunity">
+                    <NavigationPropertyBinding Path="LifeCycleStatusCode" Target="OpportunityStatus"/>
+                    <NavigationPropertyBinding Path="Customer" Target="Customer"/>
+                    <NavigationPropertyBinding Path="SiblingEntity" Target="Opportunity"/>
+                </EntitySet>
+                <EntitySet Name="OpportunityStatus" EntityType="OpportunityService.OpportunityStatus">
+                    <NavigationPropertyBinding Path="texts" Target="OpportunityStatus_texts"/>
+                    <NavigationPropertyBinding Path="localized" Target="OpportunityStatus_texts"/>
+                </EntitySet>
+                <EntitySet Name="Customer" EntityType="OpportunityService.Customer">
+                    <NavigationPropertyBinding Path="Status" Target="StatusCodes"/>
+                    <NavigationPropertyBinding Path="JuridicalAddress_Country" Target="Countries"/>
+                    <NavigationPropertyBinding Path="JuridicalCountry" Target="Countries"/>
+                    <NavigationPropertyBinding Path="IndividualCountry" Target="Countries"/>
+                    <NavigationPropertyBinding Path="IndividualAddress_Country" Target="Countries"/>
+                    <NavigationPropertyBinding Path="BankData" Target="Bank"/>
+                    <NavigationPropertyBinding Path="ToOpportunities" Target="Opportunity"/>
+                    <NavigationPropertyBinding Path="ToServiceRequests" Target="ServiceRequest"/>
+                </EntitySet>
+                <EntitySet Name="StatusCodes" EntityType="OpportunityService.StatusCodes">
+                    <NavigationPropertyBinding Path="texts" Target="StatusCodes_texts"/>
+                    <NavigationPropertyBinding Path="localized" Target="StatusCodes_texts"/>
+                </EntitySet>
+                <EntitySet Name="Countries" EntityType="OpportunityService.Countries">
+                    <NavigationPropertyBinding Path="texts" Target="Countries_texts"/>
+                    <NavigationPropertyBinding Path="localized" Target="Countries_texts"/>
+                </EntitySet>
+                <EntitySet Name="Bank" EntityType="OpportunityService.Bank">
+                    <NavigationPropertyBinding Path="Customer" Target="Customer"/>
+                </EntitySet>
+                <EntitySet Name="ServiceRequest" EntityType="OpportunityService.ServiceRequest">
+                    <NavigationPropertyBinding Path="Status" Target="ServiceRequestStatusCodes"/>
+                    <NavigationPropertyBinding Path="Attachment" Target="Attachment"/>
+                    <NavigationPropertyBinding Path="Customer" Target="Customer"/>
+                    <NavigationPropertyBinding Path="Category" Target="CategoryCodes"/>
+                </EntitySet>
+                <EntitySet Name="ServiceRequestStatusCodes" EntityType="OpportunityService.ServiceRequestStatusCodes">
+                    <NavigationPropertyBinding Path="texts" Target="ServiceRequestStatusCodes_texts"/>
+                    <NavigationPropertyBinding Path="localized" Target="ServiceRequestStatusCodes_texts"/>
+                </EntitySet>
+                <EntitySet Name="Attachment" EntityType="OpportunityService.Attachment">
+                    <NavigationPropertyBinding Path="ServiceRequest" Target="ServiceRequest"/>
+                </EntitySet>
+                <EntitySet Name="CategoryCodes" EntityType="OpportunityService.CategoryCodes">
+                    <NavigationPropertyBinding Path="texts" Target="CategoryCodes_texts"/>
+                    <NavigationPropertyBinding Path="localized" Target="CategoryCodes_texts"/>
+                </EntitySet>
+                <EntitySet Name="OpportunityStatus_texts" EntityType="OpportunityService.OpportunityStatus_texts"/>
+                <EntitySet Name="StatusCodes_texts" EntityType="OpportunityService.StatusCodes_texts"/>
+                <EntitySet Name="Countries_texts" EntityType="OpportunityService.Countries_texts"/>
+                <EntitySet Name="ServiceRequestStatusCodes_texts" EntityType="OpportunityService.ServiceRequestStatusCodes_texts"/>
+                <EntitySet Name="CategoryCodes_texts" EntityType="OpportunityService.CategoryCodes_texts"/>
+            </EntityContainer>
+            <EntityType Name="Opportunity">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                    <PropertyRef Name="IsActiveEntity"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="UUID" Type="Edm.Guid"/>
+                <Property Name="InternalID" Type="Edm.String"/>
+                <Property Name="ProspectPartyID" Type="Edm.String"/>
+                <Property Name="ProspectPartyName" Type="Edm.String"/>
+                <Property Name="Subject" Type="Edm.String"/>
+                <NavigationProperty Name="LifeCycleStatusCode" Type="OpportunityService.OpportunityStatus">
+                    <ReferentialConstraint Property="LifeCycleStatusCode_code" ReferencedProperty="code"/>
+                </NavigationProperty>
+                <Property Name="LifeCycleStatusCode_code" Type="Edm.String" MaxLength="2"/>
+                <Property Name="LifeCycleStatusText" Type="Edm.String"/>
+                <Property Name="MainEmployeeResponsiblePartyID" Type="Edm.String"/>
+                <Property Name="MainEmployeeResponsiblePartyName" Type="Edm.String"/>
+                <Property Name="CreationDateTime" Type="Edm.Date"/>
+                <Property Name="CreatedBy" Type="Edm.String"/>
+                <Property Name="LastChangeDateTime" Type="Edm.Date"/>
+                <Property Name="LastChangedBy" Type="Edm.String"/>
+                <NavigationProperty Name="Customer" Type="OpportunityService.Customer"/>
+                <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="true"/>
+                <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+                <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+                <NavigationProperty Name="DraftAdministrativeData" Type="OpportunityService.DraftAdministrativeData" ContainsTarget="true"/>
+                <NavigationProperty Name="SiblingEntity" Type="OpportunityService.Opportunity"/>
+            </EntityType>
+            <EntityType Name="OpportunityStatus">
+                <Key>
+                    <PropertyRef Name="code"/>
+                </Key>
+                <Property Name="name" Type="Edm.String" MaxLength="255"/>
+                <Property Name="descr" Type="Edm.String" MaxLength="1000"/>
+                <Property Name="code" Type="Edm.String" MaxLength="2" Nullable="false"/>
+                <NavigationProperty Name="texts" Type="Collection(OpportunityService.OpportunityStatus_texts)">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+                <NavigationProperty Name="localized" Type="OpportunityService.OpportunityStatus_texts">
+                    <ReferentialConstraint Property="code" ReferencedProperty="code"/>
+                </NavigationProperty>
+            </EntityType>
+            <EntityType Name="Customer">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="UUID" Type="Edm.Guid"/>
+                <Property Name="ObjectID" Type="Edm.String"/>
+                <Property Name="CustomerFormattedName" Type="Edm.String"/>
+                <NavigationProperty Name="Status" Type="OpportunityService.StatusCodes">
+                    <ReferentialConstraint Property="Status_code" ReferencedProperty="code"/>
+                </NavigationProperty>
+                <Property Name="Status_code" Type="Edm.String" MaxLength="2"/>
+                <Property Name="StatusDescription" Type="Edm.String"/>
+                <Property Name="ResponsibleManager" Type="Edm.String"/>
+                <NavigationProperty Name="JuridicalAddress_Country" Type="OpportunityService.Countries">
+                    <ReferentialConstraint Property="JuridicalAddress_Country_code" ReferencedProperty="code"/>
+                </NavigationProperty>
+                <Property Name="JuridicalAddress_Country_code" Type="Edm.String" MaxLength="3"/>
+                <Property Name="JuridicalAddress_Region_name" Type="Edm.String" MaxLength="255"/>
+                <Property Name="JuridicalAddress_Region_descr" Type="Edm.String" MaxLength="1000"/>
+                <Property Name="JuridicalAddress_City" Type="Edm.String"/>
+                <Property Name="JuridicalAddress_Street" Type="Edm.String"/>
+                <Property Name="JuridicalAddress_HomeID" Type="Edm.String"/>
+                <Property Name="JuridicalAddress_RoomID" Type="Edm.String"/>
+                <NavigationProperty Name="JuridicalCountry" Type="OpportunityService.Countries">
+                    <ReferentialConstraint Property="JuridicalCountry_code" ReferencedProperty="code"/>
+                </NavigationProperty>
+                <Property Name="JuridicalCountry_code" Type="Edm.String" MaxLength="3"/>
+                <NavigationProperty Name="IndividualCountry" Type="OpportunityService.Countries">
+                    <ReferentialConstraint Property="IndividualCountry_code" ReferencedProperty="code"/>
+                </NavigationProperty>
+                <Property Name="IndividualCountry_code" Type="Edm.String" MaxLength="3"/>
+                <NavigationProperty Name="IndividualAddress_Country" Type="OpportunityService.Countries">
+                    <ReferentialConstraint Property="IndividualAddress_Country_code" ReferencedProperty="code"/>
+                </NavigationProperty>
+                <Property Name="IndividualAddress_Country_code" Type="Edm.String" MaxLength="3"/>
+                <Property Name="IndividualAddress_Region_name" Type="Edm.String" MaxLength="255"/>
+                <Property Name="IndividualAddress_Region_descr" Type="Edm.String" MaxLength="1000"/>
+                <Property Name="IndividualAddress_City" Type="Edm.String"/>
+                <Property Name="IndividualAddress_Street" Type="Edm.String"/>
+                <Property Name="IndividualAddress_HomeID" Type="Edm.String"/>
+                <Property Name="IndividualAddress_RoomID" Type="Edm.String"/>
+                <NavigationProperty Name="BankData" Type="Collection(OpportunityService.Bank)" Partner="Customer">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+                <Property Name="Note" Type="Edm.String"/>
+                <Property Name="InternalID" Type="Edm.String"/>
+                <NavigationProperty Name="ToOpportunities" Type="Collection(OpportunityService.Opportunity)">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+                <NavigationProperty Name="ToServiceRequests" Type="Collection(OpportunityService.ServiceRequest)" Partner="Customer">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+            </EntityType>
+            <EntityType Name="StatusCodes">
+                <Key>
+                    <PropertyRef Name="code"/>
+                </Key>
+                <Property Name="name" Type="Edm.String" MaxLength="255"/>
+                <Property Name="descr" Type="Edm.String" MaxLength="1000"/>
+                <Property Name="code" Type="Edm.String" MaxLength="2" Nullable="false"/>
+                <NavigationProperty Name="texts" Type="Collection(OpportunityService.StatusCodes_texts)">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+                <NavigationProperty Name="localized" Type="OpportunityService.StatusCodes_texts">
+                    <ReferentialConstraint Property="code" ReferencedProperty="code"/>
+                </NavigationProperty>
+            </EntityType>
+            <EntityType Name="Countries">
+                <Key>
+                    <PropertyRef Name="code"/>
+                </Key>
+                <Property Name="name" Type="Edm.String" MaxLength="255"/>
+                <Property Name="descr" Type="Edm.String" MaxLength="1000"/>
+                <Property Name="code" Type="Edm.String" MaxLength="3" Nullable="false"/>
+                <NavigationProperty Name="texts" Type="Collection(OpportunityService.Countries_texts)">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+                <NavigationProperty Name="localized" Type="OpportunityService.Countries_texts">
+                    <ReferentialConstraint Property="code" ReferencedProperty="code"/>
+                </NavigationProperty>
+            </EntityType>
+            <EntityType Name="Bank">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="BankCode" Type="Edm.String"/>
+                <Property Name="BankAccount" Type="Edm.String"/>
+                <Property Name="IBAN" Type="Edm.String"/>
+                <Property Name="SWIFT" Type="Edm.String"/>
+                <NavigationProperty Name="Customer" Type="OpportunityService.Customer" Partner="BankData">
+                    <ReferentialConstraint Property="Customer_ID" ReferencedProperty="ID"/>
+                </NavigationProperty>
+                <Property Name="Customer_ID" Type="Edm.Guid"/>
+            </EntityType>
+            <EntityType Name="ServiceRequest">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="UUID" Type="Edm.Guid"/>
+                <Property Name="CustomerID" Type="Edm.String"/>
+                <Property Name="InternalID" Type="Edm.String"/>
+                <NavigationProperty Name="Status" Type="OpportunityService.ServiceRequestStatusCodes">
+                    <ReferentialConstraint Property="Status_code" ReferencedProperty="code"/>
+                </NavigationProperty>
+                <Property Name="Status_code" Type="Edm.String" MaxLength="2" DefaultValue="1"/>
+                <Property Name="StatusDescription" Type="Edm.String" DefaultValue="Open"/>
+                <Property Name="CreationDate" Type="Edm.Date"/>
+                <Property Name="LastChangingDate" Type="Edm.Date"/>
+                <Property Name="Processor" Type="Edm.String"/>
+                <Property Name="RequestProcessingTime" Type="Edm.String"/>
+                <Property Name="OrderID" Type="Edm.String"/>
+                <Property Name="ProblemDescription" Type="Edm.String"/>
+                <NavigationProperty Name="Attachment" Type="Collection(OpportunityService.Attachment)" Partner="ServiceRequest">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+                <NavigationProperty Name="Customer" Type="OpportunityService.Customer" Partner="ToServiceRequests">
+                    <ReferentialConstraint Property="Customer_ID" ReferencedProperty="ID"/>
+                </NavigationProperty>
+                <Property Name="Customer_ID" Type="Edm.Guid"/>
+                <NavigationProperty Name="Category" Type="OpportunityService.CategoryCodes">
+                    <ReferentialConstraint Property="Category_code" ReferencedProperty="code"/>
+                </NavigationProperty>
+                <Property Name="Category_code" Type="Edm.String" MaxLength="2"/>
+                <Property Name="CategoryDescription" Type="Edm.String"/>
+            </EntityType>
+            <EntityType Name="ServiceRequestStatusCodes">
+                <Key>
+                    <PropertyRef Name="code"/>
+                </Key>
+                <Property Name="name" Type="Edm.String" MaxLength="255"/>
+                <Property Name="descr" Type="Edm.String" MaxLength="1000"/>
+                <Property Name="code" Type="Edm.String" MaxLength="2" Nullable="false" DefaultValue="1"/>
+                <NavigationProperty Name="texts" Type="Collection(OpportunityService.ServiceRequestStatusCodes_texts)">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+                <NavigationProperty Name="localized" Type="OpportunityService.ServiceRequestStatusCodes_texts">
+                    <ReferentialConstraint Property="code" ReferencedProperty="code"/>
+                </NavigationProperty>
+            </EntityType>
+            <EntityType Name="Attachment">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="content" Type="Edm.Stream"/>
+                <Property Name="mediaType" Type="Edm.String"/>
+                <Property Name="fileName" Type="Edm.String"/>
+                <Property Name="url" Type="Edm.String"/>
+                <Property Name="ServiceRequestInternalID" Type="Edm.String"/>
+                <NavigationProperty Name="ServiceRequest" Type="OpportunityService.ServiceRequest" Partner="Attachment">
+                    <ReferentialConstraint Property="ServiceRequest_ID" ReferencedProperty="ID"/>
+                </NavigationProperty>
+                <Property Name="ServiceRequest_ID" Type="Edm.Guid"/>
+            </EntityType>
+            <EntityType Name="CategoryCodes">
+                <Key>
+                    <PropertyRef Name="code"/>
+                </Key>
+                <Property Name="name" Type="Edm.String" MaxLength="255"/>
+                <Property Name="descr" Type="Edm.String" MaxLength="1000"/>
+                <Property Name="code" Type="Edm.String" MaxLength="2" Nullable="false"/>
+                <NavigationProperty Name="texts" Type="Collection(OpportunityService.CategoryCodes_texts)">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+                <NavigationProperty Name="localized" Type="OpportunityService.CategoryCodes_texts">
+                    <ReferentialConstraint Property="code" ReferencedProperty="code"/>
+                </NavigationProperty>
+            </EntityType>
+            <EntityType Name="DraftAdministrativeData">
+                <Key>
+                    <PropertyRef Name="DraftUUID"/>
+                </Key>
+                <Property Name="DraftUUID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="CreationDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="CreatedByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="DraftIsCreatedByMe" Type="Edm.Boolean"/>
+                <Property Name="LastChangeDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="LastChangedByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="InProcessByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="DraftIsProcessedByMe" Type="Edm.Boolean"/>
+            </EntityType>
+            <EntityType Name="OpportunityStatus_texts">
+                <Key>
+                    <PropertyRef Name="locale"/>
+                    <PropertyRef Name="code"/>
+                </Key>
+                <Property Name="locale" Type="Edm.String" MaxLength="14" Nullable="false"/>
+                <Property Name="name" Type="Edm.String" MaxLength="255"/>
+                <Property Name="descr" Type="Edm.String" MaxLength="1000"/>
+                <Property Name="code" Type="Edm.String" MaxLength="2" Nullable="false"/>
+            </EntityType>
+            <EntityType Name="StatusCodes_texts">
+                <Key>
+                    <PropertyRef Name="locale"/>
+                    <PropertyRef Name="code"/>
+                </Key>
+                <Property Name="locale" Type="Edm.String" MaxLength="14" Nullable="false"/>
+                <Property Name="name" Type="Edm.String" MaxLength="255"/>
+                <Property Name="descr" Type="Edm.String" MaxLength="1000"/>
+                <Property Name="code" Type="Edm.String" MaxLength="2" Nullable="false"/>
+            </EntityType>
+            <EntityType Name="Countries_texts">
+                <Key>
+                    <PropertyRef Name="locale"/>
+                    <PropertyRef Name="code"/>
+                </Key>
+                <Property Name="locale" Type="Edm.String" MaxLength="14" Nullable="false"/>
+                <Property Name="name" Type="Edm.String" MaxLength="255"/>
+                <Property Name="descr" Type="Edm.String" MaxLength="1000"/>
+                <Property Name="code" Type="Edm.String" MaxLength="3" Nullable="false"/>
+            </EntityType>
+            <EntityType Name="ServiceRequestStatusCodes_texts">
+                <Key>
+                    <PropertyRef Name="locale"/>
+                    <PropertyRef Name="code"/>
+                </Key>
+                <Property Name="locale" Type="Edm.String" MaxLength="14" Nullable="false"/>
+                <Property Name="name" Type="Edm.String" MaxLength="255"/>
+                <Property Name="descr" Type="Edm.String" MaxLength="1000"/>
+                <Property Name="code" Type="Edm.String" MaxLength="2" Nullable="false" DefaultValue="1"/>
+            </EntityType>
+            <EntityType Name="CategoryCodes_texts">
+                <Key>
+                    <PropertyRef Name="locale"/>
+                    <PropertyRef Name="code"/>
+                </Key>
+                <Property Name="locale" Type="Edm.String" MaxLength="14" Nullable="false"/>
+                <Property Name="name" Type="Edm.String" MaxLength="255"/>
+                <Property Name="descr" Type="Edm.String" MaxLength="1000"/>
+                <Property Name="code" Type="Edm.String" MaxLength="2" Nullable="false"/>
+            </EntityType>
+            <Action Name="draftPrepare" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="OpportunityService.Opportunity"/>
+                <Parameter Name="SideEffectsQualifier" Type="Edm.String"/>
+                <ReturnType Type="OpportunityService.Opportunity"/>
+            </Action>
+            <Action Name="draftActivate" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="OpportunityService.Opportunity"/>
+                <ReturnType Type="OpportunityService.Opportunity"/>
+            </Action>
+            <Action Name="draftEdit" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="OpportunityService.Opportunity"/>
+                <Parameter Name="PreserveChanges" Type="Edm.Boolean"/>
+                <ReturnType Type="OpportunityService.Opportunity"/>
+            </Action>
+            <Annotations Target="OpportunityService.EntityContainer/Opportunity">
+                <Annotation Term="Capabilities.InsertRestrictions">
+                    <Record Type="Capabilities.InsertRestrictionsType">
+                        <PropertyValue Property="Insertable" Bool="true"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Capabilities.UpdateRestrictions">
+                    <Record Type="Capabilities.UpdateRestrictionsType">
+                        <PropertyValue Property="Updatable" Bool="true"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Capabilities.DeleteRestrictions">
+                    <Record Type="Capabilities.DeleteRestrictionsType">
+                        <PropertyValue Property="Deletable" Bool="true"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Common.DraftRoot">
+                    <Record Type="Common.DraftRootType">
+                        <PropertyValue Property="ActivationAction" String="OpportunityService.draftActivate"/>
+                        <PropertyValue Property="EditAction" String="OpportunityService.draftEdit"/>
+                        <PropertyValue Property="PreparationAction" String="OpportunityService.draftPrepare"/>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="OpportunityService.Opportunity/LifeCycleStatusCode_code">
+                <Annotation Term="Common.ValueList">
+                    <Record Type="Common.ValueListType">
+                        <PropertyValue Property="Label" String="OpportunityStatus"/>
+                        <PropertyValue Property="CollectionPath" String="OpportunityStatus"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="LifeCycleStatusCode_code"/>
+                                    <PropertyValue Property="ValueListProperty" String="code"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="name"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="OpportunityService.Opportunity/IsActiveEntity">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="OpportunityService.Opportunity/HasActiveEntity">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="OpportunityService.Opportunity/HasDraftEntity">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="OpportunityService.Opportunity/DraftAdministrativeData">
+                <Annotation Term="UI.Hidden" Bool="true"/>
+            </Annotations>
+            <Annotations Target="OpportunityService.OpportunityStatus">
+                <Annotation Term="UI.Identification">
+                    <Collection>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="name"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="OpportunityService.OpportunityStatus/name">
+                <Annotation Term="Common.Label" String="{i18n>Name}"/>
+                </Annotations>
+                <Annotations Target="OpportunityService.OpportunityStatus/descr">
+                    <Annotation Term="Common.Label" String="{i18n>Description}"/>
+                    </Annotations>
+                    <Annotations Target="OpportunityService.Customer/Status_code">
+                        <Annotation Term="Common.ValueList">
+                            <Record Type="Common.ValueListType">
+                                <PropertyValue Property="Label" String="StatusCodes"/>
+                                <PropertyValue Property="CollectionPath" String="StatusCodes"/>
+                                <PropertyValue Property="Parameters">
+                                    <Collection>
+                                        <Record Type="Common.ValueListParameterInOut">
+                                            <PropertyValue Property="LocalDataProperty" PropertyPath="Status_code"/>
+                                            <PropertyValue Property="ValueListProperty" String="code"/>
+                                        </Record>
+                                        <Record Type="Common.ValueListParameterDisplayOnly">
+                                            <PropertyValue Property="ValueListProperty" String="name"/>
+                                        </Record>
+                                    </Collection>
+                                </PropertyValue>
+                            </Record>
+                        </Annotation>
+                    </Annotations>
+                    <Annotations Target="OpportunityService.Customer/JuridicalAddress_Country">
+                        <Annotation Term="Common.Label" String="{i18n>Country}"/>
+                            <Annotation Term="Core.Description" String="{i18n>CountryCode.Description}"/>
+                            </Annotations>
+                            <Annotations Target="OpportunityService.Customer/JuridicalAddress_Country_code">
+                                <Annotation Term="Common.Label" String="{i18n>Country}"/>
+                                    <Annotation Term="Common.ValueList">
+                                        <Record Type="Common.ValueListType">
+                                            <PropertyValue Property="Label" String="{i18n>Country}"/>
+                                                <PropertyValue Property="CollectionPath" String="Countries"/>
+                                                <PropertyValue Property="Parameters">
+                                                    <Collection>
+                                                        <Record Type="Common.ValueListParameterInOut">
+                                                            <PropertyValue Property="LocalDataProperty" PropertyPath="JuridicalAddress_Country_code"/>
+                                                            <PropertyValue Property="ValueListProperty" String="code"/>
+                                                        </Record>
+                                                        <Record Type="Common.ValueListParameterDisplayOnly">
+                                                            <PropertyValue Property="ValueListProperty" String="name"/>
+                                                        </Record>
+                                                    </Collection>
+                                                </PropertyValue>
+                                            </Record>
+                                        </Annotation>
+                                        <Annotation Term="Core.Description" String="{i18n>CountryCode.Description}"/>
+                                        </Annotations>
+                                        <Annotations Target="OpportunityService.Customer/JuridicalAddress_Region_name">
+                                            <Annotation Term="Common.Label" String="{i18n>Name}"/>
+                                            </Annotations>
+                                            <Annotations Target="OpportunityService.Customer/JuridicalAddress_Region_descr">
+                                                <Annotation Term="Common.Label" String="{i18n>Description}"/>
+                                                </Annotations>
+                                                <Annotations Target="OpportunityService.Customer/JuridicalCountry">
+                                                    <Annotation Term="Common.Label" String="{i18n>Country}"/>
+                                                        <Annotation Term="Core.Description" String="{i18n>CountryCode.Description}"/>
+                                                        </Annotations>
+                                                        <Annotations Target="OpportunityService.Customer/JuridicalCountry_code">
+                                                            <Annotation Term="Common.Label" String="{i18n>Country}"/>
+                                                                <Annotation Term="Common.ValueList">
+                                                                    <Record Type="Common.ValueListType">
+                                                                        <PropertyValue Property="Label" String="{i18n>Country}"/>
+                                                                            <PropertyValue Property="CollectionPath" String="Countries"/>
+                                                                            <PropertyValue Property="Parameters">
+                                                                                <Collection>
+                                                                                    <Record Type="Common.ValueListParameterInOut">
+                                                                                        <PropertyValue Property="LocalDataProperty" PropertyPath="JuridicalCountry_code"/>
+                                                                                        <PropertyValue Property="ValueListProperty" String="code"/>
+                                                                                    </Record>
+                                                                                    <Record Type="Common.ValueListParameterDisplayOnly">
+                                                                                        <PropertyValue Property="ValueListProperty" String="name"/>
+                                                                                    </Record>
+                                                                                </Collection>
+                                                                            </PropertyValue>
+                                                                        </Record>
+                                                                    </Annotation>
+                                                                    <Annotation Term="Core.Description" String="{i18n>CountryCode.Description}"/>
+                                                                    </Annotations>
+                                                                    <Annotations Target="OpportunityService.Customer/IndividualCountry">
+                                                                        <Annotation Term="Common.Label" String="{i18n>Country}"/>
+                                                                            <Annotation Term="Core.Description" String="{i18n>CountryCode.Description}"/>
+                                                                            </Annotations>
+                                                                            <Annotations Target="OpportunityService.Customer/IndividualCountry_code">
+                                                                                <Annotation Term="Common.Label" String="{i18n>Country}"/>
+                                                                                    <Annotation Term="Common.ValueList">
+                                                                                        <Record Type="Common.ValueListType">
+                                                                                            <PropertyValue Property="Label" String="{i18n>Country}"/>
+                                                                                                <PropertyValue Property="CollectionPath" String="Countries"/>
+                                                                                                <PropertyValue Property="Parameters">
+                                                                                                    <Collection>
+                                                                                                        <Record Type="Common.ValueListParameterInOut">
+                                                                                                            <PropertyValue Property="LocalDataProperty" PropertyPath="IndividualCountry_code"/>
+                                                                                                            <PropertyValue Property="ValueListProperty" String="code"/>
+                                                                                                        </Record>
+                                                                                                        <Record Type="Common.ValueListParameterDisplayOnly">
+                                                                                                            <PropertyValue Property="ValueListProperty" String="name"/>
+                                                                                                        </Record>
+                                                                                                    </Collection>
+                                                                                                </PropertyValue>
+                                                                                            </Record>
+                                                                                        </Annotation>
+                                                                                        <Annotation Term="Core.Description" String="{i18n>CountryCode.Description}"/>
+                                                                                        </Annotations>
+                                                                                        <Annotations Target="OpportunityService.Customer/IndividualAddress_Country">
+                                                                                            <Annotation Term="Common.Label" String="{i18n>Country}"/>
+                                                                                                <Annotation Term="Core.Description" String="{i18n>CountryCode.Description}"/>
+                                                                                                </Annotations>
+                                                                                                <Annotations Target="OpportunityService.Customer/IndividualAddress_Country_code">
+                                                                                                    <Annotation Term="Common.Label" String="{i18n>Country}"/>
+                                                                                                        <Annotation Term="Common.ValueList">
+                                                                                                            <Record Type="Common.ValueListType">
+                                                                                                                <PropertyValue Property="Label" String="{i18n>Country}"/>
+                                                                                                                    <PropertyValue Property="CollectionPath" String="Countries"/>
+                                                                                                                    <PropertyValue Property="Parameters">
+                                                                                                                        <Collection>
+                                                                                                                            <Record Type="Common.ValueListParameterInOut">
+                                                                                                                                <PropertyValue Property="LocalDataProperty" PropertyPath="IndividualAddress_Country_code"/>
+                                                                                                                                <PropertyValue Property="ValueListProperty" String="code"/>
+                                                                                                                            </Record>
+                                                                                                                            <Record Type="Common.ValueListParameterDisplayOnly">
+                                                                                                                                <PropertyValue Property="ValueListProperty" String="name"/>
+                                                                                                                            </Record>
+                                                                                                                        </Collection>
+                                                                                                                    </PropertyValue>
+                                                                                                                </Record>
+                                                                                                            </Annotation>
+                                                                                                            <Annotation Term="Core.Description" String="{i18n>CountryCode.Description}"/>
+                                                                                                            </Annotations>
+                                                                                                            <Annotations Target="OpportunityService.Customer/IndividualAddress_Region_name">
+                                                                                                                <Annotation Term="Common.Label" String="{i18n>Name}"/>
+                                                                                                                </Annotations>
+                                                                                                                <Annotations Target="OpportunityService.Customer/IndividualAddress_Region_descr">
+                                                                                                                    <Annotation Term="Common.Label" String="{i18n>Description}"/>
+                                                                                                                    </Annotations>
+                                                                                                                    <Annotations Target="OpportunityService.StatusCodes">
+                                                                                                                        <Annotation Term="UI.Identification">
+                                                                                                                            <Collection>
+                                                                                                                                <Record Type="UI.DataField">
+                                                                                                                                    <PropertyValue Property="Value" Path="name"/>
+                                                                                                                                </Record>
+                                                                                                                            </Collection>
+                                                                                                                        </Annotation>
+                                                                                                                    </Annotations>
+                                                                                                                    <Annotations Target="OpportunityService.StatusCodes/name">
+                                                                                                                        <Annotation Term="Common.Label" String="{i18n>Name}"/>
+                                                                                                                        </Annotations>
+                                                                                                                        <Annotations Target="OpportunityService.StatusCodes/descr">
+                                                                                                                            <Annotation Term="Common.Label" String="{i18n>Description}"/>
+                                                                                                                            </Annotations>
+                                                                                                                            <Annotations Target="OpportunityService.Countries">
+                                                                                                                                <Annotation Term="UI.Identification">
+                                                                                                                                    <Collection>
+                                                                                                                                        <Record Type="UI.DataField">
+                                                                                                                                            <PropertyValue Property="Value" Path="name"/>
+                                                                                                                                        </Record>
+                                                                                                                                    </Collection>
+                                                                                                                                </Annotation>
+                                                                                                                            </Annotations>
+                                                                                                                            <Annotations Target="OpportunityService.Countries/name">
+                                                                                                                                <Annotation Term="Common.Label" String="{i18n>Name}"/>
+                                                                                                                                </Annotations>
+                                                                                                                                <Annotations Target="OpportunityService.Countries/descr">
+                                                                                                                                    <Annotation Term="Common.Label" String="{i18n>Description}"/>
+                                                                                                                                    </Annotations>
+                                                                                                                                    <Annotations Target="OpportunityService.Countries/code">
+                                                                                                                                        <Annotation Term="Common.Text" Path="name"/>
+                                                                                                                                        <Annotation Term="Common.Label" String="{i18n>CountryCode}"/>
+                                                                                                                                        </Annotations>
+                                                                                                                                        <Annotations Target="OpportunityService.ServiceRequest/Status_code">
+                                                                                                                                            <Annotation Term="Common.ValueList">
+                                                                                                                                                <Record Type="Common.ValueListType">
+                                                                                                                                                    <PropertyValue Property="Label" String="ServiceRequestStatusCodes"/>
+                                                                                                                                                    <PropertyValue Property="CollectionPath" String="ServiceRequestStatusCodes"/>
+                                                                                                                                                    <PropertyValue Property="Parameters">
+                                                                                                                                                        <Collection>
+                                                                                                                                                            <Record Type="Common.ValueListParameterInOut">
+                                                                                                                                                                <PropertyValue Property="LocalDataProperty" PropertyPath="Status_code"/>
+                                                                                                                                                                <PropertyValue Property="ValueListProperty" String="code"/>
+                                                                                                                                                            </Record>
+                                                                                                                                                            <Record Type="Common.ValueListParameterDisplayOnly">
+                                                                                                                                                                <PropertyValue Property="ValueListProperty" String="name"/>
+                                                                                                                                                            </Record>
+                                                                                                                                                        </Collection>
+                                                                                                                                                    </PropertyValue>
+                                                                                                                                                </Record>
+                                                                                                                                            </Annotation>
+                                                                                                                                        </Annotations>
+                                                                                                                                        <Annotations Target="OpportunityService.ServiceRequest/CreationDate">
+                                                                                                                                            <Annotation Term="Core.Computed" Bool="true"/>
+                                                                                                                                        </Annotations>
+                                                                                                                                        <Annotations Target="OpportunityService.ServiceRequest/LastChangingDate">
+                                                                                                                                            <Annotation Term="Core.Computed" Bool="true"/>
+                                                                                                                                        </Annotations>
+                                                                                                                                        <Annotations Target="OpportunityService.ServiceRequest/Category_code">
+                                                                                                                                            <Annotation Term="Common.ValueList">
+                                                                                                                                                <Record Type="Common.ValueListType">
+                                                                                                                                                    <PropertyValue Property="Label" String="CategoryCodes"/>
+                                                                                                                                                    <PropertyValue Property="CollectionPath" String="CategoryCodes"/>
+                                                                                                                                                    <PropertyValue Property="Parameters">
+                                                                                                                                                        <Collection>
+                                                                                                                                                            <Record Type="Common.ValueListParameterInOut">
+                                                                                                                                                                <PropertyValue Property="LocalDataProperty" PropertyPath="Category_code"/>
+                                                                                                                                                                <PropertyValue Property="ValueListProperty" String="code"/>
+                                                                                                                                                            </Record>
+                                                                                                                                                            <Record Type="Common.ValueListParameterDisplayOnly">
+                                                                                                                                                                <PropertyValue Property="ValueListProperty" String="name"/>
+                                                                                                                                                            </Record>
+                                                                                                                                                        </Collection>
+                                                                                                                                                    </PropertyValue>
+                                                                                                                                                </Record>
+                                                                                                                                            </Annotation>
+                                                                                                                                        </Annotations>
+                                                                                                                                        <Annotations Target="OpportunityService.ServiceRequestStatusCodes">
+                                                                                                                                            <Annotation Term="UI.Identification">
+                                                                                                                                                <Collection>
+                                                                                                                                                    <Record Type="UI.DataField">
+                                                                                                                                                        <PropertyValue Property="Value" Path="name"/>
+                                                                                                                                                    </Record>
+                                                                                                                                                </Collection>
+                                                                                                                                            </Annotation>
+                                                                                                                                        </Annotations>
+                                                                                                                                        <Annotations Target="OpportunityService.ServiceRequestStatusCodes/name">
+                                                                                                                                            <Annotation Term="Common.Label" String="{i18n>Name}"/>
+                                                                                                                                            </Annotations>
+                                                                                                                                            <Annotations Target="OpportunityService.ServiceRequestStatusCodes/descr">
+                                                                                                                                                <Annotation Term="Common.Label" String="{i18n>Description}"/>
+                                                                                                                                                </Annotations>
+                                                                                                                                                <Annotations Target="OpportunityService.Attachment/content">
+                                                                                                                                                    <Annotation Term="Core.MediaType" Path="mediaType"/>
+                                                                                                                                                </Annotations>
+                                                                                                                                                <Annotations Target="OpportunityService.Attachment/mediaType">
+                                                                                                                                                    <Annotation Term="Core.IsMediaType" Bool="true"/>
+                                                                                                                                                </Annotations>
+                                                                                                                                                <Annotations Target="OpportunityService.CategoryCodes">
+                                                                                                                                                    <Annotation Term="UI.Identification">
+                                                                                                                                                        <Collection>
+                                                                                                                                                            <Record Type="UI.DataField">
+                                                                                                                                                                <PropertyValue Property="Value" Path="name"/>
+                                                                                                                                                            </Record>
+                                                                                                                                                        </Collection>
+                                                                                                                                                    </Annotation>
+                                                                                                                                                </Annotations>
+                                                                                                                                                <Annotations Target="OpportunityService.CategoryCodes/name">
+                                                                                                                                                    <Annotation Term="Common.Label" String="{i18n>Name}"/>
+                                                                                                                                                    </Annotations>
+                                                                                                                                                    <Annotations Target="OpportunityService.CategoryCodes/descr">
+                                                                                                                                                        <Annotation Term="Common.Label" String="{i18n>Description}"/>
+                                                                                                                                                        </Annotations>
+                                                                                                                                                        <Annotations Target="OpportunityService.DraftAdministrativeData">
+                                                                                                                                                            <Annotation Term="Common.Label" String="{i18n>Draft_DraftAdministrativeData}"/>
+                                                                                                                                                            </Annotations>
+                                                                                                                                                            <Annotations Target="OpportunityService.DraftAdministrativeData/DraftUUID">
+                                                                                                                                                                <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                                                                                                <Annotation Term="Common.Label" String="{i18n>Draft_DraftUUID}"/>
+                                                                                                                                                                </Annotations>
+                                                                                                                                                                <Annotations Target="OpportunityService.DraftAdministrativeData/CreationDateTime">
+                                                                                                                                                                    <Annotation Term="Common.Label" String="{i18n>Draft_CreationDateTime}"/>
+                                                                                                                                                                    </Annotations>
+                                                                                                                                                                    <Annotations Target="OpportunityService.DraftAdministrativeData/CreatedByUser">
+                                                                                                                                                                        <Annotation Term="Common.Label" String="{i18n>Draft_CreatedByUser}"/>
+                                                                                                                                                                        </Annotations>
+                                                                                                                                                                        <Annotations Target="OpportunityService.DraftAdministrativeData/DraftIsCreatedByMe">
+                                                                                                                                                                            <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                                                                                                            <Annotation Term="Common.Label" String="{i18n>Draft_DraftIsCreatedByMe}"/>
+                                                                                                                                                                            </Annotations>
+                                                                                                                                                                            <Annotations Target="OpportunityService.DraftAdministrativeData/LastChangeDateTime">
+                                                                                                                                                                                <Annotation Term="Common.Label" String="{i18n>Draft_LastChangeDateTime}"/>
+                                                                                                                                                                                </Annotations>
+                                                                                                                                                                                <Annotations Target="OpportunityService.DraftAdministrativeData/LastChangedByUser">
+                                                                                                                                                                                    <Annotation Term="Common.Label" String="{i18n>Draft_LastChangedByUser}"/>
+                                                                                                                                                                                    </Annotations>
+                                                                                                                                                                                    <Annotations Target="OpportunityService.DraftAdministrativeData/InProcessByUser">
+                                                                                                                                                                                        <Annotation Term="Common.Label" String="{i18n>Draft_InProcessByUser}"/>
+                                                                                                                                                                                        </Annotations>
+                                                                                                                                                                                        <Annotations Target="OpportunityService.DraftAdministrativeData/DraftIsProcessedByMe">
+                                                                                                                                                                                            <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                                                                                                                            <Annotation Term="Common.Label" String="{i18n>Draft_DraftIsProcessedByMe}"/>
+                                                                                                                                                                                            </Annotations>
+                                                                                                                                                                                            <Annotations Target="OpportunityService.OpportunityStatus_texts/locale">
+                                                                                                                                                                                                <Annotation Term="Common.Label" String="{i18n>LanguageCode}"/>
+                                                                                                                                                                                                </Annotations>
+                                                                                                                                                                                                <Annotations Target="OpportunityService.OpportunityStatus_texts/name">
+                                                                                                                                                                                                    <Annotation Term="Common.Label" String="{i18n>Name}"/>
+                                                                                                                                                                                                    </Annotations>
+                                                                                                                                                                                                    <Annotations Target="OpportunityService.OpportunityStatus_texts/descr">
+                                                                                                                                                                                                        <Annotation Term="Common.Label" String="{i18n>Description}"/>
+                                                                                                                                                                                                        </Annotations>
+                                                                                                                                                                                                        <Annotations Target="OpportunityService.StatusCodes_texts/locale">
+                                                                                                                                                                                                            <Annotation Term="Common.Label" String="{i18n>LanguageCode}"/>
+                                                                                                                                                                                                            </Annotations>
+                                                                                                                                                                                                            <Annotations Target="OpportunityService.StatusCodes_texts/name">
+                                                                                                                                                                                                                <Annotation Term="Common.Label" String="{i18n>Name}"/>
+                                                                                                                                                                                                                </Annotations>
+                                                                                                                                                                                                                <Annotations Target="OpportunityService.StatusCodes_texts/descr">
+                                                                                                                                                                                                                    <Annotation Term="Common.Label" String="{i18n>Description}"/>
+                                                                                                                                                                                                                    </Annotations>
+                                                                                                                                                                                                                    <Annotations Target="OpportunityService.Countries_texts/locale">
+                                                                                                                                                                                                                        <Annotation Term="Common.Label" String="{i18n>LanguageCode}"/>
+                                                                                                                                                                                                                        </Annotations>
+                                                                                                                                                                                                                        <Annotations Target="OpportunityService.Countries_texts/name">
+                                                                                                                                                                                                                            <Annotation Term="Common.Label" String="{i18n>Name}"/>
+                                                                                                                                                                                                                            </Annotations>
+                                                                                                                                                                                                                            <Annotations Target="OpportunityService.Countries_texts/descr">
+                                                                                                                                                                                                                                <Annotation Term="Common.Label" String="{i18n>Description}"/>
+                                                                                                                                                                                                                                </Annotations>
+                                                                                                                                                                                                                                <Annotations Target="OpportunityService.Countries_texts/code">
+                                                                                                                                                                                                                                    <Annotation Term="Common.Text" Path="name"/>
+                                                                                                                                                                                                                                    <Annotation Term="Common.Label" String="{i18n>CountryCode}"/>
+                                                                                                                                                                                                                                    </Annotations>
+                                                                                                                                                                                                                                    <Annotations Target="OpportunityService.ServiceRequestStatusCodes_texts/locale">
+                                                                                                                                                                                                                                        <Annotation Term="Common.Label" String="{i18n>LanguageCode}"/>
+                                                                                                                                                                                                                                        </Annotations>
+                                                                                                                                                                                                                                        <Annotations Target="OpportunityService.ServiceRequestStatusCodes_texts/name">
+                                                                                                                                                                                                                                            <Annotation Term="Common.Label" String="{i18n>Name}"/>
+                                                                                                                                                                                                                                            </Annotations>
+                                                                                                                                                                                                                                            <Annotations Target="OpportunityService.ServiceRequestStatusCodes_texts/descr">
+                                                                                                                                                                                                                                                <Annotation Term="Common.Label" String="{i18n>Description}"/>
+                                                                                                                                                                                                                                                </Annotations>
+                                                                                                                                                                                                                                                <Annotations Target="OpportunityService.CategoryCodes_texts/locale">
+                                                                                                                                                                                                                                                    <Annotation Term="Common.Label" String="{i18n>LanguageCode}"/>
+                                                                                                                                                                                                                                                    </Annotations>
+                                                                                                                                                                                                                                                    <Annotations Target="OpportunityService.CategoryCodes_texts/name">
+                                                                                                                                                                                                                                                        <Annotation Term="Common.Label" String="{i18n>Name}"/>
+                                                                                                                                                                                                                                                        </Annotations>
+                                                                                                                                                                                                                                                        <Annotations Target="OpportunityService.CategoryCodes_texts/descr">
+                                                                                                                                                                                                                                                            <Annotation Term="Common.Label" String="{i18n>Description}"/>
+                                                                                                                                                                                                                                                            </Annotations>
+                                                                                                                                                                                                                                                        </Schema>
+                                                                                                                                                                                                                                                    </edmx:DataServices>
+                                                                                                                                                                                                                                                </edmx:Edmx>

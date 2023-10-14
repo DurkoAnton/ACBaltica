@@ -9,7 +9,18 @@
       "name": "cds run",
       "request": "launch",
       "type": "node-terminal",
-      "skipFiles": [ "<node_internals>/**" ]
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "command": "cds run --with-mocks --in-memory? --port 4000",
+      "name": "cds run port 4000",
+      "request": "launch",
+      "type": "node-terminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
     }
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "requires": {
+    "[hybrid]": {
+      "auth": {
+        "binding": {
+          "type": "cf",
+          "apiEndpoint": "https://api.cf.eu20-001.hana.ondemand.com",
+          "org": "ACBaltica, UAB_btp-demo-hij0smff",
+          "space": "BTP_DEMO_SPACE",
+          "instance": "BTPdemoPortal-uaa",
+          "key": "default",
+          "resolved": false
+        },
+        "kind": "xsuaa",
+        "vcap": {
+          "name": "auth"
+        }
+      }
+    }
+  }
+}
