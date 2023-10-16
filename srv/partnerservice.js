@@ -206,9 +206,11 @@ class PartnerService extends cds.ApplicationService {
         this.before('SAVE', PartnerProfile, async (req) => {
             // test to trigger workflow instance
             // const workflow = await cds.connect.to('workflowService')
-            //  const response = await workflow.send('POST', '/v1/workflow-instances', {
-            //     "definitionId" : "workflowapproval"
-            //  })
+            // const response = await workflow.send(
+            //     'POST', 
+            //     '/v1/workflow-instances',
+            //      {"definitionId" : "approvalflow"}
+            //  )
 
             const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection('${req.data.ObjectID}')`;
             const body = {
