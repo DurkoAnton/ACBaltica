@@ -18,15 +18,11 @@ entity partnerProfile : cuid, managed {
         Country     : Country;
         CountryDescription : String;
         City        : String;
-        Status      : Association to PartnerProfileStatus;
+        Status      : customer.StatusCode;
         Region      : String;
         HouseNumber : String;
         Street      : String;
         PostalCode  : String;
         ToCustomers : Composition of many customer.Customer on ToCustomers.MainContactID = $self.Code;
-}
-
-entity PartnerProfileStatus : sap.common.CodeList{
-	key code : String(2);
 }
 

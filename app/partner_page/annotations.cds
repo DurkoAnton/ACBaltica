@@ -1325,7 +1325,7 @@ annotate service.PartnerProfile with {
         TextArrangement         : #TextOnly,
         ValueListWithFixedValues: true,
         ValueList               : {
-            CollectionPath: 'PartnerProfileStatus',
+            CollectionPath: 'StatusCodes',
             Parameters    : [
                 {
                     $Type            : 'Common.ValueListParameterInOut',
