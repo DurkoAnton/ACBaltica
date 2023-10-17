@@ -511,6 +511,7 @@ class CustomerService extends cds.ApplicationService {
                     }
                     if (owner != undefined) {
                         customer.ResponsibleManager = owner.FormattedName;
+                        customer.ResponsibleManagerID = owner.EmployeeID;
                     }
                     if (note != undefined) {
                         customer.Note = note.Text;

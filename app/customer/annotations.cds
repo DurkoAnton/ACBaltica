@@ -6,7 +6,6 @@ annotate service.Customer with @(
             $Type: 'UI.DataField',
             Label: '{i18n>InternalID}',
             Value: InternalID,
-        //![@HTML5.CssDefaults]: {width:'10rem'}
         },
         {
             $Type: 'UI.DataField',
@@ -104,7 +103,7 @@ annotate service.Customer with @(
             $Type : 'UI.ReferenceFacet',
             Label : 'Bank Information',
             Target: 'BankData/@UI.LineItem#Banks'
-        }
+        },
     ],
 
 );
@@ -551,8 +550,8 @@ annotate service.ServiceRequest with @(UI.HeaderInfo: {
     TypeNamePlural: '{i18n>ServiceRequests}',
     Title         : {
         $Type: 'UI.DataField',
-        Label: '{i18n>InternalID}',
-        Value: InternalID,
+        Label: '{i18n>ProblemDescription}',
+        Value: ProblemDescription,
     }
 }, );
 

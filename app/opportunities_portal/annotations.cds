@@ -163,6 +163,11 @@ annotate service.Opportunity with {
                     ValueListProperty: 'ResponsibleManagerID',
                     LocalDataProperty: MainEmployeeResponsiblePartyID
                 },
+                {
+                    $Type            : 'Common.ValueListParameterOut',
+                    ValueListProperty: 'ID',
+                    LocalDataProperty: Customer_ID
+                },
             ]
         }
     });

@@ -73,30 +73,7 @@ class OpportunityService extends cds.ApplicationService {
                 const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: req.headers["x-username"] });
                 req.query.where({ 'ProspectPartyID': partner.ACCOUNTID });
             }
-            // if(req._.event == "PATCH"){
-            //     if(req._.data.ProspectPartyID){
-            //         const InternalCustomerID = req._.data.ProspectPartyID;
-            //         const customer = await SELECT.one.from(Customer).where({InternalID:InternalCustomerID});
-            //         req._.data.MainEmployeeResponsiblePartyName = customer.ResponsibleManager;
-            //     }
-            // }
         });
-
-        // this.after('PATCH', 'Opportunity', async req => {
-        //     if (req.ProspectPartyID) {
-        //         const InternalCustomerID = req.ProspectPartyID;
-        //         const customer = await SELECT.one.from(Customer).where({ InternalID: InternalCustomerID });
-        //         req.MainEmployeeResponsiblePartyName = customer.ResponsibleManager;
-        //     }
-        // });
-
-        // this.after('UPDATE', 'Opportunity', async req => {
-        //     if (req.ProspectPartyID) {
-        //         const InternalCustomerID = req.ProspectPartyID;
-        //         const customer = await SELECT.one.from(Customer).where({ InternalID: InternalCustomerID });
-        //         req.MainEmployeeResponsiblePartyName = customer.ResponsibleManager;
-        //     }
-        // });
 
 
         this.before('NEW', 'Opportunity', async (req) => {

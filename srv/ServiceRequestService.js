@@ -102,18 +102,6 @@ class ServiceRequestService extends cds.ApplicationService {
             }
         });
 
-        // this.before('CREATE','ServiceRequest', async (req) =>{
-        //     const debug=1;
-        // })
-        this.after('CREATE','ServiceRequest', async (req) =>{
-            //const debug=2;
-            const customerInternalID = req.CustomerID;
-            const customer = await SELECT.one.from(Customer).where({InternalID : customerInternalID})
-            if (customer){
-                req.Customer_ID = customer.ID;
-            }
-        })
-
         this.after('SAVE', 'ServiceRequest', async (req) => {
             // create new Service Request in remote
             const ticket = req;

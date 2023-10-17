@@ -152,8 +152,8 @@ annotate service.ServiceRequest with @(UI.HeaderInfo: {
     TypeNamePlural: '{i18n>ServiceRequests}',
     Title         : {
         $Type: 'UI.DataField',
-        Label: '{i18n>InternalID}',
-        Value: InternalID,
+        Label: '{i18n>ProblemDescription}',
+        Value: ProblemDescription,
     }
 }, );
 
@@ -310,6 +310,11 @@ annotate service.ServiceRequest with {
                     $Type            : 'Common.ValueListParameterOut',
                     ValueListProperty: 'ResponsibleManagerID',
                     LocalDataProperty: ProcessorID
+                },
+                {
+                    $Type            : 'Common.ValueListParameterOut',
+                    ValueListProperty: 'ID',
+                    LocalDataProperty: Customer_ID
                 },
             ]
         }
