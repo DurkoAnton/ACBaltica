@@ -1,6 +1,6 @@
 const cds = require('@sap/cds')
-const jwt_decode = require('jwt-decode');
-const { attachment } = require('express/lib/response');
+//const jwt_decode = require('jwt-decode');
+//const { attachment } = require('express/lib/response');
 const { getObjectsWithDifferentPropertyValue, createAttachmentBody } = require('./libs/utils');
 const { sendRequestToC4C } = require('./libs/ManageAPICalls');
 
@@ -105,77 +105,77 @@ class ServiceRequestService extends cds.ApplicationService {
         this.after('SAVE', 'ServiceRequest', async (req) => {
             // create new Service Request in remote
             const ticket = req;
-            // if (ticket.UUID === null) { // if UUID is null, then it was not yet saved
-            //     let customer;
-            //     const customerID = ticket.Customer_ID;
-            //     let internalBuyerID = null;
-            //     if (customerID) {
-            //         customer = await SELECT.from(Customer).where({ ID: customerID });
-            //         if (customer[0]) {
-            //             internalBuyerID = customer[0].InternalID;
-            //         }
-            //     }
+            if (ticket.UUID === null) { // if UUID is null, then it was not yet saved
+                let customer;
+                const customerID = ticket.Customer_ID;
+                let internalBuyerID = null;
+                if (customerID) {
+                    customer = await SELECT.from(Customer).where({ ID: customerID });
+                    if (customer[0]) {
+                        internalBuyerID = customer[0].InternalID;
+                    }
+                }
 
-            //     let body = {
-            //         Name: ticket.ProblemDescription,
-            //         ServiceRequestUserLifeCycleStatusCode: ticket.Status_code,
-            //         //oppt - document reference?
-            //         //category - codes are not matches
-            //         //processor - ovs of Employees from Remote
-            //     }
-            //     if (internalBuyerID)
-            //         body.BuyerPartyID = internalBuyerID;
-            //     let products = [];
-            //     if (ticket.ProblemItem != null) {
-            //         const itemInstance = await SELECT.one.from(Item).where({ ID: ticket.ProblemItem });
-            //         products.push({ ProductID: itemInstance.ProductInternalID });
-            //         body.ServiceRequestItem = { results: products };
-            //     }
+                let body = {
+                    Name: ticket.ProblemDescription,
+                    ServiceRequestUserLifeCycleStatusCode: ticket.Status_code,
+                    //oppt - document reference?
+                    //category - codes are not matches
+                    //processor - ovs of Employees from Remote
+                }
+                if (internalBuyerID)
+                    body.BuyerPartyID = internalBuyerID;
+                let products = [];
+                if (ticket.ProblemItem != null) {
+                    const itemInstance = await SELECT.one.from(Item).where({ ID: ticket.ProblemItem });
+                    products.push({ ProductID: itemInstance.ProductInternalID });
+                    body.ServiceRequestItem = { results: products };
+                }
 
-            //     if (ticket.Attachment && ticket.Attachment.length !== 0) {
-            //         const results = [];
-            //         createAttachmentBody(ticket, results);
-            //         body.ServiceRequestAttachmentFolder = { results };
-            //     }
+                if (ticket.Attachment && ticket.Attachment.length !== 0) {
+                    const results = [];
+                    createAttachmentBody(ticket, results);
+                    body.ServiceRequestAttachmentFolder = { results };
+                }
 
-            //     let createRequestParameters = {
-            //         method: 'POST',
-            //         url: `/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection`,
-            //         data: body,
-            //         headers: { 'content-type': 'application/json' }
-            //     }
-            //     const c4cResponse = await sendRequestToC4C(createRequestParameters);
-            //     // Update UUID
-            //     if (c4cResponse.status == '201' && c4cResponse.data.d.results != undefined) {
-            //         const data = c4cResponse.data.d.results;
-            //         const objectID = data.ObjectID;
-            //         const UUID = data.UUID;
-            //         if (objectID && UUID) {
-            //             await UPDATE(ServiceRequest, ticket.ID).with({
-            //                 UUID: UUID,
-            //                 ObjectID: objectID,
-            //                 InternalID: data.ID,
-            //                 Processor: data.ProcessorPartyName
-            //             });
-            //         }
-            //         if (ticket.Attachment && ticket.Attachment.length !== 0) {
-            //             createRequestParameters = {
-            //                 method: 'GET',
-            //                 url: data.ServiceRequestAttachmentFolder.__deferred.uri,
-            //                 headers: { 'content-type': 'application/json' }
-            //             }
-            //             // save ObjectID for the first time
-            //             const attachmentResponse = await sendRequestToC4C(createRequestParameters);
-            //             const attachmentsInResponse = attachmentResponse.data.d.results;
-            //             for (let i = 0; i < attachmentsInResponse.length; i++) {
-            //                 const attachmentInDB = ticket.Attachment[i];
-            //                 const ObjectID = attachmentsInResponse[i].ObjectID;
-            //                 await UPDATE(Attachement, attachmentInDB.ID).set({ ObjectID: ObjectID });
-            //             }
+                let createRequestParameters = {
+                    method: 'POST',
+                    url: `/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection`,
+                    data: body,
+                    headers: { 'content-type': 'application/json' }
+                }
+                const c4cResponse = await sendRequestToC4C(createRequestParameters);
+                // Update UUID
+                if (c4cResponse.status == '201' && c4cResponse.data.d.results != undefined) {
+                    const data = c4cResponse.data.d.results;
+                    const objectID = data.ObjectID;
+                    const UUID = data.UUID;
+                    if (objectID && UUID) {
+                        await UPDATE(ServiceRequest, ticket.ID).with({
+                            UUID: UUID,
+                            ObjectID: objectID,
+                            InternalID: data.ID,
+                            Processor: data.ProcessorPartyName
+                        });
+                    }
+                    if (ticket.Attachment && ticket.Attachment.length !== 0) {
+                        createRequestParameters = {
+                            method: 'GET',
+                            url: data.ServiceRequestAttachmentFolder.__deferred.uri,
+                            headers: { 'content-type': 'application/json' }
+                        }
+                        // save ObjectID for the first time
+                        const attachmentResponse = await sendRequestToC4C(createRequestParameters);
+                        const attachmentsInResponse = attachmentResponse.data.d.results;
+                        for (let i = 0; i < attachmentsInResponse.length; i++) {
+                            const attachmentInDB = ticket.Attachment[i];
+                            const ObjectID = attachmentsInResponse[i].ObjectID;
+                            await UPDATE(Attachement, attachmentInDB.ID).set({ ObjectID: ObjectID });
+                        }
 
-            //         }
-            //     }
-            // }
+                    }
+                }
+            }
         })
 
         return super.init();

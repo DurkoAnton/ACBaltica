@@ -134,7 +134,6 @@
                         "Customer_ToServiceRequestsObjectPage"
                     ]
                 }
-                
             ],
             "targets": {
                 "CustomerList": {
@@ -229,7 +228,7 @@
                                         "type": "GridTable"
                                     }
                                 }
-                            }
+                            } 
                         }
                     },
                     "controlAggregation": "beginColumnPages",

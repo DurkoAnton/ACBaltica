@@ -1,12 +1,13 @@
 const { executeHttpRequest, getDestination } = require('@sap-cloud-sdk/core');
 const { getObjectsWithDifferentPropertyValue, createAttachmentBody } = require('./libs/utils');
-const { sendRequestToC4C } = require('./libs/ManageAPICalls');
-const { loadProductsAndPricesListsFromC4C } = require('./libs/dataLoading');
+//const { sendRequestToC4C } = require('./libs/ManageAPICalls');
+//const { loadProductsAndPricesListsFromC4C } = require('./libs/dataLoading');
 
 const destinationName = 'C4C_DEMO';
 
 class PartnerService extends cds.ApplicationService {
     async init() {
+
         cds.env.features.fetch_csrf = true;
 
         const { PartnerProfile, Attachement, ItemProduct } = this.entities;
@@ -149,13 +150,13 @@ class PartnerService extends cds.ApplicationService {
                     });
                 }
             }
-        })
+        });
 
         this.on('READ', PartnerProfile, async (req, next) => {
-            // open one record for object page 
+            //open one record for object page 
             if (req._path == 'PartnerProfile') {
                 const currentEmail = req.headers['x-username'];
-                const currentRecord = SELECT.from(PartnerProfile).where({ Email: currentEmail });
+                const currentRecord = await SELECT.from(PartnerProfile).where({ Email: currentEmail });
                 return req.reply(currentRecord);
             }
             else return next();
@@ -201,16 +202,9 @@ class PartnerService extends cds.ApplicationService {
                 req.data.CustomerID = customerDB.InternalID;
                 req.data.Customer_ID = customerDB.ID;
             }
-        });
+       });
 
         this.before('SAVE', PartnerProfile, async (req) => {
-            // test to trigger workflow instance
-            // const workflow = await cds.connect.to('workflowService')
-            // const response = await workflow.send(
-            //     'POST', 
-            //     '/v1/workflow-instances',
-            //      {"definitionId" : "approvalflow"}
-            //  )
 
             const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection('${req.data.ObjectID}')`;
             const body = {
@@ -315,7 +309,7 @@ class PartnerService extends cds.ApplicationService {
                     console.log(e)
                 }
             })
-            // create new Service Requests in remote
+            // // create new Service Requests in remote
             const newTickets = [];
             req.data.ToCustomers.forEach(element => {
                 const result = element.ToServiceRequests.filter(serviceRequest => serviceRequest.UUID === null);
@@ -341,17 +335,17 @@ class PartnerService extends cds.ApplicationService {
                     //processor - ovs of Employees from Remote
                 }
                 let products = [];
-                if (item.ProblemItem != null) {
-                    const itemInstance = await SELECT.one.from(Item).where({ ID: item.ProblemItem });
-                    products.push({ ProductID: itemInstance.ProductInternalID });
-                    body.ServiceRequestItem = { results: products };
-                }
+                // if (item.ProblemItem != null) {
+                //     const itemInstance = await SELECT.one.from(Item).where({ ID: item.ProblemItem });
+                //     products.push({ ProductID: itemInstance.ProductInternalID });
+                //     body.ServiceRequestItem = { results: products };
+                // }
 
-                if (item.Attachment && item.Attachment.length !== 0) {
-                    const results = [];
-                    createAttachmentBody(item, results);
-                    body.ServiceRequestAttachmentFolder = { results };
-                }
+                // if (item.Attachment && item.Attachment.length !== 0) {
+                //     const results = [];
+                //     createAttachmentBody(item, results);
+                //     body.ServiceRequestAttachmentFolder = { results };
+                // }
 
                 let createRequestParameters = {
                     method: 'POST',
@@ -393,6 +387,15 @@ class PartnerService extends cds.ApplicationService {
             });
         });
 
+        async function sendRequestToC4C(requestParams) {
+            const destinationParams = { destinationName: 'C4C_DEMO' };
+            const c4cResponse = await executeHttpRequest(destinationParams, requestParams, {
+                fetchCsrfToken: true
+            });
+            return c4cResponse;
+        }
+
+        
         this.on('updateAllFieldsFromRemote', async (req) => {
             const email = req.req.headers['x-username'];
             const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${email}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
@@ -472,7 +475,7 @@ class PartnerService extends cds.ApplicationService {
                     }
                 }
                 // this.read(Customer);
-                return this.read(PartnerProfile);
+                return this.read(PartnerProfile).where({Email : email});
             }
             catch (error) {
                 req.reject({

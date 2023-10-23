@@ -160,7 +160,7 @@ class OpportunityService extends cds.ApplicationService {
             let opportunityID = req._path.substring(pathStart.length, pathStart.length + 36);
 
             const obj = await SELECT.one.from(Opportunity, opportunityID);
-
+            if (obj.ObjectID) {
             let path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection('${obj.ObjectID}')?$expand=OpportunityAttachmentFolder`;
             try {
                 let createRequestParameters = {
@@ -194,39 +194,39 @@ class OpportunityService extends cds.ApplicationService {
 
                 await UPDATE(Opportunity).with(opportunity).where({ ObjectID: opportunityResponse.ObjectID });
 
-                if (opportunityResponse.OpportunityAttachmentFolder.length) {
-                    opportunityResponse.OpportunityAttachmentFolder.forEach(async attachmentResponse => {
-                        if (attachmentResponse) {
-                            const str = attachmentResponse.Binary;
-                            const content = Buffer.from(str, 'base64').toString();
-                            const buffer = Buffer.from(content, 'utf-8');
-                            const attachment = {
-                                content: buffer,
-                                fileName: attachmentResponse.Name,
-                                url: attachmentResponse.DocumentLink,
-                                mediaType: attachmentResponse.MimeType
-                            }
-                            const attachmentInDB = await SELECT.one.from(Attachement).where({ ObjectID: attachmentResponse.ObjectID });
-                            if (attachmentInDB)
-                                await UPDATE(Attachement, attachmentInDB.ID).with(attachment);
-                            else {
-                                attachment.ObjectID = attachmentResponse.ObjectID;
-                                attachment.Opportunity_ID = opportunityID;
-                                await INSERT.into(Attachement).entries(attachment);
-                            }
-                        }
-                    });
-                }
-                // if no ObjectID is in remote attachments, need to delete
-                const attachmentsInDB = await SELECT(Attachement).where({ Opportunity_ID: opportunityID });
+                // if (opportunityResponse.OpportunityAttachmentFolder.length) {
+                //     opportunityResponse.OpportunityAttachmentFolder.forEach(async attachmentResponse => {
+                //         if (attachmentResponse) {
+                //             const str = attachmentResponse.Binary;
+                //             const content = Buffer.from(str, 'base64').toString();
+                //             const buffer = Buffer.from(content, 'utf-8');
+                //             const attachment = {
+                //                 content: buffer,
+                //                 fileName: attachmentResponse.Name,
+                //                 url: attachmentResponse.DocumentLink,
+                //                 mediaType: attachmentResponse.MimeType
+                //             }
+                //             const attachmentInDB = await SELECT.one.from(Attachement).where({ ObjectID: attachmentResponse.ObjectID });
+                //             if (attachmentInDB)
+                //                 await UPDATE(Attachement, attachmentInDB.ID).with(attachment);
+                //             else {
+                //                 attachment.ObjectID = attachmentResponse.ObjectID;
+                //                 attachment.Opportunity_ID = opportunityID;
+                //                 await INSERT.into(Attachement).entries(attachment);
+                //             }
+                //         }
+                //     });
+                // }
+                // // if no ObjectID is in remote attachments, need to delete
+                // const attachmentsInDB = await SELECT(Attachement).where({ Opportunity_ID: opportunityID });
 
-                if (attachmentsInDB.length) {
-                    const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
-                        opportunityResponse.OpportunityAttachmentFolder, "ObjectID", "ObjectID");
-                    const attachmentObjectIDsToBeDeleted = attachmentsToBeDeleted.map(item => item.ObjectID);
-                    if (attachmentObjectIDsToBeDeleted.length)
-                        await DELETE.from(Attachement).where({ ObjectID: attachmentObjectIDsToBeDeleted });
-                }
+                // if (attachmentsInDB.length) {
+                //     const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
+                //         opportunityResponse.OpportunityAttachmentFolder, "ObjectID", "ObjectID");
+                //     const attachmentObjectIDsToBeDeleted = attachmentsToBeDeleted.map(item => item.ObjectID);
+                //     if (attachmentObjectIDsToBeDeleted.length)
+                //         await DELETE.from(Attachement).where({ ObjectID: attachmentObjectIDsToBeDeleted });
+                // }
 
                 return SELECT(Opportunity, opportunityID);
             }
@@ -235,6 +235,7 @@ class OpportunityService extends cds.ApplicationService {
                     message: error.message
                 });
             }
+        }
         });
 
         return super.init();

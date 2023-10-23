@@ -3,11 +3,10 @@ sap.ui.define(
     function (Component) {
         "use strict";
 
-        return Component.extend("customer.Component", {
+        return Component.extend("requestapproval.Component", {
             metadata: {
                 manifest: "json"
-            },
+            }
         });
     }
 );
-

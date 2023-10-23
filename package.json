@@ -19,7 +19,7 @@
         "passport": "^0.6.0"
     },
     "devDependencies": {
-        "@sap/ux-specification": "^1.108.12",
+        "@sap/ux-specification": "^1.108.16",
         "rimraf": "^3.0.2",
         "sqlite3": "^5.0.4"
     },
@@ -39,10 +39,12 @@
         "watch-partner_page": "cds watch --open partner_page/webapp/index.html?sap-ui-xx-viewCache=false",
         "watch-service_requests": "cds watch --open service_requests/webapp/index.html?sap-ui-xx-viewCache=false",
         "watch-opportunities_portal": "cds watch --open opportunities_portal/webapp/index.html?sap-ui-xx-viewCache=false",
-        "watch-newmodule": "cds watch --open newmodule/webapp/index.html?sap-ui-xx-viewCache=false"
+        "watch-newmodule": "cds watch --open newmodule/webapp/index.html?sap-ui-xx-viewCache=false",
+        "watch-request-approval": "cds watch --open request-approval/webapp/index.html?sap-ui-xx-viewCache=false",
+        "watch-project1": "cds watch --open project1/webapp/index.html?sap-ui-xx-viewCache=false"
     },
     "engines": {
-        "node": "^16.15"
+        "node": "^18.14.0"
     },
     "eslintConfig": {
         "extends": "eslint:recommended",
@@ -111,6 +113,8 @@
         "app/partner_page",
         "app/service_requests",
         "app/opportunities_portal",
-        "app/newmodule"
+        "app/newmodule",
+        "app/request-approval",
+        "app/project1"
     ]
 }

@@ -89,6 +89,14 @@ modules:
       - opportunitiesportal.zip
       name: opportunitiesportal
       target-path: resources/
+    - artifacts:
+      - requestapproval.zip
+      name: requestapproval
+      target-path: resources/
+    - artifacts:
+      - project1.zip
+      name: project1
+      target-path: resources/
 - name: partnerporta
   type: html5
   path: app/partner_porta
@@ -149,6 +157,26 @@ modules:
 - name: opportunitiesportal
   type: html5
   path: app/opportunities_portal
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+- name: requestapproval
+  type: html5
+  path: app/request-approval
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+- name: project1
+  type: html5
+  path: app/project1
   build-parameters:
     build-result: dist
     builder: custom

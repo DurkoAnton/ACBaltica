@@ -10,7 +10,7 @@ entity Customer  : cuid {
 	Status : StatusCode;
 	StatusDescription : String;
 	ResponsibleManager : String;
-	ResponsibleManagerID : String @readonly;
+	ResponsibleManagerID : String;
 	JuridicalAddress : Address;
 	JuridicalCountry : Country;
 	IndividualCountry : Country;
@@ -56,7 +56,7 @@ entity Opportunity : cuid{
 	UUID : UUID;
 	ObjectID : String;
 	InternalID : String @readonly;
-	ProspectPartyID: String;
+	ProspectPartyID: String @Common.SemanticObject : 'Customer';
 	ProspectPartyName: String;
 	Subject: String;
 	LifeCycleStatusCode: Association to OpportunityStatus;

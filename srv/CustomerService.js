@@ -1,8 +1,9 @@
 const cds = require('@sap/cds')
-const { part } = require('hdb/lib/protocol');
-const { fetchNext } = require('hdb/lib/protocol/request');
+//const { part } = require('hdb/lib/protocol');
+//const { fetchNext } = require('hdb/lib/protocol/request');
 const { getObjectsWithDifferentPropertyValue, createAttachmentBody } = require('./libs/utils');
-const { sendRequestToC4C } = require('./libs/ManageAPICalls');
+const { executeHttpRequest } = require('@sap-cloud-sdk/core');
+//const { sendRequestToC4C } = require('./libs/ManageAPICalls');
 const { loadProductsAndPricesListsFromC4C } = require('./libs/dataLoading');
 
 class CustomerService extends cds.ApplicationService {
@@ -141,7 +142,7 @@ class CustomerService extends cds.ApplicationService {
 
         this.before('READ', 'Customer', async (req) => {
             // const path = req._path;
-            // //OWL Read -> Get all data from C4C
+            //OWL Read -> Get all data from C4C
             // if (path == 'Customer'){
             //     const customersFromDB = await SELECT.from(Customer);
             //     const email = req.req.headers['x-username'];
@@ -169,42 +170,42 @@ class CustomerService extends cds.ApplicationService {
         })
         this.before('READ', 'ServiceRequest', async (req) => {
             // OWL SR Read - > get all SRs    
-            // if (path.startsWith('Customer') && path.endsWith('ToServiceRequests') && req.event == 'READ') {
-            //     let customerUUID = req._path.substring(12,48);
-            //     var customerInternalID;
-            //     var serviceRequestFromDB;
-            //     if (customerUUID) {
-            //         customerFromDB = await SELECT.from(Customer).where({ID : customerUUID});
-            //         if (customerFromDB[0] != undefined){
-            //             customerInternalID = customerFromDB[0].InternalID;
-            //         }
-            //         serviceRequestFromDB = await SELECT.from(ServiceRequest).where({Customer_ID : customerUUID});
-            //     }
+            if (req._path.startsWith('Customer') && req._path.endsWith('ToServiceRequests') && req._path.event == 'READ') {
+                let customerUUID = req._path.substring(12,48);
+                var customerInternalID;
+                var serviceRequestFromDB;
+                if (customerUUID) {
+                    customerFromDB = await SELECT.from(Customer).where({ID : customerUUID});
+                    if (customerFromDB[0] != undefined){
+                        customerInternalID = customerFromDB[0].InternalID;
+                    }
+                    serviceRequestFromDB = await SELECT.from(ServiceRequest).where({Customer_ID : customerUUID});
+                }
 
-            //     if (serviceRequestFromDB.length == 0 && customerInternalID){
-            //         var customerFromDB;
+                if (serviceRequestFromDB.length == 0 && customerInternalID){
+                    var customerFromDB;
 
-            //         //const email = req.req.headers['x-username'];
-            //         const path = `/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection?$filter=BuyerPartyID eq '${customerInternalID}'&$expand=ServiceRequestAttachmentFolder`;
-            //         try{
-            //             const createRequestParameters = {
-            //                 method: 'get',
-            //                 url: path,
-            //                 headers: {
-            //                     'content-type': 'application/json'
-            //                 }
-            //             }
+                    //const email = req.req.headers['x-username'];
+                    const path = `/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection?$filter=BuyerPartyID eq '${customerInternalID}'&$expand=ServiceRequestAttachmentFolder`;
+                    try{
+                        const createRequestParameters = {
+                            method: 'get',
+                            url: path,
+                            headers: {
+                                'content-type': 'application/json'
+                            }
+                        }
 
-            //             const c4cResponse = await sendRequestToC4C(createRequestParameters);   
-            //             await _createServiceRequestInstances(c4cResponse, customerUUID);
-            //         }
-            //         catch(error){
-            //             req.reject({
-            //                 message: error.message
-            //             });
-            //         }
-            //     }
-            // }
+                        const c4cResponse = await sendRequestToC4C(createRequestParameters);   
+                        await _createServiceRequestInstances(c4cResponse, customerUUID);
+                    }
+                    catch(error){
+                        req.reject({
+                            message: error.message
+                        });
+                    }
+                }
+            }
         });
 
         this.before('READ', 'Opportunity', async (req) => {
@@ -213,33 +214,33 @@ class CustomerService extends cds.ApplicationService {
             if (parentId) {
                 opportunitiesFromDB = await SELECT.from(Opportunity).where({ Customer_ID: parentId });
             }
-            const customerDB = await SELECT.from(Customer).where({ ID: parentId });
+            const customerDB = await SELECT.from(Customer).where({ID: parentId });
 
-            let customerInternalID;
-            if (customerDB.length > 0) {
-                customerInternalID = customerDB[0].InternalID;
-            }
+            // let customerInternalID;
+            // if (customerDB.length > 0) {
+            //     customerInternalID = customerDB[0].InternalID;
+            // }
 
-            if (opportunitiesFromDB && opportunitiesFromDB.length == 0 && customerInternalID) {
-                const path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection?$filter=ProspectPartyID eq '${customerInternalID}'`;
-                try {
-                    const createRequestParameters = {
-                        method: 'get',
-                        url: path,
-                        headers: {
-                            'content-type': 'application/json'
-                        }
-                    }
+            // if (opportunitiesFromDB && opportunitiesFromDB.length == 0 && customerInternalID) {
+            //     const path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection?$filter=ProspectPartyID eq '${customerInternalID}'`;
+            //     try {
+            //         const createRequestParameters = {
+            //             method: 'get',
+            //             url: path,
+            //             headers: {
+            //                 'content-type': 'application/json'
+            //             }
+            //         }
 
-                    const c4cResponse = await sendRequestToC4C(createRequestParameters);
-                    await _createOpportunityInstances(c4cResponse, parentId);
-                }
-                catch (error) {
-                    req.reject({
-                        message: error.message
-                    });
-                }
-            }
+            //         const c4cResponse = await sendRequestToC4C(createRequestParameters);
+            //         await _createOpportunityInstances(c4cResponse, parentId);
+            //     }
+            //     catch (error) {
+            //         req.reject({
+            //             message: error.message
+            //         });
+            //     }
+            // }
         })
 
 
@@ -466,12 +467,22 @@ class CustomerService extends cds.ApplicationService {
         });
 
         this.before('READ', 'Customer', async req => {
+            //await DELETE.from(Opportunity);
             if (req._path == 'Customer' && req._.event == 'READ') { // read only for general list
                 const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: req.headers["x-username"] });
                 req.query.where({ 'MainContactID': partner.CODE });
             }
         });
 
+        async function sendRequestToC4C(requestParams) {
+            const destinationParams = { destinationName: 'C4C_DEMO' };
+            const c4cResponse = await executeHttpRequest(destinationParams, requestParams, {
+                fetchCsrfToken: true
+            });
+            return c4cResponse;
+        }
+
+        
         this.on('updateAllFieldsFromRemote', async (req) => {
             let customerID = req._path.substring(12, 48);
 
@@ -646,39 +657,39 @@ class CustomerService extends cds.ApplicationService {
 
                     await UPDATE(ServiceRequest).with(serviceRequest).where({ ObjectID: serviceRequestResponse.ObjectID });
 
-                    if (serviceRequestResponse.ServiceRequestAttachmentFolder.length) {
-                        serviceRequestResponse.ServiceRequestAttachmentFolder.forEach(async attachmentResponse => {
-                            if (attachmentResponse) {
-                                const str = attachmentResponse.Binary;
-                                const content = Buffer.from(str, 'base64').toString();
-                                const buffer = Buffer.from(content, 'utf-8');
-                                const attachment = {
-                                    content: buffer,
-                                    fileName: attachmentResponse.Name,
-                                    url: attachmentResponse.DocumentLink,
-                                    mediaType: attachmentResponse.MimeType
-                                }
-                                const attachmentInDB = await SELECT.one.from(Attachement).where({ ObjectID: attachmentResponse.ObjectID });
-                                if (attachmentInDB)
-                                    await UPDATE(Attachement, attachmentInDB.ID).with(attachment);
-                                else {
-                                    attachment.ObjectID = attachmentResponse.ObjectID;
-                                    attachment.ServiceRequest_ID = serviceRequestID;
-                                    await INSERT.into(Attachement).entries(attachment);
-                                }
-                            }
-                        });
-                    }
+                    // if (serviceRequestResponse.ServiceRequestAttachmentFolder.length) {
+                    //     serviceRequestResponse.ServiceRequestAttachmentFolder.forEach(async attachmentResponse => {
+                    //         if (attachmentResponse) {
+                    //             const str = attachmentResponse.Binary;
+                    //             const content = Buffer.from(str, 'base64').toString();
+                    //             const buffer = Buffer.from(content, 'utf-8');
+                    //             const attachment = {
+                    //                 content: buffer,
+                    //                 fileName: attachmentResponse.Name,
+                    //                 url: attachmentResponse.DocumentLink,
+                    //                 mediaType: attachmentResponse.MimeType
+                    //             }
+                    //             const attachmentInDB = await SELECT.one.from(Attachement).where({ ObjectID: attachmentResponse.ObjectID });
+                    //             if (attachmentInDB)
+                    //                 await UPDATE(Attachement, attachmentInDB.ID).with(attachment);
+                    //             else {
+                    //                 attachment.ObjectID = attachmentResponse.ObjectID;
+                    //                 attachment.ServiceRequest_ID = serviceRequestID;
+                    //                 await INSERT.into(Attachement).entries(attachment);
+                    //             }
+                    //         }
+                    //     });
+                    // }
                     // if no ObjectID is in remote attachments, need to delete
-                    const attachmentsInDB = await SELECT(Attachement).where({ ServiceRequest_ID: serviceRequestID });
+                    // const attachmentsInDB = await SELECT(Attachement).where({ ServiceRequest_ID: serviceRequestID });
 
-                    if (attachmentsInDB.length) {
-                        const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
-                            serviceRequestResponse.ServiceRequestAttachmentFolder, "ObjectID", "ObjectID");
-                        const attachmentObjectIDsToBeDeleted = attachmentsToBeDeleted.map(item => item.ObjectID);
-                        if (attachmentObjectIDsToBeDeleted.length)
-                            await DELETE.from(Attachement).where({ ObjectID: attachmentObjectIDsToBeDeleted });
-                    }
+                    // if (attachmentsInDB.length) {
+                    //     const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
+                    //         serviceRequestResponse.ServiceRequestAttachmentFolder, "ObjectID", "ObjectID");
+                    //     const attachmentObjectIDsToBeDeleted = attachmentsToBeDeleted.map(item => item.ObjectID);
+                    //     if (attachmentObjectIDsToBeDeleted.length)
+                    //         await DELETE.from(Attachement).where({ ObjectID: attachmentObjectIDsToBeDeleted });
+                    // }
 
                     return SELECT(ServiceRequest, serviceRequestID);
                 }
@@ -694,80 +705,81 @@ class CustomerService extends cds.ApplicationService {
                 const opportunityID = inputString.substring(startIndex, startIndex + 36);
 
                 const obj = await SELECT.one.from(Opportunity, opportunityID);
+                if (obj.ObjectID) {
+                    let path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection('${obj.ObjectID}')?$expand=OpportunityAttachmentFolder`;
+                    try {
+                        let createRequestParameters = {
+                            method: 'GET',
+                            url: path,
+                            headers: { 'content-type': 'application/json' }
+                        }
+                        const c4cResponse = await sendRequestToC4C(createRequestParameters);
+                        const opportunityResponse = c4cResponse.data.d.results;
 
-                let path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection('${obj.ObjectID}')?$expand=OpportunityAttachmentFolder`;
-                try {
-                    let createRequestParameters = {
-                        method: 'GET',
-                        url: path,
-                        headers: { 'content-type': 'application/json' }
+                        const LastChangeDateTime = opportunityResponse.LastChangeDateTime;
+                        const timestamp = opportunityResponse.LastChangeDateTime.substring(LastChangeDateTime.indexOf('(') + 1, LastChangeDateTime.indexOf(')'));
+                        const date = new Date(Number(timestamp));
+                        const year = date.getFullYear();
+                        const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed, so add 1 and pad with '0' if necessary
+                        const day = String(date.getDate()).padStart(2, '0'); // Pad day with '0' if necessary
+                        const formattedDate = `${year}-${month}-${day}`;
+
+                        const opportunity = {
+                            InternalID: opportunityResponse.ID,
+                            ProspectPartyID: opportunityResponse.ProspectPartyID,
+                            ProspectPartyName: opportunityResponse.ProspectPartyName,
+                            Subject: opportunityResponse.Name,
+                            LifeCycleStatusCode_code: opportunityResponse.LifeCycleStatusCode,
+                            MainEmployeeResponsiblePartyID: opportunityResponse.MainEmployeeResponsiblePartyID,
+                            MainEmployeeResponsiblePartyName: opportunityResponse.MainEmployeeResponsiblePartyName,
+                            CreatedBy: opportunityResponse.CreatedBy,
+                            LastChangeDateTime: formattedDate,
+                            LastChangedBy: opportunityResponse.LastChangedBy,
+                        }
+
+                        await UPDATE(Opportunity).with(opportunity).where({ ObjectID: opportunityResponse.ObjectID });
+
+                        // if (opportunityResponse.OpportunityAttachmentFolder.length) {
+                        //     opportunityResponse.OpportunityAttachmentFolder.forEach(async attachmentResponse => {
+                        //         if (attachmentResponse) {
+                        //             const str = attachmentResponse.Binary;
+                        //             const content = Buffer.from(str, 'base64').toString();
+                        //             const buffer = Buffer.from(content, 'utf-8');
+                        //             const attachment = {
+                        //                 content: buffer,
+                        //                 fileName: attachmentResponse.Name,
+                        //                 url: attachmentResponse.DocumentLink,
+                        //                 mediaType: attachmentResponse.MimeType
+                        //             }
+                        //             const attachmentInDB = await SELECT.one.from(Attachement).where({ ObjectID: attachmentResponse.ObjectID });
+                        //             if (attachmentInDB)
+                        //                 await UPDATE(Attachement, attachmentInDB.ID).with(attachment);
+                        //             else {
+                        //                 attachment.ObjectID = attachmentResponse.ObjectID;
+                        //                 attachment.Opportunity_ID = opportunityID;
+                        //                 await INSERT.into(Attachement).entries(attachment);
+                        //             }
+                        //         }
+                        //     });
+                        // }
+                        // // if no ObjectID is in remote attachments, need to delete
+                        // const attachmentsInDB = await SELECT(Attachement).where({ Opportunity_ID: opportunityID });
+
+                        // if (attachmentsInDB.length) {
+                        //     const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
+                        //         opportunityResponse.OpportunityAttachmentFolder, "ObjectID", "ObjectID");
+                        //     const attachmentObjectIDsToBeDeleted = attachmentsToBeDeleted.map(item => item.ObjectID);
+                        //     if (attachmentObjectIDsToBeDeleted.length)
+                        //         await DELETE.from(Attachement).where({ ObjectID: attachmentObjectIDsToBeDeleted });
+                        // }
+
+                        return SELECT(Opportunity, opportunityID);
                     }
-                    const c4cResponse = await sendRequestToC4C(createRequestParameters);
-                    const opportunityResponse = c4cResponse.data.d.results;
-
-                    const LastChangeDateTime = opportunityResponse.LastChangeDateTime;
-                    const timestamp = opportunityResponse.LastChangeDateTime.substring(LastChangeDateTime.indexOf('(') + 1, LastChangeDateTime.indexOf(')'));
-                    const date = new Date(Number(timestamp));
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed, so add 1 and pad with '0' if necessary
-                    const day = String(date.getDate()).padStart(2, '0'); // Pad day with '0' if necessary
-                    const formattedDate = `${year}-${month}-${day}`;
-
-                    const opportunity = {
-                        InternalID: opportunityResponse.ID,
-                        ProspectPartyID: opportunityResponse.ProspectPartyID,
-                        ProspectPartyName: opportunityResponse.ProspectPartyName,
-                        Subject: opportunityResponse.Name,
-                        LifeCycleStatusCode_code: opportunityResponse.LifeCycleStatusCode,
-                        MainEmployeeResponsiblePartyID: opportunityResponse.MainEmployeeResponsiblePartyID,
-                        MainEmployeeResponsiblePartyName: opportunityResponse.MainEmployeeResponsiblePartyName,
-                        CreatedBy: opportunityResponse.CreatedBy,
-                        LastChangeDateTime: formattedDate,
-                        LastChangedBy: opportunityResponse.LastChangedBy,
-                    }
-
-                    await UPDATE(Opportunity).with(opportunity).where({ ObjectID: opportunityResponse.ObjectID });
-
-                    if (opportunityResponse.OpportunityAttachmentFolder.length) {
-                        opportunityResponse.OpportunityAttachmentFolder.forEach(async attachmentResponse => {
-                            if (attachmentResponse) {
-                                const str = attachmentResponse.Binary;
-                                const content = Buffer.from(str, 'base64').toString();
-                                const buffer = Buffer.from(content, 'utf-8');
-                                const attachment = {
-                                    content: buffer,
-                                    fileName: attachmentResponse.Name,
-                                    url: attachmentResponse.DocumentLink,
-                                    mediaType: attachmentResponse.MimeType
-                                }
-                                const attachmentInDB = await SELECT.one.from(Attachement).where({ ObjectID: attachmentResponse.ObjectID });
-                                if (attachmentInDB)
-                                    await UPDATE(Attachement, attachmentInDB.ID).with(attachment);
-                                else {
-                                    attachment.ObjectID = attachmentResponse.ObjectID;
-                                    attachment.Opportunity_ID = opportunityID;
-                                    await INSERT.into(Attachement).entries(attachment);
-                                }
-                            }
+                    catch (error) {
+                        req.reject({
+                            message: error.message
                         });
                     }
-                    // if no ObjectID is in remote attachments, need to delete
-                    const attachmentsInDB = await SELECT(Attachement).where({ Opportunity_ID: opportunityID });
-
-                    if (attachmentsInDB.length) {
-                        const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
-                            opportunityResponse.OpportunityAttachmentFolder, "ObjectID", "ObjectID");
-                        const attachmentObjectIDsToBeDeleted = attachmentsToBeDeleted.map(item => item.ObjectID);
-                        if (attachmentObjectIDsToBeDeleted.length)
-                            await DELETE.from(Attachement).where({ ObjectID: attachmentObjectIDsToBeDeleted });
-                    }
-
-                    return SELECT(Opportunity, opportunityID);
-                }
-                catch (error) {
-                    req.reject({
-                        message: error.message
-                    });
                 }
             }
         });

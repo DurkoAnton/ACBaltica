@@ -14,5 +14,6 @@ service ServiceRequestService {
   { *, toItemProduct.InternalID as ProductInternalID, toItemProduct.ProductCategory as ProductCategory, toItemProduct.ProductStatusDescription as ProductStatus };
   entity Attachement as projection on customer.Attachment;
   entity Customer as projection on customer.Customer;
+  entity ServiceRequestStatusCode as projection on customer.ServiceRequestStatusCodes;
 }
 annotate ServiceRequestService.ServiceRequest with @odata.draft.enabled;

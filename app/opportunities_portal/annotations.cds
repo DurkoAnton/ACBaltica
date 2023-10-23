@@ -123,6 +123,13 @@ annotate service.Opportunity with @(
         $Type: 'UI.FieldGroupType',
         Data : [
             {
+                $Type: 'UI.DataFieldWithIntentBasedNavigation',
+                SemanticObject : 'Opportunity',
+                Label: 'Customer ID',
+                Value : Customer_ID,
+                Action:'display'
+           },
+            {
                 $Type: 'UI.DataField',
                 Value: ProspectPartyID,
                 Label: 'Customer ID',
@@ -135,6 +142,18 @@ annotate service.Opportunity with @(
         ]
     }
 );
+
+// annotate service.Opportunity with {
+//     ProspectPartyID @(
+//         Common.SemanticObject : 'Customer',
+//         Common.SemanticObjectMapping: [
+//             {
+//                 LocalProperty : ID,
+//                 SemanticObjectProperty : 'ID',
+//             }
+//         ]
+//     )
+// };
 
 annotate service.Opportunity with {
     ProspectPartyID                  @(Common: {
@@ -329,11 +348,11 @@ annotate service.Opportunity with @(UI.Identification: [
         Action: 'OpportunityService.updateFromRemote',
         Label : 'Refresh'
     },
-    {
-        $Type : 'UI.DataFieldForAction',
-        Action: 'OpportunityService.LoadProducts',
-        Label : 'Load Products'
-    },
+    // {
+    //     $Type : 'UI.DataFieldForAction',
+    //     Action: 'OpportunityService.LoadProducts',
+    //     Label : 'Load Products'
+    // },
 ]);
 
 annotate service.Item @(Common: {SideEffects #toItemProductChanged: {

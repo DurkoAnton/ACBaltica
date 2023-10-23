@@ -8,3 +8,5 @@ using from './partner_page/annotations';
 using from './service_requests/annotations';
 
 using from './opportunities_portal/annotations';
+
+using from './request-approval/annotations';

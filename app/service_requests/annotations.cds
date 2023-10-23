@@ -104,7 +104,7 @@ annotate service.ServiceRequest with @(
             },
         ]
     },
-    UI.FieldGroup #ProblemItem      : {
+    UI.FieldGroup #ProblemItem  : {
         $Type: 'UI.FieldGroupType',
         Data : [
             {

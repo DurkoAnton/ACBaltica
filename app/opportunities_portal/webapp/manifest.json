@@ -39,6 +39,21 @@
                     "subTitle": "{{flpSubtitle}}",
                     "icon": ""
                 }
+            },
+            "outbounds": {
+                "Customer-display": {
+                    "semanticObject": "Customer",
+                    "action": "display",
+                    "parameters": {
+                        "Customer_ID": {
+                            "value" :
+                            {
+                                "value": "b2ac9621-fae6-4099-953b-f174e6ae381e",
+                                "format": "plain"
+                            }
+                        }
+                    }
+                }
             }
         }
     },
@@ -122,6 +137,13 @@
                         "Opportunity_ItemsObjectPage",
                         "OpportunityObjectPage"
                     ]
+                },
+                {
+                    "pattern": "Opportunity({key})/Customer({key2}):?query:",
+                    "name": "Opportunity_CustomerObjectPage",
+                    "target": [
+                        "Opportunity_CustomerObjectPage"
+                    ]
                 }
             ],
             "targets": {
@@ -174,6 +196,11 @@
                                     "detail": {
                                         "route": "OpportunityItemsObjectPage"
                                     }
+                                },
+                                "Customer":{
+                                    "detail": {
+                                        "route": "Opportunity_CustomerObjectPage"
+                                    }
                                 }
                             },
                             "controlConfiguration": {
@@ -189,6 +216,23 @@
                     },
                     "controlAggregation": "beginColumnPages",
                     "contextPattern": "/Opportunity({key})"
+                },
+                "Opportunity_CustomerObjectPage": {
+                    "type": "Component",
+                    "id": "Opportunity_CustomerObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "entitySet": "/Opportunity/Customer",
+                            "allowDeepLinking": true,
+                            "navigation": {
+                                
+                            }
+                           
+                        }
+                    },
+                    "controlAggregation": "beginColumnPages",
+                    "contextPattern": "/Opportunity({key})/Customer({key2})"
                 },
                 "Opportunity_ItemsObjectPage": {
                     "type": "Component",

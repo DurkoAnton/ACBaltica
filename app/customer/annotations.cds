@@ -345,7 +345,6 @@ annotate service.Opportunity with @(
     }
 );
 
-
 annotate service.Item with @(
     UI.LineItem #Items: [
         {
@@ -595,20 +594,6 @@ annotate service.Bank with @(
 );
 
 annotate service.ServiceRequest with @(
-    UI.Facets                   : [
-        {
-            $Type : 'UI.ReferenceFacet',
-            Label : 'General Information',
-            ID    : 'GeneralInfo',
-            Target: '@UI.FieldGroup#GeneralInfoSR',
-        },
-        {
-            $Type : 'UI.ReferenceFacet',
-            Label : 'Attachments',
-            ID    : 'Attachments',
-            Target: 'Attachment/@UI.LineItem#Attachments',
-        },
-    ],
     UI.FieldGroup #GeneralInfoSR: {
         $Type: 'UI.FieldGroupType',
         Data : [
@@ -629,28 +614,8 @@ annotate service.ServiceRequest with @(
             },
             {
                 $Type: 'UI.DataField',
-                Label: 'Order ID',
-                Value: OrderID,
-            },
-            {
-                $Type: 'UI.DataField',
-                Label: 'Problem Items',
-                Value: ProblemItem,
-            },
-            {
-                $Type: 'UI.DataField',
                 Label: 'Category',
                 Value: Category_code,
-            },
-            {
-                $Type: 'UI.DataField',
-                Label: 'Customer',
-                Value: CustomerID,
-            },
-            {
-                $Type: 'UI.DataField',
-                Label: 'Processor',
-                Value: Processor,
             },
             {
                 $Type: 'UI.DataField',
@@ -669,6 +634,67 @@ annotate service.ServiceRequest with @(
             },
         ],
     },
+    UI.FieldGroup #Parties      : {
+        $Type: 'UI.FieldGroupType',
+        Data : [
+            // {
+            //     $Type: 'UI.DataField',
+            //     Label: 'Customer',
+            //     Value: CustomerID,
+            // },
+            {
+                $Type: 'UI.DataField',
+                Label: 'Customer',
+                Value: Customer.CustomerFormattedName,
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'Processor',
+                Value: Processor,
+            },
+        ]
+    },
+    UI.FieldGroup #ProblemItem      : {
+        $Type: 'UI.FieldGroupType',
+        Data : [
+            {
+                $Type: 'UI.DataField',
+                Label: 'Order ID',
+                Value: OrderID,
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'Problem Items',
+                Value: ProblemItem,
+            },
+        ]
+    },
+    UI.Facets                   : [
+        {
+            $Type : 'UI.ReferenceFacet',
+            ID    : 'GeneralInfo',
+            Label : 'General Information',
+            Target: '@UI.FieldGroup#GeneralInfoSR',
+        },
+        {
+            $Type : 'UI.ReferenceFacet',
+            Label : 'Parties',
+            ID    : 'Parties',
+            Target: '@UI.FieldGroup#Parties',
+        },
+        {
+            $Type : 'UI.ReferenceFacet',
+            Label : 'Problem Item',
+            ID    : 'ProblemItem',
+            Target: '@UI.FieldGroup#ProblemItem',
+        },
+        {
+            $Type : 'UI.ReferenceFacet',
+            Label : 'Attachments',
+            ID    : 'Attachments',
+            Target: 'Attachment/@UI.LineItem#Attachments',
+        },
+    ]
 );
 
 annotate service.Attachement with @(UI.LineItem #Attachments: [
@@ -923,11 +949,11 @@ annotate service.Customer with @(UI.Identification: [{
 }]);
 
 annotate service.Opportunity with @(UI.Identification: [
-    {
-        $Type : 'UI.DataFieldForAction',
-        Action: 'CustomerService.LoadProducts',
-        Label : 'Load Products'
-    },
+    // {
+    //     $Type : 'UI.DataFieldForAction',
+    //     Action: 'CustomerService.LoadProducts',
+    //     Label : 'Load Products'
+    // },
     {
         $Type : 'UI.DataFieldForAction',
         Action: 'CustomerService.updateFromRemote',
@@ -977,6 +1003,12 @@ annotate service.Item @(Common: {SideEffects #toItemProductChanged: {
         toItemProduct.SalesPriceLists
     ]
 }});
+
+// annotate service.ServiceRequest @(Common: {SideEffects #CustomerChanged: {
+//     SourceProperties: ['Status_code'],
+//     TargetEntities  : [Status]
+// }});
+
 
 annotate service.ServiceRequest @(Common: {SideEffects #StatusChanged: {
     SourceProperties: ['Status_code'],

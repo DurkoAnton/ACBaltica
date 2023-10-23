@@ -103,22 +103,30 @@
                 {
                     "pattern": "PartnerProfile({key}):?query:",
                     "name": "PartnerProfileObjectPage",
-                    "target": "PartnerProfileObjectPage"
+                    "target": [
+                        "PartnerProfileObjectPage"
+                    ]
                 },
                 {
                     "pattern": "PartnerProfile({key})/ToCustomers({key2}):?query:",
                     "name": "PartnerProfile_ToCustomersObjectPage",
-                    "target": "PartnerProfile_ToCustomersObjectPage"
+                    "target": [
+                        "PartnerProfile_ToCustomersObjectPage"
+                    ]
                 },
                 {
                     "pattern": "PartnerProfile({key})/ToCustomers({key2})/ToServiceRequests({key3}):?query:",
                     "name": "PartnerProfile_ToCustomers_ToServiceRequestsObjectPage",
-                    "target": "PartnerProfile_ToCustomers_ToServiceRequestsObjectPage"
+                    "target": [
+                        "PartnerProfile_ToCustomers_ToServiceRequestsObjectPage"
+                    ]
                 },
                 {
                     "pattern": "PartnerProfile({key})/ToCustomers({key2})/ToOpportunities({key3}):?query:",
                     "name": "PartnerProfile_ToCustomers_ToOpportunitiesObjectPage",
-                    "target": "PartnerProfile_ToCustomers_ToOpportunitiesObjectPage"
+                    "target": [
+                        "PartnerProfile_ToCustomers_ToOpportunitiesObjectPage"
+                    ]
                 },
                 {
                     "pattern": "PartnerProfile({key})/ToCustomers({key2})/ToOpportunities({key3})/Items({key4}):?query:",
@@ -136,7 +144,6 @@
                     "name": "sap.fe.templates.ObjectPage",
                     "options": {
                         "settings": {
-                            "editableHeaderContent": false,
                             "entitySet": "PartnerProfile",
                             "content": {
                                 "header": {
@@ -154,7 +161,6 @@
                             "controlConfiguration": {
                                 "ToCustomers/@com.sap.vocabularies.UI.v1.LineItem#Customers": {
                                     "tableSettings": {
-                                        "enableFullScreen": true,
                                         "visibleRowCount ": 0,
                                         "enableExport": false,
                                         "type": "GridTable"
@@ -167,7 +173,9 @@
                                 }
                             }
                         }
-                    }
+                    },
+                    "controlAggregation": "beginColumnPages",
+                    "contextPattern": "/PartnerProfile({key})"
                 },
                 "PartnerProfile_ToCustomersObjectPage": {
                     "type": "Component",
@@ -175,7 +183,6 @@
                     "name": "sap.fe.templates.ObjectPage",
                     "options": {
                         "settings": {
-                            "editableHeaderContent": false,
                             "contextPath": "/PartnerProfile/ToCustomers",
                             "navigation": {
                                 "ToServiceRequests": {
@@ -188,9 +195,76 @@
                                         "route": "PartnerProfile_ToCustomers_ToOpportunitiesObjectPage"
                                     }
                                 }
-                            }
+                            },
+                            "controlConfiguration": {
+                                "ToOpportunities/@com.sap.vocabularies.UI.v1.LineItem#Opportunities": {
+                                    "columns": {
+                                        "DataField::InternalID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Subject": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::ProspectPartyID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::ProspectPartyName": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::LifeCycleStatusCode::name": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::MainEmployeeResponsiblePartyID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::MainEmployeeResponsiblePartyName": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::LastChangeDateTime": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::LastChangedBy": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CreationDateTime": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CreatedBy": {
+                                            "width": "auto"
+                                        }
+                                    }
+                                },
+                                "ToServiceRequests/@com.sap.vocabularies.UI.v1.LineItem#ServiceRequests": {
+                                    "columns": {
+                                        "DataField::Status_code": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Category_code": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::ProblemDescription": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Processor": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::RequestProcessingTime": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::OrderID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CreationDate": {
+                                            "width": "auto"
+                                        }
+                                    }
+                                }
+                            },
+                            "editableHeaderContent": false
                         }
-                    }
+                    },
+                    "controlAggregation": "beginColumnPages",
+                    "contextPattern": "/PartnerProfile({key})/ToCustomers({key2})"
                 },
                 "PartnerProfile_ToCustomers_ToServiceRequestsObjectPage": {
                     "type": "Component",
@@ -198,12 +272,14 @@
                     "name": "sap.fe.templates.ObjectPage",
                     "options": {
                         "settings": {
-                            "editableHeaderContent": false,
                             "entitySet": "ServiceRequest",
                             "contextPath": "/PartnerProfile/ToCustomers/ToServiceRequests",
-                            "navigation": {}
+                            "navigation": {},
+                            "editableHeaderContent": false
                         }
-                    }
+                    },
+                    "controlAggregation": "endColumnPages",
+                    "contextPattern": "/PartnerProfile({key})/ToCustomers({key2})/ToServiceRequests({key3})"
                 },
                 "PartnerProfile_ToCustomers_ToOpportunitiesObjectPage": {
                     "type": "Component",
@@ -211,7 +287,6 @@
                     "name": "sap.fe.templates.ObjectPage",
                     "options": {
                         "settings": {
-                            "editableHeaderContent": false,
                             "entitySet": "Opportunity",
                             "contextPath": "/PartnerProfile/ToCustomers/ToOpportunities",
                             "navigation": {
@@ -220,10 +295,12 @@
                                         "route": "PartnerProfile_ToCustomers_ToOpportunitiesItemsObjectPage"
                                     }
                                 }
-                            }
+                            },
+                            "editableHeaderContent": false
                         }
-                        
-                    }
+                    },
+                    "controlAggregation": "beginColumnPages",
+                    "contextPattern": "/PartnerProfile({key})/ToCustomers({key2})/ToOpportunities({key3})"
                 },
                 "PartnerProfile_ToCustomers_ToOpportunitiesItemsObjectPage": {
                     "type": "Component",
@@ -253,10 +330,12 @@
                                         }
                                     }
                                 }
-                            }
+                            },
+                            "editableHeaderContent": false
                         }
-                    }
-                    
+                    },
+                    "controlAggregation": "midColumnPages",
+                    "contextPattern": "/PartnerProfile({key})/ToCustomers({key2})/ToOpportunities({key3})/Items({key4})"
                 }
             },
             "config": {
@@ -270,6 +349,12 @@
             "extensions": {
                 "sap.ui.controllerExtensions": {}
             }
+        },
+        "rootView": {
+            "viewName": "sap.fe.templates.RootContainer.view.Fcl",
+            "type": "XML",
+            "async": true,
+            "id": "appRootView"
         }
     },
     "sap.fiori": {
