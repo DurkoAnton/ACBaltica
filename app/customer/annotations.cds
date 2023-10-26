@@ -149,7 +149,7 @@ annotate service.Bank with @(UI.HeaderInfo: {
 });
 
 annotate service.Customer with @(UI.HeaderInfo: {
-    TypeName      : 'Customer',
+    TypeName      : 'Customers',
     TypeNamePlural: 'Customers',
     Title         : {
         $Type: 'UI.DataField',
@@ -725,14 +725,13 @@ annotate service.Customer with {
             CollectionPath: 'StatusCodes',
             Parameters    : [
                 {
-                    $Type            : 'Common.ValueListParameterInOut',
+                    $Type            : 'Common.ValueListParameterOut',
                     ValueListProperty: 'code',
                     LocalDataProperty: Status_code
                 },
                 {
-                    $Type            : 'Common.ValueListParameterOut',
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'name',
-                    LocalDataProperty: Status.name
                 },
             ]
         }
@@ -1008,6 +1007,11 @@ annotate service.Item @(Common: {SideEffects #toItemProductChanged: {
 //     SourceProperties: ['Status_code'],
 //     TargetEntities  : [Status]
 // }});
+
+annotate service.Customer @(Common: {SideEffects #StatusChanged: {
+    SourceProperties: ['Status_code'],
+    TargetEntities  : [Status]
+}});
 
 
 annotate service.ServiceRequest @(Common: {SideEffects #StatusChanged: {

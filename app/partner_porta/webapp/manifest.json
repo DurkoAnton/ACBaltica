@@ -97,11 +97,7 @@
         },
         "routing": {
             "routes": [
-                {
-                    "pattern": ":?query:",
-                    "name": "PartnerProfileList",
-                    "target": "PartnerProfileList"
-                },
+               
                 {
                     "pattern": "PartnerProfile({key}):?query:",
                     "name": "PartnerProfileObjectPage",
@@ -114,26 +110,7 @@
                 }
             ],
             "targets": {
-                "PartnerProfileList": {
-                    "type": "Component",
-                    "id": "PartnerProfileList",
-                    "name": "sap.fe.templates.ListReport",
-                    "options": {
-                        "settings": {
-                            "entitySet": "PartnerProfile",
-                            "variantManagement": "Page",
-                            "navigation": {
-                                "PartnerProfile": {
-                                    "detail": {
-                                        "route": "PartnerProfileObjectPage"
-                                    }
-                                }
-                            },
-                            "hideFilterBar": false,
-                            "initialLoad": true
-                        }
-                    }
-                },
+               
                 "PartnerProfileObjectPage": {
                     "type": "Component",
                     "id": "PartnerProfileObjectPage",

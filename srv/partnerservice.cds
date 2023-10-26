@@ -9,10 +9,6 @@ service PartnerService {
     }
     entity PartnerProfile as projection on partner.partnerProfile
     actions{
-      //@cds.odata.bindingparameter.name : '_it'
-            // @Common.SideEffects : {
-            //     TargetProperties : ['/ToCustomers']
-            // } 
         action updateAllFieldsFromRemote() returns PartnerProfile;
     }
     entity Customer as projection on customer.Customer;

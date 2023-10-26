@@ -271,6 +271,11 @@ annotate service.ServiceRequest with {
                     LocalDataProperty: OrderID // filter by selected Order
                 },
                 {
+                    $Type            : 'Common.ValueListParameterIn',
+                    ValueListProperty: 'toOpportunity/ProspectPartyID',
+                    LocalDataProperty: Customer_ID // filter by selected Customer
+                },
+                {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'ProductInternalID'
                 },

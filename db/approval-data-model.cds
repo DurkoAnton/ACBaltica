@@ -7,35 +7,22 @@ entity RequestApproval : cuid {
     CustomerID : UUID;
     Customer : Association to one customer.Customer on Customer.ID = $self.CustomerID;
 
-    //copies of fields from current object state
-    //OldCustomer {
-        // CustomerFormattedNameOld : String ;
-        // ResponsibleManagerOld : String ;
-        // StatusCodeOld : Association to customer.StatusCodes ;
-        // StatusDescriptionOld : String(20) ;
-        // NoteOld : String @UI.MultiLineText ;
-
-        // JuridicalCountryOld : Country ;
-        // //Region : Region;
-        // JuridicalCityOld : String ;
-        // JuridicalStreetOld : String ;
-        // JuridicalHomeIDOld : String ;
-        // JuridicalRoomIDOld : String ;
-    //}
-
     currentData : CustomerDataSet;
+    currentStatusCode : Association to customer.StatusCodes;
+    //currentStatusDescription : String(20);
+    currentCountry : Country;
     newData : CustomerDataSet;
+    newStatusCode : Association to customer.StatusCodes;
+    //newStatusDescription : String(20);
+    newCountry : Country;
 }
 
 type CustomerDataSet {
         CustomerFormattedName : String ;
         ResponsibleManager : String;
         ResponsibleManagerID : String;
-        StatusCode : Association to customer.StatusCodes;
-        StatusDescription : String(20);
         Note : String @UI.MultiLineText ;
 
-        JuridicalCountry : Country;
         //Region : Region;
         JuridicalCity : String ;
         JuridicalStreet : String ;

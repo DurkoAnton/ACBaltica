@@ -74,10 +74,6 @@ modules:
       name: customer
       target-path: resources/
     - artifacts:
-      - portal.zip
-      name: portal
-      target-path: resources/
-    - artifacts:
       - partnerpage.zip
       name: partnerpage
       target-path: resources/
@@ -93,10 +89,6 @@ modules:
       - requestapproval.zip
       name: requestapproval
       target-path: resources/
-    - artifacts:
-      - project1.zip
-      name: project1
-      target-path: resources/
 - name: partnerporta
   type: html5
   path: app/partner_porta
@@ -110,16 +102,6 @@ modules:
 - name: customer
   type: html5
   path: app/customer
-  build-parameters:
-    build-result: dist
-    builder: custom
-    commands:
-    - npm install
-    - npm run build:cf
-    supported-platforms: []
-- name: portal
-  type: html5
-  path: app/portal
   build-parameters:
     build-result: dist
     builder: custom
@@ -167,16 +149,6 @@ modules:
 - name: requestapproval
   type: html5
   path: app/request-approval
-  build-parameters:
-    build-result: dist
-    builder: custom
-    commands:
-    - npm install
-    - npm run build:cf
-    supported-platforms: []
-- name: project1
-  type: html5
-  path: app/project1
   build-parameters:
     build-result: dist
     builder: custom
@@ -243,5 +215,4 @@ build-parameters:
   before-all:
   - builder: custom
     commands:
-    - npm ci
-    - npx -p @sap/cds-dk cds build --production
+    - npx cds build --production

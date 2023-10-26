@@ -122,13 +122,13 @@ annotate service.Opportunity with @(
     UI.FieldGroup #Parties    : {
         $Type: 'UI.FieldGroupType',
         Data : [
-            {
-                $Type: 'UI.DataFieldWithIntentBasedNavigation',
-                SemanticObject : 'Opportunity',
-                Label: 'Customer ID',
-                Value : Customer_ID,
-                Action:'display'
-           },
+        //     {
+        //         $Type: 'UI.DataFieldWithIntentBasedNavigation',
+        //         SemanticObject : 'Opportunity',
+        //         Label: 'Customer ID',
+        //         Value : Customer_ID,
+        //         Action:'display'
+        //    },
             {
                 $Type: 'UI.DataField',
                 Value: ProspectPartyID,
@@ -333,8 +333,8 @@ annotate service.Opportunity with {
 };
 
 annotate service.Opportunity with @(UI.HeaderInfo: {
-    TypeName      : '{i18n>Subject}',
-    TypeNamePlural: '{i18n>Subjects}',
+    TypeName      : 'Opportunity',
+    TypeNamePlural: 'Opportunities',
     Title         : {
         $Type: 'UI.DataField',
         Label: '{i18n>Subject}}',
@@ -348,11 +348,11 @@ annotate service.Opportunity with @(UI.Identification: [
         Action: 'OpportunityService.updateFromRemote',
         Label : 'Refresh'
     },
-    // {
-    //     $Type : 'UI.DataFieldForAction',
-    //     Action: 'OpportunityService.LoadProducts',
-    //     Label : 'Load Products'
-    // },
+    {
+        $Type : 'UI.DataFieldForAction',
+        Action: 'OpportunityService.LoadProducts',
+        Label : 'Load Products'
+    },
 ]);
 
 annotate service.Item @(Common: {SideEffects #toItemProductChanged: {

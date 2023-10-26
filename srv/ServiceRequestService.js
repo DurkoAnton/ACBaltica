@@ -1,6 +1,4 @@
 const cds = require('@sap/cds')
-//const jwt_decode = require('jwt-decode');
-//const { attachment } = require('express/lib/response');
 const { getObjectsWithDifferentPropertyValue, createAttachmentBody } = require('./libs/utils');
 const { sendRequestToC4C } = require('./libs/ManageAPICalls');
 
@@ -9,18 +7,27 @@ class ServiceRequestService extends cds.ApplicationService {
 
         const { Customer, ServiceRequest, Attachement } = this.entities;
 
-        const tx = await cds.tx();
-
         async function _createServiceRequestInstances(c4cResponse) {
 
         }
 
         this.before('READ', 'ServiceRequest', async req => {
             if (req._path == 'ServiceRequest' && req._.event == 'READ') { // read only for general list
+                if (req.headers['x-username']){
+                    const partner = await SELECT.one.from('Partner_PartnerProfile').where({Email: req.headers['x-username']});
+                    if (partner){
+                        req.query.where({ 'MainContactID': partner.CODE });
+                    }
+                }
+            }
+        });
+
+        this.before('NEW', 'ServiceRequest', async req => {
+            if (req.headers['x-username']){
                 const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: req.headers["x-username"] });
-                const customers = await SELECT.from("Customer_Customer").where({ MainContactID: partner.CODE });
-                const idArray = customers.map(item => item.ID);
-                req.query.where({ 'Customer_ID': idArray });
+                if(partner){
+                    req.data.MainContactID = partner.CODE;
+                }
             }
         });
 
@@ -56,6 +63,7 @@ class ServiceRequestService extends cds.ApplicationService {
                     RequestProcessingTime: serviceRequestResponse.RequestInProcessdatetimeContent,
                     OrderID: serviceRequestResponse.SalesOrderID,
                     ProblemDescription: serviceRequestResponse.Name,
+                    MainContactID: serviceRequestResponse.BuyerMainContactPartyID,
                 }
 
                 await UPDATE(ServiceRequest).with(serviceRequest).where({ ObjectID: serviceRequestResponse.ObjectID });

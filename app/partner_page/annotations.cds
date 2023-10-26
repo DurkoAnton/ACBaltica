@@ -1010,19 +1010,19 @@ annotate service.PartnerProfile with @(
     UI.Facets                       : [
         {
             $Type : 'UI.ReferenceFacet',
-            Label : 'General Info',
+            Label : 'General Information',
             ID    : 'GeneralInfo',
             Target: '@UI.FieldGroup#GeneralInfo',
         },
         {
             $Type : 'UI.ReferenceFacet',
-            Label : 'Address Info',
+            Label : 'Address Information',
             ID    : 'AddressInfo',
             Target: '@UI.FieldGroup#AddressInfo',
         },
         {
             $Type : 'UI.ReferenceFacet',
-            Label : 'Communication Info',
+            Label : 'Communication Information',
             ID    : 'CommunicationInfo',
             Target: '@UI.FieldGroup#CommunicationInfo',
         },

@@ -72,31 +72,25 @@ annotate service.RequestApproval with @(
         Data : [
             {
                 $Type : 'UI.DataField',
-                Label : 'Customer Name Old',
+                Label : 'Customer Name',
                 Value : currentData_CustomerFormattedName,
                  ![@Common.FieldControl]: #ReadOnly,
             },
             { 
                 $Type : 'UI.DataField',
-                Label : 'Responsible Manager Old',
+                Label : 'Responsible Manager',
                 Value : currentData_ResponsibleManager,
                  ![@Common.FieldControl]: #ReadOnly,
             },
             {
                 $Type : 'UI.DataField',
-                Label : 'Status Old',
-                Value : currentData_StatusCode_code,
-                 ![@Common.FieldControl]: #ReadOnly,
-            },
-            {
-                $Type : 'UI.DataField',
-                Label : 'Status Old descr',
-                Value : currentData_StatusDescription,
+                Label : 'Status',
+                Value : currentStatusCode_code,
                  ![@Common.FieldControl]: #ReadOnly,
             },
             { 
                 $Type : 'UI.DataField',
-                Label : 'Note Old',
+                Label : 'Note',
                 Value : currentData_Note,
                  ![@Common.FieldControl]: #ReadOnly,
             },
@@ -107,31 +101,31 @@ annotate service.RequestApproval with @(
         Data : [
    { 
                 $Type : 'UI.DataField',
-                Label : 'Country Old',
-                Value : currentData_JuridicalCountry_code,
+                Label : 'Country',
+                Value : currentCountry_code,
                  ![@Common.FieldControl]: #ReadOnly,
             },
             { 
                 $Type : 'UI.DataField',
-                Label : 'City Old',
+                Label : 'City',
                 Value : currentData_JuridicalCity,
                  ![@Common.FieldControl]: #ReadOnly,
             },
             { 
                 $Type : 'UI.DataField',
-                Label : 'Street Old',
+                Label : 'Street',
                 Value : currentData_JuridicalStreet,
                  ![@Common.FieldControl]: #ReadOnly,
             },
             { 
                 $Type : 'UI.DataField',
-                Label : 'House Old',
+                Label : 'House',
                 Value : currentData_JuridicalHomeID,
                  ![@Common.FieldControl]: #ReadOnly,
             },
             { 
                 $Type : 'UI.DataField',
-                Label : 'Room Old',
+                Label : 'Room',
                 Value : currentData_JuridicalRoomID,
                  ![@Common.FieldControl]: #ReadOnly,
             },
@@ -141,27 +135,27 @@ annotate service.RequestApproval with @(
         Data : [
    { 
                 $Type : 'UI.DataField',
-                Label : 'Country New',
-                Value : newData_JuridicalCountry_code,
+                Label : 'Country',
+                Value : newCountry_code,
             },
             { 
                 $Type : 'UI.DataField',
-                Label : 'City New',
+                Label : 'City',
                 Value : newData_JuridicalCity,
             },
             { 
                 $Type : 'UI.DataField',
-                Label : 'Street New',
+                Label : 'Street',
                 Value : newData_JuridicalStreet,
             },
             { 
                 $Type : 'UI.DataField',
-                Label : 'House New',
+                Label : 'House',
                 Value : newData_JuridicalHomeID,
             },
             { 
                 $Type : 'UI.DataField',
-                Label : 'Room New',
+                Label : 'Room',
                 Value : newData_JuridicalRoomID,
             },
         ]},
@@ -171,18 +165,18 @@ annotate service.RequestApproval with @(
         Data : [
             {
                 $Type : 'UI.DataField',
-                Label : 'Customer Name New',
+                Label : 'Customer Name',
                 Value : newData_CustomerFormattedName,
             },
             { 
                 $Type : 'UI.DataField',
-                Label : 'Responsible Manager New',
+                Label : 'Responsible Manager',
                 Value : newData_ResponsibleManager,
             },
              { 
                 $Type : 'UI.DataField',
-                Label : 'Status New',
-                Value : newData_StatusCode_code,
+                Label : 'Status',
+                Value : newStatusCode_code,
             },
             { 
                 $Type : 'UI.DataField',
@@ -211,13 +205,6 @@ annotate service.RequestApproval with @(
     },
 );
 
-// annotate service.Customer with {
-//     Status  @(Common: {
-//         Text           : Status.name,
-//         TextArrangement: #TextLast,
-//     })
-// };
-
 annotate service.RequestApproval with {
     CustomerID  @(Common: {
         Text           : Customer.CustomerFormattedName,
@@ -245,21 +232,26 @@ annotate service.RequestApproval with {
                     ValueListProperty: 'Note',
                     LocalDataProperty: currentData_Note
                 },
-                {
-                    $Type            : 'Common.ValueListParameterOut',
-                    ValueListProperty: 'Status/name',
-                    LocalDataProperty: currentData_StatusDescription
-                },
+                // {
+                //     $Type            : 'Common.ValueListParameterOut',
+                //     ValueListProperty: 'Status/name',
+                //     LocalDataProperty: currentStatusDescription
+                // },
                 {
                     $Type            : 'Common.ValueListParameterOut',
                     ValueListProperty: 'Status_code',
-                    LocalDataProperty: currentData_StatusCode_code
+                    LocalDataProperty: currentStatusCode_code
                 },
                 {
                     $Type            : 'Common.ValueListParameterOut',
-                    ValueListProperty: 'JuridicalAddress_Country_code',
-                    LocalDataProperty: currentData_JuridicalCountry_code
+                    ValueListProperty: 'JuridicalCountry_code',
+                    LocalDataProperty: currentCountry_code
                 },
+                //  {
+                //     $Type            : 'Common.ValueListParameterOut',
+                //     ValueListProperty: 'JuridicalCountry/name',
+                //     LocalDataProperty: currentCountryDescription
+                // },
                 {
                     $Type            : 'Common.ValueListParameterOut',
                     ValueListProperty: 'JuridicalAddress_City',
@@ -296,20 +288,20 @@ annotate service.RequestApproval with {
                     ValueListProperty: 'Note',
                     LocalDataProperty: newData_Note
                 },
-                {
-                    $Type            : 'Common.ValueListParameterOut',
-                    ValueListProperty: 'StatusDescription',
-                    LocalDataProperty: newData_StatusDescription
-                },
+                // {
+                //     $Type            : 'Common.ValueListParameterOut',
+                //     ValueListProperty: 'Status/name',
+                //     LocalDataProperty: newStatusDescription
+                // },
                 {
                     $Type            : 'Common.ValueListParameterOut',
                     ValueListProperty: 'Status_code',
-                    LocalDataProperty: newData_StatusCode_code
+                    LocalDataProperty: newStatusCode_code
                 },
                 {
                     $Type            : 'Common.ValueListParameterOut',
-                    ValueListProperty: 'JuridicalAddress_Country_code',
-                    LocalDataProperty: newData_JuridicalCountry_code
+                    ValueListProperty: 'JuridicalCountry_code',
+                    LocalDataProperty: newCountry_code
                 },
                 {
                     $Type            : 'Common.ValueListParameterOut',
@@ -334,41 +326,51 @@ annotate service.RequestApproval with {
             ]
         }
     });
-    // currentData {
-    //     StatusCode 
-    // }
-
-    
-    // currentData_StatusCode @(Common :{
-    //             Text            : StatusDescription,
-    //             TextArrangement : #TextLast,
-    //         });
-   // };
-    //  newData{
-    //     StatusCode @(Common :{
-    //             Text            : StatusDescription,
-    //             TextArrangement : #TextLast,
-    //       ValueList      : {
-    //         CollectionPath: 'Customer',
-    //         Parameters    : [
-    //             {
-    //                 $Type            : 'Common.ValueListParameterInOut',
-    //                 ValueListProperty: 'ID',
-    //                 LocalDataProperty: StatusCode_code
-    //             },
-    //             {
-    //                 $Type            : 'Common.ValueListParameterOut',
-    //                 ValueListProperty: 'name',
-    //                 LocalDataProperty: StatusDescription
-    //             },
-    //         ]
-    //       }
-    //     });
-    //     // JuridicalCountry @(Common :{
-    //     //         Text            : JuridicalCountry_name,
-    //     //         TextArrangement : #TextLast,
-    //     //     });
-    // };
+    currentCountry @(Common:{
+        Text : currentCountry.name,
+        TextArrangement : #TextLast,
+    });
+     newCountry @(Common:{
+        Text : newCountry.name,
+        TextArrangement : #TextLast,
+        ValueList      : {
+            CollectionPath: 'Countries',
+            Parameters    : [
+                {
+                    $Type            : 'Common.ValueListParameterInOut',
+                    ValueListProperty: 'code',
+                    LocalDataProperty: newCountry_code
+                },
+                {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'name',
+                },
+            ]
+        }
+    });
+    currentStatusCode @(Common:{
+        Text : currentStatusCode.name,
+        TextArrangement : #TextLast,
+    });
+    newStatusCode @(Common:{
+        Text : newStatusCode.name,
+        TextArrangement : #TextLast,
+        ValueListWithFixedValues:true,
+         ValueList      : {
+            CollectionPath: 'StatusCodes',
+            Parameters    : [
+                {
+                    $Type            : 'Common.ValueListParameterInOut',
+                    ValueListProperty: 'code',
+                    LocalDataProperty: newStatusCode_code
+                },
+                 {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'name',
+                },
+            ]
+        }
+    });
   
 };
 

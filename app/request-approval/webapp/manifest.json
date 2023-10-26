@@ -137,6 +137,12 @@
                                         },
                                         "DataField::ResponsibleManagerOld": {
                                             "width": "auto"
+                                        },
+                                        "DataField::Customer::InternalID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::currentData_CustomerFormattedName": {
+                                            "width": "auto"
                                         }
                                     }
                                 }
@@ -167,5 +173,9 @@
     "sap.fiori": {
         "registrationIds": [],
         "archeType": "transactional"
+    },
+    "sap.cloud": {
+        "public": true,
+        "service": "BTPdemoPortal"
     }
 }

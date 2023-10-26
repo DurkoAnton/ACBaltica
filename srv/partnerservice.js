@@ -1,7 +1,7 @@
 const { executeHttpRequest, getDestination } = require('@sap-cloud-sdk/core');
 const { getObjectsWithDifferentPropertyValue, createAttachmentBody } = require('./libs/utils');
-//const { sendRequestToC4C } = require('./libs/ManageAPICalls');
-//const { loadProductsAndPricesListsFromC4C } = require('./libs/dataLoading');
+const { sendRequestToC4C } = require('./libs/ManageAPICalls');
+const { loadProductsAndPricesListsFromC4C } = require('./libs/dataLoading');
 
 const destinationName = 'C4C_DEMO';
 
@@ -128,59 +128,73 @@ class PartnerService extends cds.ApplicationService {
             }
         }
 
-        this.before('READ', 'Customer', async (req) => {
+        // this.before('READ', 'Customer', async (req) => {
 
-            if (req._path.endsWith('ToCustomers')) {
-                const customersFromDB = await SELECT.from(Customer);
-                const currentEmail = req.headers['x-username'];
-                const currentPartner = await SELECT.one.from(PartnerProfile).where({ Email: currentEmail });
-                const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${currentEmail}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
-                try {
-                    const createRequestParameters = {
-                        method: 'GET',
-                        url: path,
-                        headers: { 'content-type': 'application/json' }
-                    }
-                    const c4cResponse = await sendRequestToC4C(createRequestParameters);
-                    await _createCustomerInstances(c4cResponse, customersFromDB, currentPartner.Code);
-                }
-                catch (error) {
-                    req.reject({
-                        message: error.message
-                    });
-                }
-            }
-        });
+        //     if (req._path.endsWith('ToCustomers') && req.headers['x-username']) {
+        //         const customersFromDB = await SELECT.from(Customer);
+        //         const currentEmail = req.headers['x-username'];
+        //         const currentPartner = await SELECT.one.from(PartnerProfile).where({ Email: currentEmail });
+        //         const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${currentEmail}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
+        //         try {
+        //             const createRequestParameters = {
+        //                 method: 'GET',
+        //                 url: path,
+        //                 headers: { 'content-type': 'application/json' }
+        //             }
+        //             const c4cResponse = await sendRequestToC4C(createRequestParameters);
+        //             await _createCustomerInstances(c4cResponse, customersFromDB, currentPartner.Code);
+        //         }
+        //         catch (error) {
+        //             req.reject({
+        //                 message: error.message
+        //             });
+        //         }
+        //     }
+        // });
 
+    
         this.on('READ', PartnerProfile, async (req, next) => {
             //open one record for object page 
             if (req._path == 'PartnerProfile') {
-                const currentEmail = req.headers['x-username'];
-                const currentRecord = await SELECT.from(PartnerProfile).where({ Email: currentEmail });
-                return req.reply(currentRecord);
+                console.log(req.headers['x-username'])
+                const currentEmail = 'andrei_matys@atlantconsult.com';
+
+                if (currentEmail) {
+                    const currentRecord = await SELECT.from(PartnerProfile).where({ Email: currentEmail });
+                    return req.reply(currentRecord);
+                }
+                //delete excees created draft
+                if (req._.data.ID){
+                   await DELETE.from(PartnerProfile.drafts).where({ID : req._.data.ID})
+                }
+                
             }
             else return next();
         })
 
-        this.before('READ', PartnerProfile, async (req) => {
+        // this.before('READ', PartnerProfile, async (req) => {
 
-            // check for one current Partner
-            const currentEmail = req.headers['x-username'];
-            const partners = await SELECT.from(PartnerProfile).where({ Email: currentEmail });
+        //     // check for one current Partner
+        //     if (req._path == 'PartnerProfile'){
+        //         const currentEmail = req.headers['x-username'];
+        //         if (currentEmail){
+        //             const partners = await SELECT.from(PartnerProfile).where({ Email: currentEmail });
 
-            if (partners[0] == null) {
-                const destination = await getDestination(destinationName);
-                try {
-                    const partnerProfileObj = await _getDataFromAPI(req, destination, currentEmail);
-                    await _mapRecordInServiceInst(partnerProfileObj);
-                }
-                catch (error) {
-                    req.reject({
-                        message: error.message
-                    });
-                }
-            }
-        })
+        //             if (partners[0] == null) {
+        //                 const destination = await getDestination(destinationName);
+        //                 try {
+        //                     const partnerProfileObj = await _getDataFromAPI(req, destination, currentEmail);
+        //                     await _mapRecordInServiceInst(partnerProfileObj);
+        //                 }
+        //                 catch (error) {
+        //                     req.reject({
+        //                         message: error.message
+        //                     });
+        //                 }
+        //             }
+        //         }
+        //     }
+        // })
 
         this.before('NEW', 'Opportunity', async (req) => {
             const parentId = this._getParentIdFromPath(req);
@@ -193,6 +207,12 @@ class PartnerService extends cds.ApplicationService {
             }
             req.data.LifeCycleStatusCode_code = '1';
             req.data.LifeCycleStatusText = 'Open';
+            if (req.headers['x-username']){
+                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: req.headers["x-username"] });
+                if(partner){
+                    req.data.MainContactID = partner.CODE;
+                }
+            }
         });
 
         this.before('NEW', 'ServiceRequest', async (req) => {
@@ -201,6 +221,12 @@ class PartnerService extends cds.ApplicationService {
             if (customerDB) {
                 req.data.CustomerID = customerDB.InternalID;
                 req.data.Customer_ID = customerDB.ID;
+            }
+            if (req.headers['x-username']){
+                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: req.headers["x-username"] });
+                if(partner){
+                    req.data.MainContactID = partner.CODE;
+                }
             }
        });
 
@@ -386,15 +412,6 @@ class PartnerService extends cds.ApplicationService {
                 }
             });
         });
-
-        async function sendRequestToC4C(requestParams) {
-            const destinationParams = { destinationName: 'C4C_DEMO' };
-            const c4cResponse = await executeHttpRequest(destinationParams, requestParams, {
-                fetchCsrfToken: true
-            });
-            return c4cResponse;
-        }
-
         
         this.on('updateAllFieldsFromRemote', async (req) => {
             const email = req.req.headers['x-username'];
@@ -525,6 +542,7 @@ class PartnerService extends cds.ApplicationService {
                         RequestProcessingTime: serviceRequestResponse.RequestInProcessdatetimeContent,
                         OrderID: serviceRequestResponse.SalesOrderID,
                         ProblemDescription: serviceRequestResponse.Name,
+                        MainContactID: serviceRequestResponse.BuyerMainContactPartyID,
                     }
 
                     await UPDATE(ServiceRequest).with(serviceRequest).where({ ObjectID: serviceRequestResponse.ObjectID });
@@ -607,6 +625,7 @@ class PartnerService extends cds.ApplicationService {
                         CreatedBy: opportunityResponse.CreatedBy,
                         LastChangeDateTime: formattedDate,
                         LastChangedBy: opportunityResponse.LastChangedBy,
+                        MainContactID: opportunityResponse.PrimaryContactPartyID,
                     }
 
                     await UPDATE(Opportunity).with(opportunity).where({ ObjectID: opportunityResponse.ObjectID });

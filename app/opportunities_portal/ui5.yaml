@@ -2,13 +2,3 @@ specVersion: "2.5"
 metadata:
   name: opportunitiesportal
 type: application
-server:
-  customMiddleware:
-    - name: fiori-tools-servestatic
-      afterMiddleware: compression
-      configuration:
-        paths:
-          - path: /resources/customer
-            src: ../customer/webapp
-          - path: /appconfig
-            src: appconfig

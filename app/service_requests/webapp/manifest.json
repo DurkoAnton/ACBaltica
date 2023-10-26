@@ -8,7 +8,7 @@
             "version": "0.0.1"
         },
         "title": "Service Requests",
-        "description": "Service Requests",
+        "description": "List of Service Requests",
         "resources": "resources.json",
         "sourceTemplate": {
             "id": "@sap/generator-fiori:lrop",
@@ -37,7 +37,7 @@
                     "action": "display",
                     "title": "{{flpTitle}}",
                     "subTitle": "{{flpSubtitle}}",
-                    "icon": ""
+                    "icon": ".sap-icon--wrench"
                 }
             }
         }
@@ -131,7 +131,36 @@
                             "controlConfiguration": {
                                 "@com.sap.vocabularies.UI.v1.LineItem": {
                                     "tableSettings": {
-                                        "type": "GridTable"
+                                        "type": "ResponsiveTable"
+                                    },
+                                    "columns": {
+                                        "DataField::InternalID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Status_code": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Category_code": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::ProblemDescription": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Processor": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::RequestProcessingTime": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::OrderID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CreationDate": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::LastChangingDate": {
+                                            "width": "auto"
+                                        }
                                     }
                                 }
                             }

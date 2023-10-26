@@ -12,23 +12,34 @@ class RequestApprovalService extends cds.ApplicationService {
             if (requestApproval){
                 const customer = await SELECT.one.from(Customer).where({ID : requestApproval.CustomerID});
                 if (customer){
-                   const oldData = {
+
+                    let oldCountryDescription;
+                    let newCountryDescription;
+                    if (requestApproval.currentCountry_code){
+                        const oldCountryInst = await SELECT.one.from('SAP_COMMON_COUNTRIES').where({code: requestApproval.currentCountry_code});
+                        oldCountryDescription = oldCountryInst.NAME;
+                    }
+                    if (requestApproval.newCountry_code){
+                        const newCountryInst = await SELECT.one.from('SAP_COMMON_COUNTRIES').where({code: requestApproval.newCountry_code});
+                        newCountryDescription = newCountryInst.NAME;
+                    }
+                    const oldData = {
                         name : requestApproval.currentData_CustomerFormattedName,
                         responsibleManager : requestApproval.currentData_ResponsibleManager,
-                        status: requestApproval.currentData_StatusDescription,
+                        status: requestApproval.currentStatusDescription,
                         note: requestApproval.currentData_Note,
-                        country: requestApproval.currentData_JuridicalCountry_name,
+                        country: oldCountryDescription,
                         city: requestApproval.currentData_JuridicalCity,
                         street: requestApproval.currentData_JuridicalStreet,
                         house: requestApproval.currentData_JuridicalHomeID,
                         room: requestApproval.currentData_JuridicalRoomID,
-                   }
-                   const newData = {
+                    }
+                    const newData = {
                         name : requestApproval.newData_CustomerFormattedName,
                         responsibleManager : requestApproval.newData_ResponsibleManager,
-                        status: requestApproval.newData_StatusCode_name,
+                        status: requestApproval.newStatusDescription,
                         note: requestApproval.newData_Note,
-                        country: requestApproval.newData_JuridicalCountry_descr,
+                        country: newCountryDescription,
                         city: requestApproval.newData_JuridicalCity,
                         street: requestApproval.newData_JuridicalStreet,
                         house: requestApproval.newData_JuridicalHomeID,
@@ -69,6 +80,16 @@ class RequestApprovalService extends cds.ApplicationService {
                 }
             }
         });
+
+       // this.after('READ', RequestApproval, async req =>{
+          //  req.newCountryDescriotion = 'Armenia';
+        //   const r = await SELECT.from(Customer).where({ID : req.CustomerID})
+        //     if (req.currentData_JuridicalCountry_code){//r[0].JuridicalCountry_code
+        //         const  r= await SELECT.one.from('SAP_COMMON_COUNTRIES').where({code:req.currentData_JuridicalCountry_code})
+        //         req.currentData_JuridicalCountryDescription = r.NAME;
+        //         //const d = 1;
+        //     }
+       // })
 
         return super.init();
     }

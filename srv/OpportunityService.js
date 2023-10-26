@@ -11,8 +11,6 @@ class OpportunityService extends cds.ApplicationService {
         const { Customer } = cds.entities('customer')
         const { Opportunity, Attachement, ItemProduct, SalesPriceList } = this.entities;
 
-        //const tx = await cds.tx();
-
         async function _createOpportunityInstances(c4cResponse) {
             const oppts = c4cResponse.data.d.results;
             oppts.forEach(async item => {
@@ -29,7 +27,8 @@ class OpportunityService extends cds.ApplicationService {
                     CreationDateTime: item.CreationDateTime,
                     CreatedBy: item.CreatedBy,
                     LastChangeDateTime: item.LastChangeDateTime,
-                    LastChangedBy: item.LastChangedBy
+                    LastChangedBy: item.LastChangedBy,
+                    MainContactID: item.PrimaryContactPartyID,
                 }
                 await INSERT(opportunity).into(Opportunity);
             });
@@ -70,8 +69,12 @@ class OpportunityService extends cds.ApplicationService {
 
         this.before('READ', 'Opportunity', async req => {
             if (req._path == 'Opportunity' && req._.event == 'READ') { // read only for general list
-                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: req.headers["x-username"] });
-                req.query.where({ 'ProspectPartyID': partner.ACCOUNTID });
+                if (req.headers["x-username"]) {
+                    const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: req.headers["x-username"] });
+                    if (partner){
+                        req.query.where({ 'MainContactID': partner.CODE });
+                    }
+                }
             }
         });
 
@@ -79,6 +82,12 @@ class OpportunityService extends cds.ApplicationService {
         this.before('NEW', 'Opportunity', async (req) => {
             req.data.LifeCycleStatusCode_code = '1';
             req.data.LifeCycleStatusText = 'Open';
+            if (req.headers['x-username']){
+                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: req.headers["x-username"] });
+                if(partner){
+                    req.data.MainContactID = partner.CODE;
+                }
+            }
         })
 
         this.after('SAVE', 'Opportunity', async req => {
@@ -190,6 +199,7 @@ class OpportunityService extends cds.ApplicationService {
                     CreatedBy: opportunityResponse.CreatedBy,
                     LastChangeDateTime: formattedDate,
                     LastChangedBy: opportunityResponse.LastChangedBy,
+                    MainContactID: opportunityResponse.PrimaryContactPartyID,
                 }
 
                 await UPDATE(Opportunity).with(opportunity).where({ ObjectID: opportunityResponse.ObjectID });

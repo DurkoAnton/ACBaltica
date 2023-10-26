@@ -5,7 +5,7 @@
     {
       "source": "^/customer/(.*)$",
       "target": "/customer/$1",
-      "destination": "BTPdemoPortal-app-srv",
+      "destination": "BTPdemoPortal-srv-api",
       "authenticationType": "xsuaa",
       "csrfProtection": false
     },

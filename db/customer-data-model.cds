@@ -56,7 +56,7 @@ entity Opportunity : cuid{
 	UUID : UUID;
 	ObjectID : String;
 	InternalID : String @readonly;
-	ProspectPartyID: String @Common.SemanticObject : 'Customer';
+	ProspectPartyID: String;
 	ProspectPartyName: String;
 	Subject: String;
 	LifeCycleStatusCode: Association to OpportunityStatus;
@@ -71,6 +71,7 @@ entity Opportunity : cuid{
 	Items : Composition of many Item on Items.toOpportunity = $self;
 	Attachment : Composition of many Attachment on Attachment.Opportunity = $self;
 	NotStandartRequest : Boolean;
+	MainContactID : String;
 }
 entity Item : cuid {
 	OpportunityID : String;
@@ -125,6 +126,7 @@ entity ServiceRequest : cuid {
 	ProblemItemDescription : String;
 	virtual LifeCycleStatusCodeCompletedDefault: Integer default 4;
 	CustomerFormattedName : String;
+	MainContactID : String;
 	//toProblemsItem : Association to many Item on toProblemsItem.OpportunityID = $self.OrderID;
 }
 
