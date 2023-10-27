@@ -396,3 +396,11 @@ annotate service.RequestApproval with @(UI.HeaderInfo: {
     }
 });
 
+annotate service.RequestApproval with @(
+    UI.SelectionFields : [
+        CustomerID,
+    ]
+);
+annotate service.RequestApproval with {
+    CustomerID @Common.Label : '{i18n>CustomerID}'
+};

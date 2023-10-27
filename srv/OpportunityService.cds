@@ -10,7 +10,8 @@ service OpportunityService {
     action LoadProducts();
     action updateFromRemote() returns Opportunity;
   };
-  entity Item as projection on customer.Item;
+  entity Item as select from customer.Item 
+  { *, toItemProduct.InternalID as ProductInternalID, toItemProduct.ProductCategory as ProductCategory, toItemProduct.ProductStatusDescription as ProductStatus };
   entity SalesPriceList as projection on customer.SalesPriceList;
   entity ItemProduct as projection on customer.ItemProduct;
   entity Attachement as projection on customer.Attachment;

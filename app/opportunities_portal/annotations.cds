@@ -270,7 +270,7 @@ annotate service.Item with @(
         {
             $Type: 'UI.DataField',
             Label: 'Product Status',
-            Value: toItemProduct.ProductStatus,
+            Value: toItemProduct.ProductStatusDescription,
         },
         {
             $Type: 'UI.DataField',
@@ -284,6 +284,24 @@ annotate service.Item with @(
         Target: 'toItemProduct/SalesPriceLists/@UI.LineItem#SalesPriceLists'
     }],
 );
+
+annotate service.Item with @(
+    UI.HeaderInfo : {
+        TypeName : 'Sales Price List',
+        TypeNamePlural : '',
+        Title : {
+            $Type : 'UI.DataField',
+            Value : ProductInternalID,
+        },
+    }
+);
+
+annotate service.Item with {
+    ProductInternalID @(Common: {
+        Text                    : ProductCategory,
+        TextArrangement         : #TextFirst,
+    })
+};
 
 annotate service.SalesPriceList with @(UI.LineItem #SalesPriceLists: [
     {
@@ -362,3 +380,36 @@ annotate service.Item @(Common: {SideEffects #toItemProductChanged: {
         toItemProduct.SalesPriceLists
     ]
 }});
+annotate service.Opportunity with @(
+    UI.SelectionFields : [
+        InternalID,
+        Subject,
+        LifeCycleStatusCode_code,
+        CreationDateTime,
+    ]
+);
+annotate service.Opportunity with {
+    InternalID @Common.Label : '{i18n>InternalID}'
+};
+annotate service.Opportunity with {
+    InternalID @(Common.ValueList : {
+            $Type : 'Common.ValueListType',
+            CollectionPath : 'Opportunity',
+            Parameters : [
+                {
+                    $Type : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : InternalID,
+                    ValueListProperty : 'InternalID',
+                },
+            ],
+        },
+)};
+annotate service.Opportunity with {
+    Subject @Common.Label : 'Subject'
+};
+annotate service.Opportunity with {
+    LifeCycleStatusCode @Common.Label : 'Status'
+};
+annotate service.Opportunity with {
+    CreationDateTime @Common.Label : 'Creation Date'
+};

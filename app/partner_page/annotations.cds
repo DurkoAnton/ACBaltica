@@ -365,7 +365,7 @@ annotate service.Item with @(
         {
             $Type: 'UI.DataField',
             Label: 'Product Status',
-            Value: toItemProduct.ProductStatus,
+            Value: toItemProduct.ProductStatusDescription,
         },
         {
             $Type: 'UI.DataField',
@@ -1361,7 +1361,14 @@ annotate service.Item with @(
         TypeNamePlural : '',
         Title : {
             $Type : 'UI.DataField',
-            Value : ItemProductID,
+            Value : ProductInternalID,
         },
     }
 );
+
+annotate service.Item with {
+    ProductInternalID @(Common: {
+        Text                    : ProductCategory,
+        TextArrangement         : #TextFirst,
+    })
+};

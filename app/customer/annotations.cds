@@ -365,7 +365,7 @@ annotate service.Item with @(
         {
             $Type: 'UI.DataField',
             Label: 'Product Status',
-            Value: toItemProduct.ProductStatus,
+            Value: toItemProduct.ProductStatusDescription,
         },
         {
             $Type: 'UI.DataField',
@@ -379,6 +379,24 @@ annotate service.Item with @(
         Target: 'toItemProduct/SalesPriceLists/@UI.LineItem#SalesPriceLists'
     }, ],
 );
+
+annotate service.Item with @(
+    UI.HeaderInfo : {
+        TypeName : 'Sales Price List',
+        TypeNamePlural : '',
+        Title : {
+            $Type : 'UI.DataField',
+            Value : ProductInternalID,
+        },
+    }
+);
+
+annotate service.Item with {
+    ProductInternalID @(Common: {
+        Text                    : ProductCategory,
+        TextArrangement         : #TextFirst,
+    })
+};
 
 annotate service.SalesPriceList with @(UI.LineItem #SalesPriceLists: [
     {
@@ -873,9 +891,9 @@ annotate service.ServiceRequest with {
 
 annotate service.Customer with @(UI.SelectionFields: [
     InternalID,
+    CustomerFormattedName,
     Status_code,
     ResponsibleManager,
-    JuridicalAddress_Region_descr,
     JuridicalAddress_Country_code,
 ]);
 
@@ -1024,3 +1042,6 @@ annotate service.ServiceRequest with @(UI.Identification: [{
     Action: 'CustomerService.updateFromRemote',
     Label : 'Refresh'
 }]);
+annotate service.Customer with {
+    CustomerFormattedName @Common.Label : '{i18n>Customerformattedname}'
+};

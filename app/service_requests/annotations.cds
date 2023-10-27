@@ -159,10 +159,29 @@ annotate service.ServiceRequest with @(UI.HeaderInfo: {
 
 annotate service.ServiceRequest with @(UI.SelectionFields: [
     InternalID,
+    Status_code,
     Category_code,
-    Processor,
     ProblemDescription,
+    CreationDate,
 ]);
+
+annotate service.ServiceRequest with {
+    InternalID @(Common.ValueList: {
+        $Type         : 'Common.ValueListType',
+        CollectionPath: 'ServiceRequest',
+        Parameters    : [
+            {
+                $Type            : 'Common.ValueListParameterInOut',
+                LocalDataProperty: InternalID,
+                ValueListProperty: 'InternalID',
+            },
+            {
+                $Type            : 'Common.ValueListParameterDisplayOnly',
+                ValueListProperty: 'ProblemDescription',
+            },
+        ],
+    }, )
+};
 
 annotate service.ServiceRequest with {
     Status      @(Common: {
@@ -349,3 +368,11 @@ annotate service.ServiceRequest with @(UI.Identification: [{
     Action: 'ServiceRequestService.updateFromRemote',
     Label : 'Refresh'
 }]);
+
+annotate service.ServiceRequest with {
+    InternalID @Common.Label: '{i18n>InternalID}';
+    ProblemDescription @Common.Label: '{i18n>ProblemDescription}';
+    CreationDate @Common.Label : '{i18n>CreationDate}';
+    Status @Common.Label : 'Status';
+    Category @Common.Label : 'Category';
+};
