@@ -9,7 +9,7 @@ class OpportunityService extends cds.ApplicationService {
     async init() {
 
         const { Customer } = cds.entities('customer')
-        const { Opportunity, Attachement, ItemProduct, SalesPriceList } = this.entities;
+        const { Opportunity, Attachement, Item, ItemProduct, SalesPriceList } = this.entities;
 
         async function _createOpportunityInstances(c4cResponse) {
             const oppts = c4cResponse.data.d.results;
@@ -78,6 +78,9 @@ class OpportunityService extends cds.ApplicationService {
             }
         });
 
+        // this.before('NEW', 'Item', async (req) => {
+        //     req.data.OpportunityID = req.data.toOpportunity_ID;
+        // })
 
         this.before('NEW', 'Opportunity', async (req) => {
             req.data.LifeCycleStatusCode_code = '1';

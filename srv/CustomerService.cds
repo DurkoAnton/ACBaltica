@@ -27,12 +27,6 @@ service CustomerService {
   entity ServiceRequest as projection on customer.ServiceRequest actions {
     action updateFromRemote() returns ServiceRequest;
   }
-  
-  /*entity ProblemItems as select from Item join ServiceRequest on Item.OpportunityID = ServiceRequest.OrderID {
-    OpportunityID,Item.toOpportunity.Subject as OpportunityName, toItemProduct.ID as ProductID, toItemProduct.InternalID as ProductInternalID, toItemProduct.ProductCategory as ProductCategory,
-    toItemProduct.ProductStatus as ProductStatus, OrderID, OrderDescription
-  };*/
-
   entity Attachement as projection on customer.Attachment;
   entity OpportunityStatusCode as projection on customer.OpportunityStatus;
 }

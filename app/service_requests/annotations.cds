@@ -197,9 +197,8 @@ annotate service.ServiceRequest with {
                     LocalDataProperty: Status_code
                 },
                 {
-                    $Type            : 'Common.ValueListParameterOut',
-                    ValueListProperty: 'name',
-                    LocalDataProperty: Status.name
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'name'
                 },
             ]
         }
@@ -236,9 +235,14 @@ annotate service.ServiceRequest with {
                     ValueListProperty: 'ID'
                 },
                 {
-                    $Type            : 'Common.ValueListParameterIn',
+                    $Type            : 'Common.ValueListParameterIn',// filter by Completed Oppt
                     LocalDataProperty: LifeCycleStatusCodeCompletedDefault,
                     ValueListProperty: 'LifeCycleStatusCode_code'
+                },
+                {
+                    $Type            : 'Common.ValueListParameterIn',// filter by selected Customer
+                    LocalDataProperty: Customer_ID,
+                    ValueListProperty: 'Customer_ID'
                 },
                 {
                     $Type            : 'Common.ValueListParameterOut',
@@ -286,14 +290,14 @@ annotate service.ServiceRequest with {
                 },
                 {
                     $Type            : 'Common.ValueListParameterIn',
-                    ValueListProperty: 'OpportunityID',
+                    ValueListProperty: 'toOpportunity_ID',
                     LocalDataProperty: OrderID // filter by selected Order
                 },
-                {
-                    $Type            : 'Common.ValueListParameterIn',
-                    ValueListProperty: 'toOpportunity/ProspectPartyID',
-                    LocalDataProperty: Customer_ID // filter by selected Customer
-                },
+                // {
+                //     $Type            : 'Common.ValueListParameterIn',
+                //     ValueListProperty: 'toOpportunity/ProspectPartyID',
+                //     LocalDataProperty: Customer_ID // filter by selected Customer
+                // },
                 {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'ProductInternalID'

@@ -743,7 +743,7 @@ annotate service.Customer with {
             CollectionPath: 'StatusCodes',
             Parameters    : [
                 {
-                    $Type            : 'Common.ValueListParameterOut',
+                    $Type            : 'Common.ValueListParameterInOut',
                     ValueListProperty: 'code',
                     LocalDataProperty: Status_code
                 },
@@ -1021,16 +1021,15 @@ annotate service.Item @(Common: {SideEffects #toItemProductChanged: {
     ]
 }});
 
-// annotate service.ServiceRequest @(Common: {SideEffects #CustomerChanged: {
-//     SourceProperties: ['Status_code'],
-//     TargetEntities  : [Status]
+// annotate service.Opportunity @(Common: {SideEffects #OpportunityStatusCodeChanged: {
+//     SourceProperties: ['LifeCycleStatusCode_code'],
+//     TargetEntities  : [Oppo]
 // }});
 
 annotate service.Customer @(Common: {SideEffects #StatusChanged: {
     SourceProperties: ['Status_code'],
     TargetEntities  : [Status]
 }});
-
 
 annotate service.ServiceRequest @(Common: {SideEffects #StatusChanged: {
     SourceProperties: ['Status_code'],

@@ -1,5 +1,5 @@
 const { executeHttpRequest, getDestination } = require('@sap-cloud-sdk/core');
-const { getObjectsWithDifferentPropertyValue, createAttachmentBody } = require('./libs/utils');
+const { getObjectsWithDifferentPropertyValue, createAttachmentBody, linkSelectedOpportunity, createNewCustomerInRemote } = require('./libs/utils');
 const { sendRequestToC4C } = require('./libs/ManageAPICalls');
 const { loadProductsAndPricesListsFromC4C } = require('./libs/dataLoading');
 
@@ -128,37 +128,44 @@ class PartnerService extends cds.ApplicationService {
             }
         }
 
-        // this.before('READ', 'Customer', async (req) => {
+        this.before('READ', 'Customer', async (req) => {
+            if (req._path.endsWith('ToCustomers') && req.headers['x-username']) {
+                const customersFromDB = await SELECT.from(Customer);
+                const currentEmail = req.headers['x-username'];
+                const currentPartner = await SELECT.one.from(PartnerProfile).where({ Email: currentEmail });
+                const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${currentEmail}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
+                try {
+                    const createRequestParameters = {
+                        method: 'GET',
+                        url: path,
+                        headers: { 'content-type': 'application/json' }
+                    }
+                    const c4cResponse = await sendRequestToC4C(createRequestParameters);
+                    await _createCustomerInstances(c4cResponse, customersFromDB, currentPartner.Code);
+                }
+                catch (error) {
+                    req.reject({
+                        message: error.message
+                    });
+                }
+            }
+        });
 
-        //     if (req._path.endsWith('ToCustomers') && req.headers['x-username']) {
-        //         const customersFromDB = await SELECT.from(Customer);
-        //         const currentEmail = req.headers['x-username'];
-        //         const currentPartner = await SELECT.one.from(PartnerProfile).where({ Email: currentEmail });
-        //         const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${currentEmail}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
-        //         try {
-        //             const createRequestParameters = {
-        //                 method: 'GET',
-        //                 url: path,
-        //                 headers: { 'content-type': 'application/json' }
-        //             }
-        //             const c4cResponse = await sendRequestToC4C(createRequestParameters);
-        //             await _createCustomerInstances(c4cResponse, customersFromDB, currentPartner.Code);
-        //         }
-        //         catch (error) {
-        //             req.reject({
-        //                 message: error.message
-        //             });
-        //         }
-        //     }
-        // });
-
+        this.before('NEW', 'Customer', async req =>{
+            req.data.Status_code = "1";
+           // connect to new Customer, created from Partner Page
+           if (req.headers['x-username']){
+                const currentPartner = await SELECT.one.from(PartnerProfile).where({Email:req.headers['x-username']});
+                if (currentPartner){
+                    req.data.MainContactID = currentPartner.Code;
+                }
+           }                
+        })
     
         this.on('READ', PartnerProfile, async (req, next) => {
             //open one record for object page 
             if (req._path == 'PartnerProfile') {
-                console.log(req.headers['x-username'])
                 const currentEmail = 'andrei_matys@atlantconsult.com';
-
                 if (currentEmail) {
                     const currentRecord = await SELECT.from(PartnerProfile).where({ Email: currentEmail });
                     return req.reply(currentRecord);
@@ -167,34 +174,32 @@ class PartnerService extends cds.ApplicationService {
                 if (req._.data.ID){
                    await DELETE.from(PartnerProfile.drafts).where({ID : req._.data.ID})
                 }
-                
             }
             else return next();
         })
 
-        // this.before('READ', PartnerProfile, async (req) => {
+        this.before('READ', PartnerProfile, async (req) => {
 
-        //     // check for one current Partner
-        //     if (req._path == 'PartnerProfile'){
-        //         const currentEmail = req.headers['x-username'];
-        //         if (currentEmail){
-        //             const partners = await SELECT.from(PartnerProfile).where({ Email: currentEmail });
-
-        //             if (partners[0] == null) {
-        //                 const destination = await getDestination(destinationName);
-        //                 try {
-        //                     const partnerProfileObj = await _getDataFromAPI(req, destination, currentEmail);
-        //                     await _mapRecordInServiceInst(partnerProfileObj);
-        //                 }
-        //                 catch (error) {
-        //                     req.reject({
-        //                         message: error.message
-        //                     });
-        //                 }
-        //             }
-        //         }
-        //     }
-        // })
+            // check for one current Partner
+            if (req._path == 'PartnerProfile'){
+                const currentEmail = req.headers['x-username'];
+                if (currentEmail){
+                    const partners = await SELECT.from(PartnerProfile).where({ Email: currentEmail });
+                    if (partners[0] == null) {
+                        const destination = await getDestination(destinationName);
+                        try {
+                            const partnerProfileObj = await _getDataFromAPI(req, destination, currentEmail);
+                            await _mapRecordInServiceInst(partnerProfileObj);
+                        }
+                        catch (error) {
+                            req.reject({
+                                message: error.message
+                            });
+                        }
+                    }
+                }
+            }
+        })
 
         this.before('NEW', 'Opportunity', async (req) => {
             const parentId = this._getParentIdFromPath(req);
@@ -260,6 +265,12 @@ class PartnerService extends cds.ApplicationService {
                     message: error.message
                 });
             }
+
+            // create new Customers in remote
+            req.data.ToCustomers.forEach(async customerData => {
+                await createNewCustomerInRemote(customerData, Customer, req);
+            });
+
             // create new Opportunities in remote
             const newOpports = [];
             req.data.ToCustomers.forEach(element => {
@@ -282,11 +293,10 @@ class PartnerService extends cds.ApplicationService {
                         products.push({ ProductID: itemProduct.InternalID })
                     }
                 }
-                //console.log(products)
                 if (products.length > 0) {
                     requestBody.OpportunityItem = { results: products };
                 }
-
+                // add attachments
                 if (item.Attachment && item.Attachment.length !== 0) {
                     const results = [];
                     createAttachmentBody(item, results);
@@ -335,7 +345,7 @@ class PartnerService extends cds.ApplicationService {
                     console.log(e)
                 }
             })
-            // // create new Service Requests in remote
+            // create new Service Requests in remote
             const newTickets = [];
             req.data.ToCustomers.forEach(element => {
                 const result = element.ToServiceRequests.filter(serviceRequest => serviceRequest.UUID === null);
@@ -360,18 +370,21 @@ class PartnerService extends cds.ApplicationService {
                     //category - codes are not matches
                     //processor - ovs of Employees from Remote
                 }
+                // add problem item
                 let products = [];
                 // if (item.ProblemItem != null) {
                 //     const itemInstance = await SELECT.one.from(Item).where({ ID: item.ProblemItem });
                 //     products.push({ ProductID: itemInstance.ProductInternalID });
                 //     body.ServiceRequestItem = { results: products };
                 // }
+                // add attachments
+                if (item.Attachment && item.Attachment.length !== 0) {
+                    const results = [];
+                    createAttachmentBody(item, results);
+                    body.ServiceRequestAttachmentFolder = { results };
+                }
 
-                // if (item.Attachment && item.Attachment.length !== 0) {
-                //     const results = [];
-                //     createAttachmentBody(item, results);
-                //     body.ServiceRequestAttachmentFolder = { results };
-                // }
+                await linkSelectedOpportunity(item, Opportunity, body);
 
                 let createRequestParameters = {
                     method: 'POST',
@@ -434,11 +447,11 @@ class PartnerService extends cds.ApplicationService {
                     Phone: partnerProfileObj.NormalisedPhone,
                     MobilePhone: partnerProfileObj.NormalisedMobile,
                     Email: partnerProfileObj.Email,
-                    AccountID: partnerProfileObj.AccountID,
-                    AccountUUID: partnerProfileObj.AccountUUID,
+                   // AccountID: partnerProfileObj.AccountID,
+                   // AccountUUID: partnerProfileObj.AccountUUID,
                     AccountFormattedName: partnerProfileObj.AccountFormattedName,
                     Country_code: partnerProfileObj.BusinessAddressCountryCode,
-                    CountryDescription: partnerProfileObj.BusinessAddressCountryCodeText,//added
+                    CountryDescription: partnerProfileObj.BusinessAddressCountryCodeText,
                     City: partnerProfileObj.BusinessAddressCity,
                     Status_code: partnerProfileObj.StatusCode,
                     Region: partnerProfileObj.BusinessAddressStateCodeText,
@@ -472,7 +485,8 @@ class PartnerService extends cds.ApplicationService {
                             IndividualCountry_code: account.CountryCode,
                             IndividualAddress_Street: account.Street,
                             IndividualAddress_HomeID: account.HouseNumber,
-                            IndividualAddress_RoomID: account.Room
+                            IndividualAddress_RoomID: account.Room,
+                            MainContactID : partnerProfileObj.ContactID // added
                         }
                         if (owner != undefined) {
                             customer.ResponsibleManager = owner.FormattedName;
@@ -480,7 +494,6 @@ class PartnerService extends cds.ApplicationService {
                         if (note != undefined) {
                             customer.Note = note.Text;
                         }
-
 
                         const cust = await SELECT.one.from(Customer).where({ ObjectID: account.ObjectID });
 

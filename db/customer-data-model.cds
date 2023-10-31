@@ -8,7 +8,6 @@ entity Customer  : cuid {
 	ObjectID : String;
 	CustomerFormattedName : String;
 	Status : StatusCode;
-	StatusDescription : String;
 	ResponsibleManager : String;
 	ResponsibleManagerID : String;
 	JuridicalAddress : Address;

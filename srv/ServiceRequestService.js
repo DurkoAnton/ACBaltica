@@ -1,11 +1,11 @@
 const cds = require('@sap/cds')
-const { getObjectsWithDifferentPropertyValue, createAttachmentBody } = require('./libs/utils');
+const { getObjectsWithDifferentPropertyValue, createAttachmentBody, linkSelectedOpportunity } = require('./libs/utils');
 const { sendRequestToC4C } = require('./libs/ManageAPICalls');
 
 class ServiceRequestService extends cds.ApplicationService {
     async init() {
 
-        const { Customer, ServiceRequest, Attachement } = this.entities;
+        const { Customer, ServiceRequest, Attachement, Opportunity } = this.entities;
 
         async function _createServiceRequestInstances(c4cResponse) {
 
@@ -13,9 +13,9 @@ class ServiceRequestService extends cds.ApplicationService {
 
         this.before('READ', 'ServiceRequest', async req => {
             if (req._path == 'ServiceRequest' && req._.event == 'READ') { // read only for general list
-                if (req.headers['x-username']){
-                    const partner = await SELECT.one.from('Partner_PartnerProfile').where({Email: req.headers['x-username']});
-                    if (partner){
+                if (req.headers['x-username']) {
+                    const partner = await SELECT.one.from('Partner_PartnerProfile').where({ Email: req.headers['x-username'] });
+                    if (partner) {
                         req.query.where({ 'MainContactID': partner.CODE });
                     }
                 }
@@ -23,9 +23,9 @@ class ServiceRequestService extends cds.ApplicationService {
         });
 
         this.before('NEW', 'ServiceRequest', async req => {
-            if (req.headers['x-username']){
+            if (req.headers['x-username']) {
                 const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: req.headers["x-username"] });
-                if(partner){
+                if (partner) {
                     req.data.MainContactID = partner.CODE;
                 }
             }
@@ -145,6 +145,8 @@ class ServiceRequestService extends cds.ApplicationService {
                     createAttachmentBody(ticket, results);
                     body.ServiceRequestAttachmentFolder = { results };
                 }
+
+                await linkSelectedOpportunity(ticket, Opportunity, body);
 
                 let createRequestParameters = {
                     method: 'POST',
