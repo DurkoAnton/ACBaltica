@@ -30,20 +30,37 @@ class OpportunityService extends cds.ApplicationService {
                     LastChangedBy: item.LastChangedBy,
                     MainContactID: item.PrimaryContactPartyID,
                 }
-                await INSERT(opportunity).into(Opportunity);
+                const attachmentFolder = item.OpportunityAttachmentFolder[0];
+                let attachment;
+                if (attachmentFolder) {
+                    let str = attachmentFolder.Binary;
+                    let content = Buffer.from(str, 'base64').toString();
+                    let buffer = Buffer.from(content, 'utf-8');
+                    attachment = {
+                        content: buffer,
+                        fileName: attachmentFolder.Name,
+                        url: attachmentFolder.DocumentLink,
+                        mediaType: 'text/plain'
+                    }
+                }
+                const insertResult = await INSERT(opportunity).into(Opportunity);
+                if (attachment && insertResult.affectedRows > 0) {
+                    attachment.Opportunity_ID = insertResult.results[0].values[14]; // link attachment and SR   values[14]-id
+                    await INSERT(attachment).into(Attachement);
+                }
             });
         }
 
         // this.before('READ', 'Opportunity', async (req) => {
         //const opptunitiesFromDB = await SELECT.from(Opportunity);
-        //await DELETE.from(Opportunity);
+     
         //     if (opptunitiesFromDB.length == 0) {
         //       cds.env.features.fetch_csrf = true;
 
         //       const email = 'andrei_matys@atlantconsult.com';
         //       //const email = _getCurrentUserEmail();
 
-        //       const path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection?$filter=ProspectPartyID eq '1000171'`;
+        //       const path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection?$filter=ProspectPartyID eq '1000171'&$expand=OpportunityAttachmentFolder``;
 
         //       try{
         //           const destination = await getDestination('C4C_DEMO_NEW_2');

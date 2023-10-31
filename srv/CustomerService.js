@@ -72,7 +72,25 @@ class CustomerService extends cds.ApplicationService {
                     Customer_ID: customerUUID,
                     MainContactID: item.PrimaryContactPartyID,
                 }
-                await INSERT(opportunity).into(Opportunity);
+
+                const attachmentFolder = item.OpportunityAttachmentFolder[0];
+                let attachment;
+                if (attachmentFolder) {
+                    let str = attachmentFolder.Binary;
+                    let content = Buffer.from(str, 'base64').toString();
+                    let buffer = Buffer.from(content, 'utf-8');
+                    attachment = {
+                        content: buffer,
+                        fileName: attachmentFolder.Name,
+                        url: attachmentFolder.DocumentLink,
+                        mediaType: 'text/plain'
+                    }
+                }
+                const insertResult = await INSERT(opportunity).into(Opportunity);
+                if (attachment && insertResult.affectedRows > 0) {
+                    attachment.Opportunity_ID = insertResult.results[0].values[14]; // link attachment and SR   values[14]-id
+                    await INSERT(attachment).into(Attachement);
+                }
             });
         }
 
@@ -100,7 +118,6 @@ class CustomerService extends cds.ApplicationService {
                     let buffer = Buffer.from(content, 'utf-8');
                     attachment = {
                         content: buffer,
-                        //ServiceRequest_ID: item.ID,
                         fileName: attachmentFolder.Name,
                         url: attachmentFolder.DocumentLink,
                         mediaType: 'text/plain'
@@ -111,33 +128,21 @@ class CustomerService extends cds.ApplicationService {
                 var date = new Date(1970, 0, 1, 0, 0, 0, Number(milliSeconds));
 
                 let year = date.getFullYear();
-                let month = date.getMonth() + 1;
-                if (month < 10) {
-                    month = `0${month}`;
-                }
-                let day = date.getUTCDate();
-                if (day < 10) {
-                    day = `0${day}`;
-                }
+                let month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed, so add 1 and pad with '0' if necessary
+                let day = String(date.getDate()).padStart(2, '0'); // Pad day with '0' if necessary
                 serviceRequest.CreationDate = `${year}-${month}-${day}`;
 
                 milliSeconds = item.LastChangeDateTime.substring(item.LastChangeDateTime.indexOf('(') + 1, item.LastChangeDateTime.indexOf(')'))
                 date = new Date(1970, 0, 1, 0, 0, 0, Number(milliSeconds));
                 year = date.getFullYear();
-                month = date.getMonth() + 1;
-                if (month < 10) {
-                    month = `0${month}`;
-                }
-                day = date.getUTCDate();
-                if (day < 10) {
-                    day = `0${day}`;
-                }
+                month = String(date.getMonth() + 1).padStart(2, '0');
+                day = String(date.getDate()).padStart(2, '0');
+
                 serviceRequest.LastChangingDate = `${year}-${month}-${day}`;
                 const requestResult = await INSERT(serviceRequest).into(ServiceRequest);
                 if (attachment && requestResult.affectedRows > 0) {
-                    attachment.ServiceRequest_ID = requestResult.results[0].values[13]; // link attachment and SR
-                    const r = await INSERT(attachment).into(Attachement);
-                    const debug = 1;
+                    attachment.ServiceRequest_ID = requestResult.results[0].values[13]; // link attachment and SR   values[13]-id
+                    await INSERT(attachment).into(Attachement);
                 }
             };
         }
@@ -235,7 +240,7 @@ class CustomerService extends cds.ApplicationService {
                 }
 
                 if (opportunitiesFromDB && opportunitiesFromDB.length == 0 && customerInternalID) {
-                    const path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection?$filter=ProspectPartyID eq '${customerInternalID}'`;
+                    const path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection?$filter=ProspectPartyID eq '${customerInternalID}'&$expand=OpportunityAttachmentFolder`;
                     try {
                         const createRequestParameters = {
                             method: 'get',
@@ -639,31 +644,31 @@ class CustomerService extends cds.ApplicationService {
 
                     await UPDATE(ServiceRequest).with(serviceRequest).where({ ObjectID: serviceRequestResponse.ObjectID });
 
-                    // if (serviceRequestResponse.ServiceRequestAttachmentFolder.length) {
-                    //     serviceRequestResponse.ServiceRequestAttachmentFolder.forEach(async attachmentResponse => {
-                    //         if (attachmentResponse) {
-                    //             const str = attachmentResponse.Binary;
-                    //             const content = Buffer.from(str, 'base64').toString();
-                    //             const buffer = Buffer.from(content, 'utf-8');
-                    //             const attachment = {
-                    //                 content: buffer,
-                    //                 fileName: attachmentResponse.Name,
-                    //                 url: attachmentResponse.DocumentLink,
-                    //                 mediaType: attachmentResponse.MimeType
-                    //             }
-                    //             const attachmentInDB = await SELECT.one.from(Attachement).where({ ObjectID: attachmentResponse.ObjectID });
-                    //             if (attachmentInDB)
-                    //                 await UPDATE(Attachement, attachmentInDB.ID).with(attachment);
-                    //             else {
-                    //                 attachment.ObjectID = attachmentResponse.ObjectID;
-                    //                 attachment.ServiceRequest_ID = serviceRequestID;
-                    //                 await INSERT.into(Attachement).entries(attachment);
-                    //             }
-                    //         }
-                    //     });
-                    // }
-                    // if no ObjectID is in remote attachments, need to delete
-                    // const attachmentsInDB = await SELECT(Attachement).where({ ServiceRequest_ID: serviceRequestID });
+                    if (serviceRequestResponse.ServiceRequestAttachmentFolder.length) {
+                        serviceRequestResponse.ServiceRequestAttachmentFolder.forEach(async attachmentResponse => {
+                            if (attachmentResponse) {
+                                const str = attachmentResponse.Binary;
+                                const content = Buffer.from(str, 'base64').toString();
+                                const buffer = Buffer.from(content, 'utf-8');
+                                const attachment = {
+                                    content: buffer,
+                                    fileName: attachmentResponse.Name,
+                                    url: attachmentResponse.DocumentLink,
+                                    mediaType: attachmentResponse.MimeType
+                                }
+                                const attachmentInDB = await SELECT.one.from(Attachement).where({ ObjectID: attachmentResponse.ObjectID });
+                                if (attachmentInDB)
+                                    await UPDATE(Attachement, attachmentInDB.ID).with(attachment);
+                                else {
+                                    attachment.ObjectID = attachmentResponse.ObjectID;
+                                    attachment.ServiceRequest_ID = serviceRequestID;
+                                    await INSERT.into(Attachement).entries(attachment);
+                                }
+                            }
+                        });
+                    }
+                    //if no ObjectID is in remote attachments, need to delete
+                    //const attachmentsInDB = await SELECT(Attachement).where({ ServiceRequest_ID: serviceRequestID });
 
                     // if (attachmentsInDB.length) {
                     //     const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
@@ -746,15 +751,15 @@ class CustomerService extends cds.ApplicationService {
                             });
                         }
                         // if no ObjectID is in remote attachments, need to delete
-                        const attachmentsInDB = await SELECT(Attachement).where({ Opportunity_ID: opportunityID });
+                        // const attachmentsInDB = await SELECT(Attachement).where({ Opportunity_ID: opportunityID });
 
-                        if (attachmentsInDB.length) {
-                            const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
-                                opportunityResponse.OpportunityAttachmentFolder, "ObjectID", "ObjectID");
-                            const attachmentObjectIDsToBeDeleted = attachmentsToBeDeleted.map(item => item.ObjectID);
-                            if (attachmentObjectIDsToBeDeleted.length)
-                                await DELETE.from(Attachement).where({ ObjectID: attachmentObjectIDsToBeDeleted });
-                        }
+                        // if (attachmentsInDB.length) {
+                        //     const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
+                        //         opportunityResponse.OpportunityAttachmentFolder, "ObjectID", "ObjectID");
+                        //     const attachmentObjectIDsToBeDeleted = attachmentsToBeDeleted.map(item => item.ObjectID);
+                        //     if (attachmentObjectIDsToBeDeleted.length)
+                        //         await DELETE.from(Attachement).where({ ObjectID: attachmentObjectIDsToBeDeleted });
+                        // }
 
                         return SELECT(Opportunity, opportunityID);
                     }
