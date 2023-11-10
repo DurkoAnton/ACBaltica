@@ -16,7 +16,7 @@ entity Customer  : cuid {
 	IndividualAddress : Address;
 	BankData : Composition of many Bank on BankData.Customer = $self;
 	Note : String;
-	InternalID: String;
+	InternalID: String @readonly;
 	ToOpportunities: Composition of many Opportunity on ToOpportunities.Customer = $self;
 	ToServiceRequests : Composition of many ServiceRequest on ToServiceRequests.Customer = $self;
 	MainContactID : String;
@@ -75,28 +75,29 @@ entity Opportunity : cuid{
 entity Item : cuid {
 	OpportunityID : String;
 	toOpportunity : Association to Opportunity;
-	ItemProductID : String;
+	ItemProductID : String; // id cap
 	toItemProduct : Association to ItemProduct on toItemProduct.ID = $self.ItemProductID;
+	virtual ProductStatusActiveDefault: Integer default 2;
 }
 entity ItemProduct : cuid {
-	InternalID : String;
-	ProductCategory : String;
-	ProductStatus : String;
-	ProductStatusDescription : String;
-	UnitMeasure : String; // measure list?
-	OpportunityID : String;
+	InternalID : String @readonly;
+	ProductCategory : String @readonly;
+	ProductStatus : String @readonly;
+	ProductStatusDescription : String @readonly;
+	UnitMeasure : String @readonly; // measure list?
+	OpportunityID : String @readonly;
 	toItem : Association to Item;
 	SalesPriceLists : Composition of many SalesPriceList on SalesPriceLists.ItemProductID = $self.InternalID;
 }
 entity SalesPriceList : cuid {
-	PriceListID : String;
-	ProductInternalID : String;
-	ItemProductID : String;
-	ItemID : String;
-	Amount : Decimal @Measures.ISOCurrency : AmountCurrencyCode.code;
-	AmountCurrencyCode : Currency;
-	PriceUnitContent : String @Measures.Unit : PriceUnitCode;
-	PriceUnitCode : String; //unit code list
+	PriceListID : String @readonly;
+	ProductInternalID : String @readonly;
+	ItemProductID : String @readonly;
+	ItemID : String @readonly;
+	Amount : Decimal @Measures.ISOCurrency : AmountCurrencyCode.code @readonly;
+	AmountCurrencyCode : Currency @readonly;
+	PriceUnitContent : String @Measures.Unit : PriceUnitCode @readonly;
+	PriceUnitCode : String @readonly; //unit code list
 }
 entity OpportunityStatus : sap.common.CodeList { 
     key code : String(2);

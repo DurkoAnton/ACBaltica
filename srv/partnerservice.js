@@ -1,5 +1,5 @@
 const { executeHttpRequest, getDestination } = require('@sap-cloud-sdk/core');
-const { getObjectsWithDifferentPropertyValue, createAttachmentBody, linkSelectedOpportunity, createNewCustomerInRemote } = require('./libs/utils');
+const { getObjectsWithDifferentPropertyValue, createAttachmentBody, linkSelectedOpportunity, createNewCustomerInRemote, deleteCustomerInstances } = require('./libs/utils');
 const { sendRequestToC4C } = require('./libs/ManageAPICalls');
 const { loadProductsAndPricesListsFromC4C } = require('./libs/dataLoading');
 
@@ -129,9 +129,9 @@ class PartnerService extends cds.ApplicationService {
         }
 
         this.before('READ', 'Customer', async (req) => {
-            if (req._path.endsWith('ToCustomers') && req.headers['x-username']) {
+            if (req._path.endsWith('ToCustomers') /*&& req.headers['x-username']*/) {
                 const customersFromDB = await SELECT.from(Customer);
-                const currentEmail = req.headers['x-username'];
+                const currentEmail = 'andrei_matys@atlantconsult.com';
                 const currentPartner = await SELECT.one.from(PartnerProfile).where({ Email: currentEmail });
                 const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${currentEmail}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
                 try {
@@ -142,6 +142,7 @@ class PartnerService extends cds.ApplicationService {
                     }
                     const c4cResponse = await sendRequestToC4C(createRequestParameters);
                     await _createCustomerInstances(c4cResponse, customersFromDB, currentPartner.Code);
+                    await deleteCustomerInstances(c4cResponse, customersFromDB, Customer);
                 }
                 catch (error) {
                     req.reject({
@@ -154,17 +155,19 @@ class PartnerService extends cds.ApplicationService {
         this.before('NEW', 'Customer', async req =>{
             req.data.Status_code = "1";
            // connect to new Customer, created from Partner Page
-           if (req.headers['x-username']){
-                const currentPartner = await SELECT.one.from(PartnerProfile).where({Email:req.headers['x-username']});
+           const currentEmail = 'andrei_matys@atlantconsult.com';
+           //if (req.headers['x-username']){
+                const currentPartner = await SELECT.one.from(PartnerProfile).where({Email:currentEmail});
                 if (currentPartner){
                     req.data.MainContactID = currentPartner.Code;
                 }
-           }                
+          // }                
         })
     
         this.on('READ', PartnerProfile, async (req, next) => {
             //open one record for object page 
             if (req._path == 'PartnerProfile') {
+                
                 const currentEmail = 'andrei_matys@atlantconsult.com';
                 if (currentEmail) {
                     const currentRecord = await SELECT.from(PartnerProfile).where({ Email: currentEmail });
@@ -182,7 +185,7 @@ class PartnerService extends cds.ApplicationService {
 
             // check for one current Partner
             if (req._path == 'PartnerProfile'){
-                const currentEmail = req.headers['x-username'];
+                const currentEmail = 'andrei_matys@atlantconsult.com';
                 if (currentEmail){
                     const partners = await SELECT.from(PartnerProfile).where({ Email: currentEmail });
                     if (partners[0] == null) {
@@ -212,27 +215,29 @@ class PartnerService extends cds.ApplicationService {
             }
             req.data.LifeCycleStatusCode_code = '1';
             req.data.LifeCycleStatusText = 'Open';
-            if (req.headers['x-username']){
-                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: req.headers["x-username"] });
+            const currentEmail = 'andrei_matys@atlantconsult.com';
+            //if (req.headers['x-username']){
+                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: currentEmail });
                 if(partner){
                     req.data.MainContactID = partner.CODE;
                 }
-            }
+           // }
         });
 
         this.before('NEW', 'ServiceRequest', async (req) => {
             const parentId = this._getParentIdFromPath(req);
             const customerDB = await SELECT.one.from(Customer).where({ ID: parentId });
+            const currentEmail = 'andrei_matys@atlantconsult.com';
             if (customerDB) {
                 req.data.CustomerID = customerDB.InternalID;
                 req.data.Customer_ID = customerDB.ID;
             }
-            if (req.headers['x-username']){
-                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: req.headers["x-username"] });
+            //if (req.headers['x-username']){
+                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: currentEmail });
                 if(partner){
                     req.data.MainContactID = partner.CODE;
                 }
-            }
+           // }
        });
 
         this.before('SAVE', PartnerProfile, async (req) => {
@@ -427,7 +432,7 @@ class PartnerService extends cds.ApplicationService {
         });
         
         this.on('updateAllFieldsFromRemote', async (req) => {
-            const email = req.req.headers['x-username'];
+            const currentEmail = 'andrei_matys@atlantconsult.com';
             const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${email}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
 
             try {
@@ -586,13 +591,13 @@ class PartnerService extends cds.ApplicationService {
                     // if no ObjectID is in remote attachments, need to delete
                     const attachmentsInDB = await SELECT(Attachement).where({ ServiceRequest_ID: serviceRequestID });
 
-                    if (attachmentsInDB.length) {
-                        const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
-                            serviceRequestResponse.ServiceRequestAttachmentFolder, "ObjectID", "ObjectID");
-                        const attachmentObjectIDsToBeDeleted = attachmentsToBeDeleted.map(item => item.ObjectID);
-                        if (attachmentObjectIDsToBeDeleted.length)
-                            await DELETE.from(Attachement).where({ ObjectID: attachmentObjectIDsToBeDeleted });
-                    }
+                    // if (attachmentsInDB.length) {
+                    //     const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
+                    //         serviceRequestResponse.ServiceRequestAttachmentFolder, "ObjectID", "ObjectID");
+                    //     const attachmentObjectIDsToBeDeleted = attachmentsToBeDeleted.map(item => item.ObjectID);
+                    //     if (attachmentObjectIDsToBeDeleted.length)
+                    //         await DELETE.from(Attachement).where({ ObjectID: attachmentObjectIDsToBeDeleted });
+                    // }
 
                     return SELECT(ServiceRequest, serviceRequestID);
                 }

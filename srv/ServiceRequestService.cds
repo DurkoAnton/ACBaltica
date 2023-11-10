@@ -7,6 +7,11 @@ service ServiceRequestService {
       DeleteRestrictions.Deletable  : true
   }
   entity ServiceRequest as projection on customer.ServiceRequest actions {
+    @cds.odata.bindingparameter.name : '_it'
+    @Common.SideEffects : {    
+        $Type:'Common.SideEffectsType', 
+        TargetEntities : ['_it/Attachment']        
+    }   
     action updateFromRemote() returns ServiceRequest;
   };
   entity Opportunity as projection on customer.Opportunity;

@@ -15,14 +15,23 @@ class RequestApprovalService extends cds.ApplicationService {
 
                     let oldCountryDescription;
                     let newCountryDescription;
+                    // get country descriptions
                     if (requestApproval.currentCountry_code){
                         const oldCountryInst = await SELECT.one.from('SAP_COMMON_COUNTRIES').where({code: requestApproval.currentCountry_code});
-                        oldCountryDescription = oldCountryInst.NAME;
+                        if (oldCountryInst) {
+                            oldCountryDescription = oldCountryInst.NAME;
+                        }
                     }
                     if (requestApproval.newCountry_code){
                         const newCountryInst = await SELECT.one.from('SAP_COMMON_COUNTRIES').where({code: requestApproval.newCountry_code});
-                        newCountryDescription = newCountryInst.NAME;
+                        if (newCountryInst) {
+                            newCountryDescription = newCountryInst.NAME;
+                        }
                     }
+                    // get statuse descriptions
+                    // if () {
+                        
+                    // }
                     const oldData = {
                         name : requestApproval.currentData_CustomerFormattedName,
                         responsibleManager : requestApproval.currentData_ResponsibleManager,
@@ -75,22 +84,12 @@ class RequestApprovalService extends cds.ApplicationService {
                     }
                     const workflow = await cds.connect.to('workflowService');
                     const response = await workflow.send('POST', '/v1/workflow-instances', {"definitionId" : "approvalflow", context: context})
+                    const debug=1;
                     req.info("Request for approval has been sent!")
-                    //const debug=1;
+                    
                 }
             }
         });
-
-       // this.after('READ', RequestApproval, async req =>{
-          //  req.newCountryDescriotion = 'Armenia';
-        //   const r = await SELECT.from(Customer).where({ID : req.CustomerID})
-        //     if (req.currentData_JuridicalCountry_code){//r[0].JuridicalCountry_code
-        //         const  r= await SELECT.one.from('SAP_COMMON_COUNTRIES').where({code:req.currentData_JuridicalCountry_code})
-        //         req.currentData_JuridicalCountryDescription = r.NAME;
-        //         //const d = 1;
-        //     }
-       // })
-
         return super.init();
     }
 }

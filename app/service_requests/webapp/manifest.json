@@ -174,7 +174,25 @@
                     "options": {
                         "settings": {
                             "editableHeaderContent": false,
-                            "entitySet": "ServiceRequest"
+                            "entitySet": "ServiceRequest",
+                            "controlConfiguration": {
+                                "Attachment/@com.sap.vocabularies.UI.v1.LineItem#Attachments": {
+                                    "tableSettings": {
+                                        "type": "ResponsiveTable"
+                                    },
+                                    "columns": {
+                                        "DataField::fileName": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::mediaType": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::content": {
+                                            "width": "auto"
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

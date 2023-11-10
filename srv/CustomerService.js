@@ -1,6 +1,6 @@
 const cds = require('@sap/cds')
 //const { fetchNext } = require('hdb/lib/protocol/request');
-const { getObjectsWithDifferentPropertyValue, createAttachmentBody, linkSelectedOpportunity, createNewCustomerInRemote } = require('./libs/utils');
+const { getObjectsWithDifferentPropertyValue, createAttachmentBody, linkSelectedOpportunity, createNewCustomerInRemote, createItemsBody, deleteCustomerInstances, deleteOpportunityInstances, deleteServiceRequestInstances } = require('./libs/utils');
 const { sendRequestToC4C } = require('./libs/ManageAPICalls');
 const { loadProductsAndPricesListsFromC4C } = require('./libs/dataLoading');
 
@@ -51,154 +51,178 @@ class CustomerService extends cds.ApplicationService {
             });
         }
 
-        async function _createOpportunityInstances(c4cResponse, customerUUID) {
+        async function _createOpportunityInstances(c4cResponse, customerUUID, opportunitiesFromDB) {
             const oppts = c4cResponse.data.d.results;
             oppts.forEach(async item => {
-                let opportunity = {
-                    UUID: item.UUID,
-                    ObjectID: item.ObjectID,
-                    InternalID: item.ID,
-                    ProspectPartyID: item.ProspectPartyID,
-                    ProspectPartyName: item.ProspectPartyName,
-                    Subject: item.Name,
-                    LifeCycleStatusCode_code: item.LifeCycleStatusCode,
-                    LifeCycleStatusText: item.LifeCycleStatusText,
-                    MainEmployeeResponsiblePartyID: item.MainEmployeeResponsiblePartyID,
-                    MainEmployeeResponsiblePartyName: item.MainEmployeeResponsiblePartyName,
-                    //CreationDateTime: item.CreationDateTime,
-                    CreatedBy: item.CreatedBy,
-                    //LastChangeDateTime: item.LastChangeDateTime,
-                    LastChangedBy: item.LastChangedBy,
-                    Customer_ID: customerUUID,
-                    MainContactID: item.PrimaryContactPartyID,
-                }
-
-                const attachmentFolder = item.OpportunityAttachmentFolder[0];
-                let attachment;
-                if (attachmentFolder) {
-                    let str = attachmentFolder.Binary;
-                    let content = Buffer.from(str, 'base64').toString();
-                    let buffer = Buffer.from(content, 'utf-8');
-                    attachment = {
-                        content: buffer,
-                        fileName: attachmentFolder.Name,
-                        url: attachmentFolder.DocumentLink,
-                        mediaType: 'text/plain'
+                if (opportunitiesFromDB.filter(n => n.UUID == item.UUID).length == 0) {
+                    let opportunity = {
+                        UUID: item.UUID,
+                        ObjectID: item.ObjectID,
+                        InternalID: item.ID,
+                        ProspectPartyID: item.ProspectPartyID,
+                        ProspectPartyName: item.ProspectPartyName,
+                        Subject: item.Name,
+                        LifeCycleStatusCode_code: item.LifeCycleStatusCode,
+                        LifeCycleStatusText: item.LifeCycleStatusText,
+                        MainEmployeeResponsiblePartyID: item.MainEmployeeResponsiblePartyID,
+                        MainEmployeeResponsiblePartyName: item.MainEmployeeResponsiblePartyName,
+                        //CreationDateTime: item.CreationDateTime,
+                        CreatedBy: item.CreatedBy,
+                        //LastChangeDateTime: item.LastChangeDateTime,
+                        LastChangedBy: item.LastChangedBy,
+                        Customer_ID: customerUUID,
+                        MainContactID: item.PrimaryContactPartyID,
                     }
-                }
-                const insertResult = await INSERT(opportunity).into(Opportunity);
-                if (attachment && insertResult.affectedRows > 0) {
-                    attachment.Opportunity_ID = insertResult.results[0].values[14]; // link attachment and SR   values[14]-id
-                    await INSERT(attachment).into(Attachement);
+
+                    const attachmentFolder = item.OpportunityAttachmentFolder[0];
+                    let attachment;
+                    if (attachmentFolder) {
+                        let str = attachmentFolder.Binary;
+                        let content = Buffer.from(str, 'base64').toString();
+                        let buffer = Buffer.from(content, 'utf-8');
+                        attachment = {
+                            content: buffer,
+                            fileName: attachmentFolder.Name,
+                            url: attachmentFolder.DocumentLink,
+                            mediaType: 'text/plain'
+                        }
+                    }
+                    const insertResult = await INSERT(opportunity).into(Opportunity);
+
+                    if (insertResult.affectedRows > 0) {
+                        const opportunityID = insertResult.results[0].values[14];
+                        if (attachment) {
+                            attachment.Opportunity_ID = opportunityID; // link attachment and SR   values[14]-id
+                            await INSERT(attachment).into(Attachement);
+                        }
+                        // add items
+                        if (item.OpportunityItem && item.OpportunityItem.length != 0) {
+                            const items = await createItemsBody(item.OpportunityItem, ItemProduct, opportunityID);
+                            await INSERT(items).into(Item);
+                        }
+                    }
                 }
             });
         }
 
-        async function _createServiceRequestInstances(c4cResponse, customerUUID) {
-            const items = c4cResponse.data.d.results;
-            for (let item of items) {
-                const attachmentFolder = item.ServiceRequestAttachmentFolder[0];
-                let serviceRequest = {
-                    UUID: item.UUID,
-                    ObjectID: item.ObjectID,
-                    CustomerID: item.BuyerPartyID,
-                    InternalID: item.ID,
-                    Status_code: item.ServiceRequestLifeCycleStatusCode,
-                    Processor: item.ProcessorPartyName,
-                    RequestProcessingTime: item.RequestInProcessdatetimeContent,
-                    OrderID: item.SalesOrderID,
-                    ProblemDescription: item.Name,
-                    Customer_ID: customerUUID,
-                    MainContactID: item.BuyerMainContactPartyID,
-                }
-                let attachment;
-                if (attachmentFolder) {
-                    let str = attachmentFolder.Binary;
-                    let content = Buffer.from(str, 'base64').toString();
-                    let buffer = Buffer.from(content, 'utf-8');
-                    attachment = {
-                        content: buffer,
-                        fileName: attachmentFolder.Name,
-                        url: attachmentFolder.DocumentLink,
-                        mediaType: 'text/plain'
+        async function _createServiceRequestInstances(c4cResponse, customerUUID, serviceRequestsFromDB) {
+            const serviceRequests = c4cResponse.data.d.results;
+            serviceRequests.forEach(async item => {
+                if (serviceRequestsFromDB.filter(n => n.UUID == item.UUID).length == 0) {
+                    const attachmentFolder = item.ServiceRequestAttachmentFolder[0];
+                    let serviceRequest = {
+                        UUID: item.UUID,
+                        ObjectID: item.ObjectID,
+                        CustomerID: item.BuyerPartyID,
+                        InternalID: item.ID,
+                        Status_code: item.ServiceRequestLifeCycleStatusCode,
+                        Processor: item.ProcessorPartyName,
+                        RequestProcessingTime: item.RequestInProcessdatetimeContent,
+                        OrderID: item.SalesOrderID,
+                        ProblemDescription: item.Name,
+                        Customer_ID: customerUUID,
+                        MainContactID: item.BuyerMainContactPartyID,
+                    }
+                    let attachment;
+                    if (attachmentFolder) {
+                        let str = attachmentFolder.Binary;
+                        let content = Buffer.from(str, 'base64').toString();
+                        let buffer = Buffer.from(content, 'utf-8');
+                        attachment = {
+                            content: buffer,
+                            fileName: attachmentFolder.Name,
+                            url: attachmentFolder.DocumentLink,
+                            mediaType: 'text/plain'
+                        }
+                    }
+                    // format date
+                    var milliSeconds = item.CreationDateTime.substring(item.CreationDateTime.indexOf('(') + 1, item.CreationDateTime.indexOf(')'))
+                    var date = new Date(1970, 0, 1, 0, 0, 0, Number(milliSeconds));
+
+                    let year = date.getFullYear();
+                    let month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed, so add 1 and pad with '0' if necessary
+                    let day = String(date.getDate()).padStart(2, '0'); // Pad day with '0' if necessary
+                    serviceRequest.CreationDate = `${year}-${month}-${day}`;
+
+                    milliSeconds = item.LastChangeDateTime.substring(item.LastChangeDateTime.indexOf('(') + 1, item.LastChangeDateTime.indexOf(')'))
+                    date = new Date(1970, 0, 1, 0, 0, 0, Number(milliSeconds));
+                    year = date.getFullYear();
+                    month = String(date.getMonth() + 1).padStart(2, '0');
+                    day = String(date.getDate()).padStart(2, '0');
+
+                    serviceRequest.LastChangingDate = `${year}-${month}-${day}`;
+                    const requestResult = await INSERT(serviceRequest).into(ServiceRequest);
+                    if (attachment && requestResult.affectedRows > 0) {
+                        attachment.ServiceRequest_ID = requestResult.results[0].values[13]; // link attachment and SR   values[13]-id
+                        await INSERT(attachment).into(Attachement);
                     }
                 }
-                // format date
-                var milliSeconds = item.CreationDateTime.substring(item.CreationDateTime.indexOf('(') + 1, item.CreationDateTime.indexOf(')'))
-                var date = new Date(1970, 0, 1, 0, 0, 0, Number(milliSeconds));
-
-                let year = date.getFullYear();
-                let month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed, so add 1 and pad with '0' if necessary
-                let day = String(date.getDate()).padStart(2, '0'); // Pad day with '0' if necessary
-                serviceRequest.CreationDate = `${year}-${month}-${day}`;
-
-                milliSeconds = item.LastChangeDateTime.substring(item.LastChangeDateTime.indexOf('(') + 1, item.LastChangeDateTime.indexOf(')'))
-                date = new Date(1970, 0, 1, 0, 0, 0, Number(milliSeconds));
-                year = date.getFullYear();
-                month = String(date.getMonth() + 1).padStart(2, '0');
-                day = String(date.getDate()).padStart(2, '0');
-
-                serviceRequest.LastChangingDate = `${year}-${month}-${day}`;
-                const requestResult = await INSERT(serviceRequest).into(ServiceRequest);
-                if (attachment && requestResult.affectedRows > 0) {
-                    attachment.ServiceRequest_ID = requestResult.results[0].values[13]; // link attachment and SR   values[13]-id
-                    await INSERT(attachment).into(Attachement);
-                }
-            };
+            });
         }
 
         this.before('READ', 'Customer', async (req) => {
-            const path = req._path;
             // OWL Read -> Get all data from C4C
-            if (path == 'Customer') {
+            const path = req._path;
+            // stop calling api when showing help value lists
+            // on list req._queryOptions.$top == 30
+            if (path == 'Customer' && req._queryOptions && req._queryOptions.$top && req._queryOptions.$top == '30') {
                 const customersFromDB = await SELECT.from(Customer);
                 if (!req.req) return; // get all Customers only for List Report
-                const email = req.req.headers['x-username'];
-                const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${email}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
-                try {
-                    const createRequestParameters = {
-                        method: 'GET',
-                        url: path,
-                        headers: { 'content-type': 'application/json' }
+                    //if (req.req.headers['x-username']) {
+                        var email = 'andrei_matys@atlantconsult.com';
+                        //const email = req.req.headers['x-username'];
+                        //const pathWithSelect = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${email}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection&$select=ContactID,ContactIsContactPersonFor/CorporateAccount/BusinessPartnerFormattedName,ContactIsContactPersonFor/CorporateAccount/AccountID,ContactIsContactPersonFor/CorporateAccount/LifeCycleStatusCode,ContactIsContactPersonFor/CorporateAccount/UUID,ContactIsContactPersonFor/CorporateAccount/ObjectID,ContactIsContactPersonFor/CorporateAccount/City,ContactIsContactPersonFor/CorporateAccount/CountryCode,ContactIsContactPersonFor/CorporateAccount/Street,ContactIsContactPersonFor/CorporateAccount/HouseNumber,ContactIsContactPersonFor/CorporateAccount/Room,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData/FormattedName,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection/Text`;
+                        const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${email}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
+                        try {
+                            const createRequestParameters = {
+                                method: 'GET',
+                                url: path,
+                                headers: { 'content-type': 'application/json' }
+                            }
+                            const c4cResponse = await sendRequestToC4C(createRequestParameters);
+                            await _createCustomerInstances(c4cResponse, customersFromDB);
+                            await deleteCustomerInstances(c4cResponse, customersFromDB, Customer);
+                        }
+                        catch (error) {
+                            req.reject({
+                                message: error.message
+                            });
+                        }
+                    //}
+                    if (req._path == 'Customer' && req._.event == 'READ') { // read only for general list
+                        //if (req.headers["x-username"]) {
+                            var email = 'andrei_matys@atlantconsult.com';
+                            const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
+                            if (partner) {
+                                req.query.where({ 'MainContactID': partner.CODE });
+                            }
+                        //}
                     }
-                    const c4cResponse = await sendRequestToC4C(createRequestParameters);
-                    await _createCustomerInstances(c4cResponse, customersFromDB);
                 }
-                catch (error) {
-                    req.reject({
-                        message: error.message
-                    });
-                }
-            }
-            if (req._path == 'Customer' && req._.event == 'READ') { // read only for general list
-                if (req.headers["x-username"]) {
-                    const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: req.headers["x-username"] });
-                    if (partner) {
-                        req.query.where({ 'MainContactID': partner.CODE });
-                    }
-                }
-            }
         })
+
         this.after('READ', 'ServiceRequest', async (each) => {
             if (each.Status_code == '') { // default value
                 each.Status_code = '1';
             }
         })
+
         this.before('READ', 'ServiceRequest', async (req) => {
             // OWL SR Read - > get all SRs    
             if (req._path.startsWith('Customer') && req._path.endsWith('ToServiceRequests') && req.event == 'READ') {
+                // const serviceRequestsFromDB = await SELECT.from(ServiceRequest);
                 let customerUUID = req._path.substring(12, 48);
                 var customerInternalID;
-                var serviceRequestFromDB;
+                var serviceRequestsFromDB;
                 if (customerUUID) {
                     customerFromDB = await SELECT.from(Customer).where({ ID: customerUUID });
                     if (customerFromDB[0] != undefined) {
                         customerInternalID = customerFromDB[0].InternalID;
                     }
-                    serviceRequestFromDB = await SELECT.from(ServiceRequest).where({ Customer_ID: customerUUID });
+                    serviceRequestsFromDB = await SELECT.from(ServiceRequest).where({ Customer_ID: customerUUID });
                 }
 
-                if (serviceRequestFromDB.length == 0 && customerInternalID) {
+                if (customerInternalID) {
                     var customerFromDB;
 
                     //const email = req.req.headers['x-username'];
@@ -213,7 +237,8 @@ class CustomerService extends cds.ApplicationService {
                         }
 
                         const c4cResponse = await sendRequestToC4C(createRequestParameters);
-                        await _createServiceRequestInstances(c4cResponse, customerUUID);
+                        await _createServiceRequestInstances(c4cResponse, customerUUID, serviceRequestsFromDB);
+                        await deleteServiceRequestInstances(c4cResponse, serviceRequestsFromDB, ServiceRequest)
                     }
                     catch (error) {
                         req.reject({
@@ -227,20 +252,20 @@ class CustomerService extends cds.ApplicationService {
         this.before('READ', 'Opportunity', async (req) => {
             if (req._path.startsWith('Customer') && req._path.endsWith('ToOpportunities') && req.event == 'READ') {
 
-                let opportunitiesFromDB;
+                let opportunitiesFromDB = [];
                 const parentId = req._path.substring(12, 48);
                 if (parentId) {
                     opportunitiesFromDB = await SELECT.from(Opportunity).where({ Customer_ID: parentId });
                 }
                 const customerDB = await SELECT.from(Customer).where({ ID: parentId });
-
+                //const opptsDrafts = await SELECT.from(Opportunity).where({ ID: parentId });
                 let customerInternalID;
                 if (customerDB.length > 0) {
                     customerInternalID = customerDB[0].InternalID;
                 }
 
-                if (opportunitiesFromDB && opportunitiesFromDB.length == 0 && customerInternalID) {
-                    const path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection?$filter=ProspectPartyID eq '${customerInternalID}'&$expand=OpportunityAttachmentFolder`;
+                if (customerInternalID) {
+                    const path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection?$filter=ProspectPartyID eq '${customerInternalID}'&$expand=OpportunityAttachmentFolder,OpportunityItem`;
                     try {
                         const createRequestParameters = {
                             method: 'get',
@@ -251,7 +276,8 @@ class CustomerService extends cds.ApplicationService {
                         }
 
                         const c4cResponse = await sendRequestToC4C(createRequestParameters);
-                        await _createOpportunityInstances(c4cResponse, parentId);
+                        await _createOpportunityInstances(c4cResponse, parentId, opportunitiesFromDB);
+                        await deleteOpportunityInstances(c4cResponse, opportunitiesFromDB);
                     }
                     catch (error) {
                         req.reject({
@@ -269,6 +295,7 @@ class CustomerService extends cds.ApplicationService {
         this.before('NEW', 'Opportunity', async (req) => {
             const parentId = req._path.substring(12, 48);
             const customerDB = await SELECT.from(Customer).where({ ID: parentId });
+            var email = 'andrei_matys@atlantconsult.com';
             if (customerDB.length > 0) {
                 req.data.ProspectPartyID = customerDB[0].InternalID;
                 req.data.ProspectPartyName = customerDB[0].CustomerFormattedName;
@@ -277,12 +304,12 @@ class CustomerService extends cds.ApplicationService {
             }
             req.data.LifeCycleStatusCode_code = '1';
             req.data.LifeCycleStatusText = 'Open';
-            if (req.headers['x-username']) {
-                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: req.headers["x-username"] });
+            //if (req.headers['x-username']) {
+                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email});
                 if (partner) {
                     req.data.MainContactID = partner.CODE;
                 }
-            }
+            //}
         })
 
         this.before('NEW', 'Item', async (req) => {
@@ -291,32 +318,34 @@ class CustomerService extends cds.ApplicationService {
 
         this.before('NEW', 'ServiceRequest', async (req) => {
             const parentId = req._path.substring(12, 48);
+            var email = 'andrei_matys@atlantconsult.com';
             const customerDB = await SELECT.one.from(Customer).where({ ID: parentId });
             if (customerDB) {
                 req.data.CustomerID = customerDB.InternalID;
                 req.data.Customer_ID = customerDB.ID;
             }
-            if (req.headers['x-username']) {
-                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: req.headers["x-username"] });
+            //if (req.headers['x-username']) {
+                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email:  email });
                 if (partner) {
                     req.data.MainContactID = partner.CODE;
                 }
-            }
+            //}
         })
 
         this.before('NEW', 'Customer', async (req) => {
             req.data.Status_code = "1";
-            if (req.headers['x-username']) {
-                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: req.headers["x-username"] });
+            var email = 'andrei_matys@atlantconsult.com';
+            //if (req.headers['x-username']) {
+                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
                 if (partner) {
                     req.data.MainContactID = partner.CODE;
                 }
-            }
+            //}
         })
 
-        this.before('SAVE', 'Customer', async (req) => {
-            // create new Opportunities in remote
-            const newOpports = req.data.ToOpportunities.filter(n => n.UUID == null)
+        this.after('SAVE', 'Customer', async (req) => {
+            //create new Opportunities in remote
+             const newOpports = req.ToOpportunities.filter(n => n.UUID == null)
             newOpports.forEach(async item => {
                 let requestBody = {
                     Name: item.Subject,
@@ -333,7 +362,6 @@ class CustomerService extends cds.ApplicationService {
                         products.push({ ProductID: itemProduct.InternalID })
                     }
                 }
-                //console.log(products)
                 if (products.length > 0) {
                     requestBody.OpportunityItem = { results: products };
                 }
@@ -387,7 +415,7 @@ class CustomerService extends cds.ApplicationService {
                 }
             })
             // create new Service Requests in remote
-            const newTickets = req.data.ToServiceRequests.filter(n => n.UUID == null);
+            const newTickets = req.ToServiceRequests.filter(n => n.UUID == null);
             newTickets.forEach(async item => {
                 let customer;
                 const customerID = item.Customer_ID;
@@ -403,9 +431,6 @@ class CustomerService extends cds.ApplicationService {
                     Name: item.ProblemDescription,
                     BuyerPartyID: internalBuyerID,
                     ServiceRequestUserLifeCycleStatusCode: item.Status_code,
-                    //oppt - document reference?
-                    //category - codes are not matches
-                    //processor - ovs of Employees from Remote
                 }
                 // link selected Opportunity
                 await linkSelectedOpportunity(item, Opportunity, body);
@@ -459,13 +484,21 @@ class CustomerService extends cds.ApplicationService {
                             const ObjectID = attachmentsInResponse[i].ObjectID;
                             await UPDATE(Attachement, attachmentInDB.ID).set({ ObjectID: ObjectID });
                         }
-
                     }
                 }
             });
-            const customerData = req.data;
+
+            const customerData = req;
             await createNewCustomerInRemote(customerData, Customer, req);
+            const debug=1;
+
         });
+
+        // this.before('PATCH', ServiceRequest, async req =>{
+        //     req.data.Customer_ID = '03d6cdea-6957-42f3-99e7-9c90cf5dd220';
+        //    //const r = await UPDATE(ServiceRequest).where({ID : req.data.ID}).set({Customer_ID : '03d6cdea-6957-42f3-99e7-9c90cf5dd220'})
+        //     console.log('1');
+        // })
 
         this.on('updateAllFieldsFromRemote', async (req) => {
             let customerID = req._path.substring(12, 48);
@@ -543,8 +576,8 @@ class CustomerService extends cds.ApplicationService {
                         //LastChangeDateTime: item.LastChangeDateTime,
                         LastChangedBy: item.LastChangedBy,
                         Customer_ID: customerID, // link to Customer
-                        ObjectID : item.ObjectID,
-                        UUID : item.UUID
+                        ObjectID: item.ObjectID,
+                        UUID: item.UUID
                     }
 
                     const opp = await SELECT.one.from(Opportunity).where({ ObjectID: item.ObjectID });
@@ -693,7 +726,7 @@ class CustomerService extends cds.ApplicationService {
 
                 const obj = await SELECT.one.from(Opportunity, opportunityID);
                 if (obj.ObjectID) {
-                    let path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection('${obj.ObjectID}')?$expand=OpportunityAttachmentFolder`;
+                    let path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection('${obj.ObjectID}')?$expand=OpportunityAttachmentFolder,OpportunityItem`;
                     try {
                         let createRequestParameters = {
                             method: 'GET',
@@ -726,6 +759,20 @@ class CustomerService extends cds.ApplicationService {
                         }
 
                         await UPDATE(Opportunity).with(opportunity).where({ ObjectID: opportunityResponse.ObjectID });
+
+                        // add items
+                        if (opportunityResponse.OpportunityItem) {
+                            //exclude existing rows
+                            const existingItems = await SELECT.from(Item).where({ toOpportunity_ID: opportunityID });
+                            const newRows =
+                                opportunityResponse.OpportunityItem.filter(item => !existingItems.some(itemExists => itemExists.ProductInternalID == item.ProductID));
+                            if (newRows) {
+                                const items = await createItemsBody(newRows, ItemProduct, opportunityID);
+                                if (items.length != 0) {
+                                    await INSERT(items).into(Item);
+                                }
+                            }
+                        }
 
                         if (opportunityResponse.OpportunityAttachmentFolder.length) {
                             opportunityResponse.OpportunityAttachmentFolder.forEach(async attachmentResponse => {

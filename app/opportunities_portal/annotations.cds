@@ -229,6 +229,11 @@ annotate service.Item with {
                     LocalDataProperty: ItemProductID
                 },
                 {
+                    $Type            : 'Common.ValueListParameterIn',
+                    ValueListProperty: 'ProductStatus',
+                    LocalDataProperty: ProductStatusActiveDefault
+                },
+                {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'InternalID',
                 },
@@ -247,7 +252,13 @@ annotate service.Item with {
             ]
         }
     });
+};
 
+annotate service.ItemProduct with {
+        ProductStatus                  @(Common: {
+        Text           : ProductStatusDescription,
+        TextArrangement: #TextFirst,
+    });
 };
 
 annotate service.Item with @(
@@ -256,12 +267,17 @@ annotate service.Item with @(
             $Type: 'UI.DataField',
             Label: 'Product',
             Value: ItemProductID,
-        },
-        {
-            $Type: 'UI.DataField',
-            Label: 'Internal ID',
-            Value: toItemProduct.InternalID,
-        },
+         },
+        //  {
+        //     $Type: 'UI.DataField',
+        //     Label: 'oppt',
+        //     Value: toOpportunity_ID,
+        // },
+        // {
+        //     $Type: 'UI.DataField',
+        //     Label: 'Internal ID',
+        //     Value: toItemProduct.InternalID,
+        // },
         {
             $Type: 'UI.DataField',
             Label: 'Product Category',
@@ -270,7 +286,7 @@ annotate service.Item with @(
         {
             $Type: 'UI.DataField',
             Label: 'Product Status',
-            Value: toItemProduct.ProductStatusDescription,
+            Value: toItemProduct.ProductStatus,
         },
         {
             $Type: 'UI.DataField',
@@ -328,7 +344,7 @@ annotate service.SalesPriceList with @(UI.LineItem #SalesPriceLists: [
 
 annotate service.Opportunity with {
     LifeCycleStatusCode @(Common: {
-        Text                    : LifeCycleStatusText,
+        Text                    : LifeCycleStatusCode.name,
         TextArrangement         : #TextLast,
         ValueListWithFixedValues: true,
         ValueList               : {
@@ -340,9 +356,8 @@ annotate service.Opportunity with {
                     LocalDataProperty: LifeCycleStatusCode_code
                 },
                 {
-                    $Type            : 'Common.ValueListParameterOut',
-                    ValueListProperty: 'name',
-                    LocalDataProperty: LifeCycleStatusText
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'name'
                 },
             ]
         }
@@ -404,6 +419,12 @@ annotate service.Opportunity with {
             ],
         },
 )};
+
+annotate service.Opportunity @(Common: {SideEffects #LifeCycleStatusCodeChanged: {
+    SourceProperties: ['LifeCycleStatusCode_code'],
+    TargetEntities  : [LifeCycleStatusCode]
+}}); 
+
 annotate service.Opportunity with {
     Subject @Common.Label : 'Subject'
 };
@@ -412,4 +433,15 @@ annotate service.Opportunity with {
 };
 annotate service.Opportunity with {
     CreationDateTime @Common.Label : 'Creation Date'
+};
+
+annotate service.Customer with {
+    InternalID @Common.Label:'Internal ID';
+    CustomerFormattedName @Common.Label:'Customer name';
+    ResponsibleManager @Common:{
+        Label:'Responsible manager',
+        Text:ResponsibleManagerID,
+        TextArrangement : #TextLast,
+    };
+    ID @UI.Hidden:true;
 };

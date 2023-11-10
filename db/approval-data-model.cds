@@ -9,11 +9,9 @@ entity RequestApproval : cuid {
 
     currentData : CustomerDataSet;
     currentStatusCode : Association to customer.StatusCodes;
-    //currentStatusDescription : String(20);
     currentCountry : Country;
     newData : CustomerDataSet;
     newStatusCode : Association to customer.StatusCodes;
-    //newStatusDescription : String(20);
     newCountry : Country;
 }
 
@@ -21,8 +19,7 @@ type CustomerDataSet {
         CustomerFormattedName : String ;
         ResponsibleManager : String;
         ResponsibleManagerID : String;
-        Note : String @UI.MultiLineText ;
-
+        Note : String @UI.MultiLineText;
         //Region : Region;
         JuridicalCity : String ;
         JuridicalStreet : String ;

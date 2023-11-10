@@ -114,7 +114,7 @@ annotate service.ServiceRequest with @(
             },
             {
                 $Type: 'UI.DataField',
-                Label: 'Problem Items',
+                Label: 'Problem Item',
                 Value: ProblemItem,
             },
         ]
@@ -204,7 +204,7 @@ annotate service.ServiceRequest with {
         }
     });
     Category    @(Common: {
-        Text                    : CategoryDescription,
+        Text                    : Category.name,
         TextArrangement         : #TextLast,
         ValueListWithFixedValues: true,
         ValueList               : {
@@ -216,9 +216,8 @@ annotate service.ServiceRequest with {
                     LocalDataProperty: Category_code
                 },
                 {
-                    $Type            : 'Common.ValueListParameterOut',
-                    ValueListProperty: 'name',
-                    LocalDataProperty: CategoryDescription
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'name'
                 },
             ]
         }
@@ -230,9 +229,10 @@ annotate service.ServiceRequest with {
             CollectionPath: 'Opportunity',
             Parameters    : [
                 {
-                    $Type            : 'Common.ValueListParameterInOut',
+                    $Type            : 'Common.ValueListParameterOut',
                     LocalDataProperty: OrderID,
-                    ValueListProperty: 'ID'
+                    ValueListProperty: 'ID',
+                    
                 },
                 {
                     $Type            : 'Common.ValueListParameterIn',// filter by Completed Oppt
@@ -253,18 +253,18 @@ annotate service.ServiceRequest with {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'LifeCycleStatusText'
                 },
-                {
-                    $Type            : 'Common.ValueListParameterDisplayOnly',
-                    ValueListProperty: 'ProspectPartyID'
-                },
+                // {
+                //     $Type            : 'Common.ValueListParameterDisplayOnly',
+                //     ValueListProperty: 'ProspectPartyID'
+                // },
                 {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'ProspectPartyName'
                 },
-                {
-                    $Type            : 'Common.ValueListParameterDisplayOnly',
-                    ValueListProperty: 'MainEmployeeResponsiblePartyID'
-                },
+                // {
+                //     $Type            : 'Common.ValueListParameterDisplayOnly',
+                //     ValueListProperty: 'MainEmployeeResponsiblePartyID'
+                // },
                 {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'MainEmployeeResponsiblePartyName'
@@ -298,14 +298,14 @@ annotate service.ServiceRequest with {
                 //     ValueListProperty: 'toOpportunity/ProspectPartyID',
                 //     LocalDataProperty: Customer_ID // filter by selected Customer
                 // },
-                {
-                    $Type            : 'Common.ValueListParameterDisplayOnly',
-                    ValueListProperty: 'ProductInternalID'
-                },
-                {
-                    $Type            : 'Common.ValueListParameterDisplayOnly',
-                    ValueListProperty: 'ProductCategory'
-                },
+                // {
+                //     $Type            : 'Common.ValueListParameterDisplayOnly',
+                //     ValueListProperty: 'ProductInternalID'
+                // },
+                // {
+                //     $Type            : 'Common.ValueListParameterDisplayOnly',
+                //     ValueListProperty: 'ProductCategory'
+                // },
                 {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'ProductStatus'
@@ -324,6 +324,11 @@ annotate service.ServiceRequest with {
                     ValueListProperty: 'InternalID',
                     LocalDataProperty: CustomerID
                 },
+                // {
+                //     $Type            : 'Common.ValueListParameterDisplayOnly',
+                //     ValueListProperty: 'ID',
+                //     //LocalDataProperty: CustomerFormattedName
+                // },
                 {
                     $Type            : 'Common.ValueListParameterOut',
                     ValueListProperty: 'CustomerFormattedName',
@@ -373,6 +378,11 @@ annotate service.ServiceRequest with @(UI.Identification: [{
     Label : 'Refresh'
 }]);
 
+annotate service.ServiceRequest @(Common: {SideEffects #CategoryChanged: {
+    SourceProperties: ['Category_code'],
+    TargetEntities  : [Category]
+}});
+
 annotate service.ServiceRequest with {
     InternalID @Common.Label: '{i18n>InternalID}';
     ProblemDescription @Common.Label: '{i18n>ProblemDescription}';
@@ -380,3 +390,41 @@ annotate service.ServiceRequest with {
     Status @Common.Label : 'Status';
     Category @Common.Label : 'Category';
 };
+
+annotate service.Opportunity with {
+    ID @Common:{
+        Text: InternalID,
+        TextArrangement : #TextOnly,
+    };
+    LifeCycleStatusText @Common.Label : 'Status';
+    ProspectPartyName @Common:{
+        Label: 'Customer',
+        Text: ProspectPartyID,
+        TextArrangement : #TextLast,
+    };
+    MainEmployeeResponsiblePartyName @Common:{
+        Label: 'Responsible Employee',
+        Text: MainEmployeeResponsiblePartyID,
+        TextArrangement : #TextLast
+    };
+};
+annotate service.Item with {
+    ID @Common:{
+        Text: ProductInternalID,
+        TextArrangement : #TextOnly,
+    };
+    ProductStatus @Common.Label : 'Status';
+    ProductCategory @Common:{
+        Label: 'Category',
+    };
+};
+annotate service.Customer with {
+    InternalID @Common.Label : 'Internal ID'; 
+    ResponsibleManager @Common:{
+        Label: 'Responsible manager',
+        Text: ResponsibleManagerID,
+        TextArrangement : #TextLast,
+    };
+    CustomerFormattedName @Common.Label : 'Customer name'; 
+};
+

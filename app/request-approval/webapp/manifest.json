@@ -36,7 +36,8 @@
                     "signature": {
                         "parameters": {},
                         "additionalParameters": "allowed"
-                    }
+                    },
+                    "icon": ".sap-icon--wrench"
                 }
             }
         }
