@@ -9,7 +9,6 @@ annotate service.Customer with @(
         },
         {
             $Type: 'UI.DataField',
-            Label: '{i18n>Customerformattedname}',
             Value: CustomerFormattedName
         },
         {
@@ -110,31 +109,31 @@ annotate service.Customer with @(
 
 annotate service.Bank with @(UI.LineItem #Banks: [
     {
-        $Type                : 'UI.DataField',
-        Label                : '{i18n>BankCode}',
-        Value                : BankCode,
-        ![@HTML5.CssDefaults]: {width: '25%'}
+        $Type                 : 'UI.DataField',
+        Label                 : '{i18n>BankCode}',
+        Value                 : BankCode,
+        ![@HTML5.CssDefaults] : {width: '25%'}
 
     },
     {
-        $Type                : 'UI.DataField',
-        Label                : '{i18n>BankAccount}',
-        Value                : BankAccount,
-        ![@HTML5.CssDefaults]: {width: '25%'}
+        $Type                 : 'UI.DataField',
+        Label                 : '{i18n>BankAccount}',
+        Value                 : BankAccount,
+        ![@HTML5.CssDefaults] : {width: '25%'}
 
     },
     {
-        $Type                : 'UI.DataField',
-        Label                : '{i18n>SWIFT}',
-        Value                : SWIFT,
-        ![@HTML5.CssDefaults]: {width: '25%'}
+        $Type                 : 'UI.DataField',
+        Label                 : '{i18n>SWIFT}',
+        Value                 : SWIFT,
+        ![@HTML5.CssDefaults] : {width: '25%'}
 
     },
     {
-        $Type                : 'UI.DataField',
-        Label                : '{i18n>IBAN}',
-        Value                : IBAN,
-        ![@HTML5.CssDefaults]: {width: '25%'}
+        $Type                 : 'UI.DataField',
+        Label                 : '{i18n>IBAN}',
+        Value                 : IBAN,
+        ![@HTML5.CssDefaults] : {width: '25%'}
 
     },
 ]);
@@ -162,7 +161,6 @@ annotate service.Customer with @(UI.FieldGroup #GeneratedGroup1: {
     Data : [
         {
             $Type: 'UI.DataField',
-            Label: '{i18n>Customerformattedname}',
             Value: CustomerFormattedName
         },
         {
@@ -201,13 +199,8 @@ annotate service.Opportunity with @(UI.LineItem #Opportunities: [
     },
     {
         $Type: 'UI.DataField',
-        Label: 'Prospect Party ID',
+        Label: 'Customer',
         Value: ProspectPartyID,
-    },
-    {
-        $Type: 'UI.DataField',
-        Label: 'Prospect Party Name',
-        Value: ProspectPartyName,
     },
     {
         $Type: 'UI.DataField',
@@ -216,12 +209,7 @@ annotate service.Opportunity with @(UI.LineItem #Opportunities: [
     },
     {
         $Type: 'UI.DataField',
-        Label: 'Responsible Employee ID',
-        Value: MainEmployeeResponsiblePartyID,
-    },
-    {
-        $Type: 'UI.DataField',
-        Label: 'Responsible Employee Name',
+        Label: 'Responsible Employee',
         Value: MainEmployeeResponsiblePartyName,
     },
     {
@@ -275,11 +263,11 @@ annotate service.Opportunity with @(
             Target: 'Items/@UI.LineItem#Items'
         },
         {
-            $Type        : 'UI.ReferenceFacet',
-            Label        : 'Attachments',
-            ID           : 'Attachments',
-            Target       : 'Attachment/@UI.LineItem#Attachments',
-            ![@UI.Hidden]: {$edmJson: {$Eq: [
+            $Type         : 'UI.ReferenceFacet',
+            Label         : 'Attachments',
+            ID            : 'Attachments',
+            Target        : 'Attachment/@UI.LineItem#Attachments',
+            ![@UI.Hidden] : {$edmJson: {$Eq: [
                 {$Path: 'NotStandartRequest'},
                 false
             ]}}
@@ -326,24 +314,13 @@ annotate service.Opportunity with @(
         Data : [
             {
                 $Type: 'UI.DataField',
-                Value: ProspectPartyName,
+                Value: ProspectPartyID,
                 Label: 'Customer',
-            },
-            {
-                $Type                  : 'UI.DataField',
-                Value                  : ProspectPartyID,
-                Label                  : 'Customer ID',
-                ![@Common.FieldControl]: #ReadOnly,
             },
             {
                 $Type: 'UI.DataField',
                 Value: MainEmployeeResponsiblePartyName,
                 Label: 'Employee Responsible',
-            },
-            {
-                $Type: 'UI.DataField',
-                Value: MainEmployeeResponsiblePartyID,
-                Label: 'Employee Responsible ID',
             },
         ]
     }
@@ -401,7 +378,6 @@ annotate service.SalesPriceList with @(UI.LineItem #SalesPriceLists: [
         Value: AmountCurrencyCode_code,
         Label: 'Amount',
     },
-
     {
         $Type: 'UI.DataField',
         Value: PriceUnitContent,
@@ -496,7 +472,6 @@ annotate service.Customer with @(
         },
         {
             $Type: 'UI.DataField',
-            Label: '{i18n>Customerformattedname}',
             Value: CustomerFormattedName
         }
     ],
@@ -655,7 +630,7 @@ annotate service.ServiceRequest with @(
             },
         ]
     },
-    UI.FieldGroup #ProblemItem      : {
+    UI.FieldGroup #ProblemItem  : {
         $Type: 'UI.FieldGroupType',
         Data : [
             {
@@ -798,15 +773,15 @@ annotate service.ServiceRequest with {
                     $Type            : 'Common.ValueListParameterOut',
                     LocalDataProperty: OrderID,
                     ValueListProperty: 'ID',
-                    
+
                 },
                 {
-                    $Type            : 'Common.ValueListParameterIn',// filter by Completed Oppt
+                    $Type            : 'Common.ValueListParameterIn', // filter by Completed Oppt
                     LocalDataProperty: LifeCycleStatusCodeCompletedDefault,
                     ValueListProperty: 'LifeCycleStatusCode_code'
                 },
                 {
-                    $Type            : 'Common.ValueListParameterIn',// filter by selected Customer
+                    $Type            : 'Common.ValueListParameterIn', // filter by selected Customer
                     LocalDataProperty: Customer_ID,
                     ValueListProperty: 'Customer_ID'
                 },
@@ -819,18 +794,10 @@ annotate service.ServiceRequest with {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'LifeCycleStatusText'
                 },
-                // {
-                //     $Type            : 'Common.ValueListParameterDisplayOnly',
-                //     ValueListProperty: 'ProspectPartyID'
-                // },
                 {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
-                    ValueListProperty: 'ProspectPartyName'
+                    ValueListProperty: 'ProspectPartyID'
                 },
-                // {
-                //     $Type            : 'Common.ValueListParameterDisplayOnly',
-                //     ValueListProperty: 'MainEmployeeResponsiblePartyID'
-                // },
                 {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'MainEmployeeResponsiblePartyName'
@@ -869,11 +836,6 @@ annotate service.ServiceRequest with {
                     ValueListProperty: 'ID',
                     LocalDataProperty: Customer_ID
                 },
-                // {
-                //     $Type            : 'Common.ValueListParameterOut',
-                //     ValueListProperty: 'ID',
-                //     LocalDataProperty: Processor
-                // },
             ]
         }
     });
@@ -888,7 +850,7 @@ annotate service.ServiceRequest with {
                     ValueListProperty: 'ID',
                     LocalDataProperty: ProblemItem
                 },
-                 {
+                {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'ProductInternalID'
                 },
@@ -906,8 +868,8 @@ annotate service.ServiceRequest with {
                     ValueListProperty: 'toOpportunity_ID',
                     LocalDataProperty: OrderID // filter by selected Order
                 },
-               
-                
+
+
             ]
         }
     });
@@ -934,8 +896,8 @@ annotate service.Customer with {
         },
         Common.ValueListWithFixedValues: false,
         Common.Text                    : {
-            $value                : CustomerFormattedName,
-            ![@UI.TextArrangement]: #TextSeparate,
+            $value                 : CustomerFormattedName,
+            ![@UI.TextArrangement] : #TextSeparate,
         }
     )
 };
@@ -972,7 +934,7 @@ annotate service.Customer with @(UI.FieldGroup #i18nCreatedSection: {
 
 annotate service.Opportunity with {
     LifeCycleStatusCode @(Common: {
-        Text                    : LifeCycleStatusText,
+        Text                    : LifeCycleStatusCode.name,
         TextArrangement         : #TextLast,
         ValueListWithFixedValues: true,
         ValueList               : {
@@ -991,7 +953,6 @@ annotate service.Opportunity with {
             ]
         }
     });
-
 };
 
 // annotate service.Customer with @(UI.Identification : [
@@ -1046,7 +1007,7 @@ annotate service.Item with {
 };
 
 annotate service.ItemProduct with {
-        ProductStatus                  @(Common: {
+    ProductStatus @(Common: {
         Text           : ProductStatusDescription,
         TextArrangement: #TextFirst,
     });
@@ -1109,10 +1070,10 @@ annotate service.PartnerProfile with @(
                 Label: 'Last Name',
             },
             {
-                $Type                  : 'UI.DataField',
-                Value                  : Status_code,
-                Label                  : 'Status',
-                ![@Common.FieldControl]: #ReadOnly,
+                $Type                   : 'UI.DataField',
+                Value                   : Status_code,
+                Label                   : 'Status',
+                ![@Common.FieldControl] : #ReadOnly,
             },
             {
                 $Type: 'UI.DataField',
@@ -1207,7 +1168,6 @@ annotate service.Customer with @(UI.LineItem #Customers: [
     },
     {
         $Type: 'UI.DataField',
-        Label: '{i18n>Customerformattedname}',
         Value: CustomerFormattedName
     },
     {
@@ -1409,48 +1369,76 @@ annotate service.ServiceRequest with @(UI.Identification: [{
     Action: 'PartnerService.updateFromRemote',
     Label : 'Refresh'
 }]);
-annotate service.Item with @(
-    UI.HeaderInfo : {
-        TypeName : 'Sales Price List',
-        TypeNamePlural : '',
-        Title : {
-            $Type : 'UI.DataField',
-            Value : ProductInternalID,
-        },
-    }
-);
+
+annotate service.Item with @(UI.HeaderInfo: {
+    TypeName      : 'Sales Price List',
+    TypeNamePlural: '',
+    Title         : {
+        $Type: 'UI.DataField',
+        Value: ProductInternalID,
+    },
+});
 
 annotate service.Item with {
     ID @(Common: {
-        Text                    : ProductInternalID,
-        TextArrangement         : #TextOnly,
+        Text           : ProductInternalID,
+        TextArrangement: #TextOnly,
     })
 };
 
 annotate service.Opportunity with {
-    ID @Common:{
-        Text: InternalID,
-        TextArrangement : #TextOnly,
+    ID                               @Common      : {
+        Text           : InternalID,
+        TextArrangement: #TextOnly,
     };
-    LifeCycleStatusText @Common.Label : 'Status';
-    ProspectPartyName @Common:{
-        Label: 'Customer',
-        Text: ProspectPartyID,
+    ProspectPartyID                  @(Common: {
+        Text           : ProspectPartyName,
+        TextArrangement: #TextFirst,
+        ValueList      : {
+            CollectionPath: 'Customer',
+            Parameters    : [
+                {
+                    $Type            : 'Common.ValueListParameterInOut',
+                    ValueListProperty: 'InternalID',
+                    LocalDataProperty: ProspectPartyID
+                },
+                {
+                    $Type            : 'Common.ValueListParameterOut',
+                    ValueListProperty: 'CustomerFormattedName',
+                    LocalDataProperty: ProspectPartyName
+                },
+                {
+                    $Type            : 'Common.ValueListParameterOut',
+                    ValueListProperty: 'ResponsibleManager',
+                    LocalDataProperty: MainEmployeeResponsiblePartyName
+                },
+                {
+                    $Type            : 'Common.ValueListParameterOut',
+                    ValueListProperty: 'ResponsibleManagerID',
+                    LocalDataProperty: MainEmployeeResponsiblePartyID
+                },
+            ]
+        }
+    });
+    LifeCycleStatusText              @Common.Label: 'Status';
+    MainEmployeeResponsiblePartyName @Common      : {
+        Label          : 'Responsible Employee',
+        Text           : MainEmployeeResponsiblePartyID,
+        TextArrangement: #TextLast
+    };
+};
+annotate service.Customer with {
+    ResponsibleManager @Common:{
+        Text:ResponsibleManagerID,
         TextArrangement : #TextLast,
     };
-    MainEmployeeResponsiblePartyName @Common:{
-        Label: 'Responsible Employee',
-        Text: MainEmployeeResponsiblePartyID,
-        TextArrangement : #TextLast
-    };
+    ResponsibleManagerID @UI.Hidden: true;
 };
 annotate service.Item with {
     // ID @Common:{
     //     Text: ProductInternalID,
     //     TextArrangement : #TextOnly,
     // };
-    ProductStatus @Common.Label : 'Status';
-    ProductCategory @Common:{
-        Label: 'Category',
-    };
+    ProductStatus   @Common.Label: 'Status';
+    ProductCategory @Common      : {Label: 'Category', };
 };

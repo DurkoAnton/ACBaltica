@@ -6,13 +6,15 @@ namespace approval;
 entity RequestApproval : cuid {
     CustomerID : UUID;
     Customer : Association to one customer.Customer on Customer.ID = $self.CustomerID;
-
+    MainContactID : String;
+    
     currentData : CustomerDataSet;
     currentStatusCode : Association to customer.StatusCodes;
     currentCountry : Country;
     newData : CustomerDataSet;
     newStatusCode : Association to customer.StatusCodes;
     newCountry : Country;
+    
 }
 
 type CustomerDataSet {

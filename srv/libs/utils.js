@@ -76,10 +76,10 @@ async function createNewCustomerInRemote(customerData, customerEntity, req) {
                 const UUID = c4cResponse.data.d.results.UUID;
                 const internalID = c4cResponse.data.d.results.AccountID;
 
-                const result = await UPDATE(customerEntity, customerData.ID).with({ UUID: UUID, ObjectID: objectID, InternalID: internalID });
+                await UPDATE(customerEntity, customerData.ID).with({ UUID: UUID, ObjectID: objectID, InternalID: internalID });
                 //link new customer and current contact
                 //if (req.headers['x-username']) {
-                    const email = 'andrei_matys@atlantconsult.com';
+                    const email = req._.user.id;
                     path += '(\'' + objectID + '\')/CorporateAccountHasContactPerson';
                     let contactID;
                     const currentPartner = await SELECT.one.from('PARTNER_PARTNERPROFILE').where({ Email: email });

@@ -5,10 +5,35 @@ class RequestApprovalService extends cds.ApplicationService {
 
         const { Customer, RequestApproval } = this.entities;
 
+        this.before('CREATE', RequestApproval, async req =>{
+            //link new request record to current Contact
+            const email = req._.user.id;
+            const partner = await SELECT.one.from("PARTNER_PARTNERPROFILE").where({Email : email});
+            if (partner){
+                req.data.MainContactID = partner.CODE;
+            }
+        });
+
+        this.before('READ', RequestApproval, async req =>{
+            // filter only for current Contact
+            if (req._path == 'RequestApproval' && req._.event == 'READ') { 
+                const email = req._.user.id;
+                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
+                if (partner) {
+                    req.query.where({ 'MainContactID': partner.CODE });
+                }
+            }
+        });
+
         this.on('sendRequestForApproval', async (req)=>{
             //form context body and trigger workflow for approval request
             const requestApprovalID = req.params[0].ID;
-            const requestApproval = await SELECT.one.from(RequestApproval).where({ID : requestApprovalID});
+            const requestApproval = await SELECT.one.from(RequestApproval).columns(
+                root =>{
+                    root('*'),
+                    root.currentStatusCode(currentStatus => {currentStatus.code, currentStatus.name}),
+                    root.newStatusCode(newStatus => {newStatus.code, newStatus.name})
+                }).where({ID : requestApprovalID});
             if (requestApproval){
                 const customer = await SELECT.one.from(Customer).where({ID : requestApproval.CustomerID});
                 if (customer){
@@ -28,14 +53,19 @@ class RequestApprovalService extends cds.ApplicationService {
                             newCountryDescription = newCountryInst.NAME;
                         }
                     }
-                    // get statuse descriptions
-                    // if () {
-                        
-                    // }
+                    let oldStatusDescription;
+                    let newStatusDescription;
+                    // get status descriptions
+                    if (requestApproval.currentStatusCode) {
+                        oldStatusDescription = requestApproval.currentStatusCode.name;
+                    }
+                    if (requestApproval.newStatusCode) {
+                        newStatusDescription = requestApproval.newStatusCode.name;
+                    }
                     const oldData = {
                         name : requestApproval.currentData_CustomerFormattedName,
                         responsibleManager : requestApproval.currentData_ResponsibleManager,
-                        status: requestApproval.currentStatusDescription,
+                        status: oldStatusDescription,
                         note: requestApproval.currentData_Note,
                         country: oldCountryDescription,
                         city: requestApproval.currentData_JuridicalCity,
@@ -46,7 +76,7 @@ class RequestApprovalService extends cds.ApplicationService {
                     const newData = {
                         name : requestApproval.newData_CustomerFormattedName,
                         responsibleManager : requestApproval.newData_ResponsibleManager,
-                        status: requestApproval.newStatusDescription,
+                        status: newStatusDescription,
                         note: requestApproval.newData_Note,
                         country: newCountryDescription,
                         city: requestApproval.newData_JuridicalCity,
@@ -56,7 +86,7 @@ class RequestApprovalService extends cds.ApplicationService {
                     }
                     let body = {
                         Name: requestApproval.newData_CustomerFormattedName,
-                        LifeCycleStatusCode: requestApproval.newData_StatusCode_code,
+                        LifeCycleStatusCode: requestApproval.currentStatusCode.code,
                         OwnerID : requestApproval.newData_ResponsibleManagerID,
                         CountryCode : requestApproval.newData_JuridicalCountry_code,
                         City : requestApproval.newData_JuridicalCity,
@@ -79,12 +109,12 @@ class RequestApprovalService extends cds.ApplicationService {
                         old : oldData,
                         new: newData,
                         responsibleContact : mail,
-                        responsibleManager : 'antondurko01gmail.com',
+                        responsibleManager : 'antondurko01gmail.com',//test
                         body: body
                     }
                     const workflow = await cds.connect.to('workflowService');
                     const response = await workflow.send('POST', '/v1/workflow-instances', {"definitionId" : "approvalflow", context: context})
-                    const debug=1;
+                    //const debug=1;
                     req.info("Request for approval has been sent!")
                     
                 }

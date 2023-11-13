@@ -1,6 +1,6 @@
 using { customer } from '../db/customer-data-model';
 
-service ServiceRequestService {
+service ServiceRequestService @(requires: 'authenticated-user'){
      @Capabilities : {
       InsertRestrictions.Insertable : true,
       UpdateRestrictions.Updatable  : true,

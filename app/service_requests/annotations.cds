@@ -13,6 +13,11 @@ annotate service.ServiceRequest with @(UI.LineItem: [
     },
     {
         $Type: 'UI.DataField',
+        Label: 'Customer',
+        Value: CustomerID,
+    },
+    {
+        $Type: 'UI.DataField',
         Value: Category_code,
         Label: 'Category',
     },
@@ -324,11 +329,6 @@ annotate service.ServiceRequest with {
                     ValueListProperty: 'InternalID',
                     LocalDataProperty: CustomerID
                 },
-                // {
-                //     $Type            : 'Common.ValueListParameterDisplayOnly',
-                //     ValueListProperty: 'ID',
-                //     //LocalDataProperty: CustomerFormattedName
-                // },
                 {
                     $Type            : 'Common.ValueListParameterOut',
                     ValueListProperty: 'CustomerFormattedName',
@@ -425,6 +425,5 @@ annotate service.Customer with {
         Text: ResponsibleManagerID,
         TextArrangement : #TextLast,
     };
-    CustomerFormattedName @Common.Label : 'Customer name'; 
 };
 

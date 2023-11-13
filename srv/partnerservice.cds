@@ -1,7 +1,7 @@
 using { partner } from '../db/data-model';
 using { customer} from '../db/customer-data-model';
 
-service PartnerService {
+service PartnerService @(requires: 'authenticated-user'){
     @Capabilities : {
         InsertRestrictions.Insertable : true,
         UpdateRestrictions.Updatable  : true,
@@ -23,9 +23,20 @@ service PartnerService {
   entity Bank as projection on customer.Bank;
   entity Opportunity as projection on customer.Opportunity actions {
     action LoadProducts();
+
+    @cds.odata.bindingparameter.name : '_it'
+    @Common.SideEffects : {    
+        $Type:'Common.SideEffectsType', 
+        TargetEntities : ['_it/Items', '_it/Attachment']        
+    }   
     action updateFromRemote() returns Opportunity;
   };
   entity ServiceRequest as projection on customer.ServiceRequest actions {
+    @cds.odata.bindingparameter.name : '_it'
+    @Common.SideEffects : {    
+        $Type:'Common.SideEffectsType', 
+        TargetEntities : ['_it/Attachment']        
+    }   
     action updateFromRemote() returns ServiceRequest;
   };
   entity Attachement as projection on customer.Attachment;

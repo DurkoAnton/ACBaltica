@@ -7,7 +7,14 @@ const { loadProductsAndPricesListsFromC4C } = require('./libs/dataLoading');
 class CustomerService extends cds.ApplicationService {
     async init() {
 
-        const { Customer, Opportunity, ServiceRequest, Attachement, Item, ItemProduct, SalesPriceList } = this.entities;
+        const { Customer, Opportunity, ServiceRequest, Attachement, Item, ItemProduct, SalesPriceList/*, remoteCustomer */} = this.entities;
+
+         //const remoteC4CAPI = await cds.connect.to('remote');
+
+        // this.on('READ', remoteCustomer, req => {
+        //     const d = remoteC4CAPI.run(req.query)
+        //     return d;
+        // });
 
         async function _createCustomerInstances(c4cResponse, customersFromDB) {
             let customer;
@@ -114,6 +121,7 @@ class CustomerService extends cds.ApplicationService {
                         UUID: item.UUID,
                         ObjectID: item.ObjectID,
                         CustomerID: item.BuyerPartyID,
+                        CustomerFormattedName: item.BuyerPartyName,
                         InternalID: item.ID,
                         Status_code: item.ServiceRequestLifeCycleStatusCode,
                         Processor: item.ProcessorPartyName,
@@ -168,53 +176,52 @@ class CustomerService extends cds.ApplicationService {
             if (path == 'Customer' && req._queryOptions && req._queryOptions.$top && req._queryOptions.$top == '30') {
                 const customersFromDB = await SELECT.from(Customer);
                 if (!req.req) return; // get all Customers only for List Report
-                    //if (req.req.headers['x-username']) {
-                        var email = 'andrei_matys@atlantconsult.com';
-                        //const email = req.req.headers['x-username'];
-                        //const pathWithSelect = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${email}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection&$select=ContactID,ContactIsContactPersonFor/CorporateAccount/BusinessPartnerFormattedName,ContactIsContactPersonFor/CorporateAccount/AccountID,ContactIsContactPersonFor/CorporateAccount/LifeCycleStatusCode,ContactIsContactPersonFor/CorporateAccount/UUID,ContactIsContactPersonFor/CorporateAccount/ObjectID,ContactIsContactPersonFor/CorporateAccount/City,ContactIsContactPersonFor/CorporateAccount/CountryCode,ContactIsContactPersonFor/CorporateAccount/Street,ContactIsContactPersonFor/CorporateAccount/HouseNumber,ContactIsContactPersonFor/CorporateAccount/Room,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData/FormattedName,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection/Text`;
-                        const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${email}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
-                        try {
-                            const createRequestParameters = {
-                                method: 'GET',
-                                url: path,
-                                headers: { 'content-type': 'application/json' }
-                            }
-                            const c4cResponse = await sendRequestToC4C(createRequestParameters);
-                            await _createCustomerInstances(c4cResponse, customersFromDB);
-                            await deleteCustomerInstances(c4cResponse, customersFromDB, Customer);
-                        }
-                        catch (error) {
-                            req.reject({
-                                message: error.message
-                            });
-                        }
-                    //}
-                    if (req._path == 'Customer' && req._.event == 'READ') { // read only for general list
-                        //if (req.headers["x-username"]) {
-                            var email = 'andrei_matys@atlantconsult.com';
-                            const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
-                            if (partner) {
-                                req.query.where({ 'MainContactID': partner.CODE });
-                            }
-                        //}
+                var email = req._.user.id;
+                //const pathWithSelect = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${email}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection&$select=ContactID,ContactIsContactPersonFor/CorporateAccount/BusinessPartnerFormattedName,ContactIsContactPersonFor/CorporateAccount/AccountID,ContactIsContactPersonFor/CorporateAccount/LifeCycleStatusCode,ContactIsContactPersonFor/CorporateAccount/UUID,ContactIsContactPersonFor/CorporateAccount/ObjectID,ContactIsContactPersonFor/CorporateAccount/City,ContactIsContactPersonFor/CorporateAccount/CountryCode,ContactIsContactPersonFor/CorporateAccount/Street,ContactIsContactPersonFor/CorporateAccount/HouseNumber,ContactIsContactPersonFor/CorporateAccount/Room,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData/FormattedName,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection/Text`;
+                const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${email}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
+                try {
+                    const createRequestParameters = {
+                        method: 'GET',
+                        url: path,
+                        headers: { 'content-type': 'application/json' }
+                    }
+                    const c4cResponse = await sendRequestToC4C(createRequestParameters);
+                    await _createCustomerInstances(c4cResponse, customersFromDB);
+                    await deleteCustomerInstances(c4cResponse, customersFromDB, Customer);
+                }
+                catch (error) {
+                    req.reject({
+                        message: error.message
+                    });
+                }
+                //update object page header data
+                if (req._path == 'Customer' && req._.event == 'READ') { // read only for general list
+                    var email = req._.user.id;
+                    const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
+                    if (partner) {
+                        req.query.where({ 'MainContactID': partner.CODE });
                     }
                 }
+            }
+            
         })
 
-        this.after('READ', 'ServiceRequest', async (each) => {
+        this.after('READ', 'ServiceRequest', each => {
             if (each.Status_code == '') { // default value
                 each.Status_code = '1';
             }
         })
 
         this.before('READ', 'ServiceRequest', async (req) => {
-            // OWL SR Read - > get all SRs    
+
+            // OWL SR Read - > get all SRs   
             if (req._path.startsWith('Customer') && req._path.endsWith('ToServiceRequests') && req.event == 'READ') {
                 // const serviceRequestsFromDB = await SELECT.from(ServiceRequest);
                 let customerUUID = req._path.substring(12, 48);
                 var customerInternalID;
                 var serviceRequestsFromDB;
                 if (customerUUID) {
+                    
                     customerFromDB = await SELECT.from(Customer).where({ ID: customerUUID });
                     if (customerFromDB[0] != undefined) {
                         customerInternalID = customerFromDB[0].InternalID;
@@ -225,7 +232,6 @@ class CustomerService extends cds.ApplicationService {
                 if (customerInternalID) {
                     var customerFromDB;
 
-                    //const email = req.req.headers['x-username'];
                     const path = `/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection?$filter=BuyerPartyID eq '${customerInternalID}'&$expand=ServiceRequestAttachmentFolder`;
                     try {
                         const createRequestParameters = {
@@ -250,6 +256,7 @@ class CustomerService extends cds.ApplicationService {
         });
 
         this.before('READ', 'Opportunity', async (req) => {
+
             if (req._path.startsWith('Customer') && req._path.endsWith('ToOpportunities') && req.event == 'READ') {
 
                 let opportunitiesFromDB = [];
@@ -258,7 +265,6 @@ class CustomerService extends cds.ApplicationService {
                     opportunitiesFromDB = await SELECT.from(Opportunity).where({ Customer_ID: parentId });
                 }
                 const customerDB = await SELECT.from(Customer).where({ ID: parentId });
-                //const opptsDrafts = await SELECT.from(Opportunity).where({ ID: parentId });
                 let customerInternalID;
                 if (customerDB.length > 0) {
                     customerInternalID = customerDB[0].InternalID;
@@ -295,7 +301,7 @@ class CustomerService extends cds.ApplicationService {
         this.before('NEW', 'Opportunity', async (req) => {
             const parentId = req._path.substring(12, 48);
             const customerDB = await SELECT.from(Customer).where({ ID: parentId });
-            var email = 'andrei_matys@atlantconsult.com';
+            var email = req._.user.id;;
             if (customerDB.length > 0) {
                 req.data.ProspectPartyID = customerDB[0].InternalID;
                 req.data.ProspectPartyName = customerDB[0].CustomerFormattedName;
@@ -318,10 +324,11 @@ class CustomerService extends cds.ApplicationService {
 
         this.before('NEW', 'ServiceRequest', async (req) => {
             const parentId = req._path.substring(12, 48);
-            var email = 'andrei_matys@atlantconsult.com';
+            var email = req._.user.id;;
             const customerDB = await SELECT.one.from(Customer).where({ ID: parentId });
             if (customerDB) {
                 req.data.CustomerID = customerDB.InternalID;
+                req.data.CustomerFormattedName = customerDB.CustomerFormattedName;
                 req.data.Customer_ID = customerDB.ID;
             }
             //if (req.headers['x-username']) {
@@ -334,7 +341,7 @@ class CustomerService extends cds.ApplicationService {
 
         this.before('NEW', 'Customer', async (req) => {
             req.data.Status_code = "1";
-            var email = 'andrei_matys@atlantconsult.com';
+            var email = req._.user.id;;
             //if (req.headers['x-username']) {
                 const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
                 if (partner) {
@@ -490,7 +497,6 @@ class CustomerService extends cds.ApplicationService {
 
             const customerData = req;
             await createNewCustomerInRemote(customerData, Customer, req);
-            const debug=1;
 
         });
 

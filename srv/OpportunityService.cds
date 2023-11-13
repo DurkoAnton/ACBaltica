@@ -1,6 +1,6 @@
 using { customer } from '../db/customer-data-model';
 
-service OpportunityService {
+service OpportunityService @(requires: 'authenticated-user'){
      @Capabilities : {
       InsertRestrictions.Insertable : true,
       UpdateRestrictions.Updatable  : true,
@@ -8,6 +8,12 @@ service OpportunityService {
   }
   entity Opportunity as projection on customer.Opportunity actions {
     action LoadProducts();
+    
+    @cds.odata.bindingparameter.name : '_it'
+    @Common.SideEffects : {    
+        $Type:'Common.SideEffectsType', 
+        TargetEntities : ['_it/Items', '_it/Attachment']        
+    }   
     action updateFromRemote() returns Opportunity;
   };
   entity Item as select from customer.Item 

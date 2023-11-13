@@ -13,13 +13,8 @@ annotate service.Opportunity with @(UI.LineItem: [
     },
     {
         $Type: 'UI.DataField',
-        Label: 'Prospect Party ID',
+        Label: 'Customer',
         Value: ProspectPartyID,
-    },
-    {
-        $Type: 'UI.DataField',
-        Label: 'Prospect Party Name',
-        Value: ProspectPartyName,
     },
     {
         $Type: 'UI.DataField',
@@ -28,12 +23,7 @@ annotate service.Opportunity with @(UI.LineItem: [
     },
     {
         $Type: 'UI.DataField',
-        Label: 'Responsible Employee ID',
-        Value: MainEmployeeResponsiblePartyID,
-    },
-    {
-        $Type: 'UI.DataField',
-        Label: 'Responsible Employee Name',
+        Label: 'Responsible Employee',
         Value: MainEmployeeResponsiblePartyName,
     },
     {
@@ -132,7 +122,7 @@ annotate service.Opportunity with @(
             {
                 $Type: 'UI.DataField',
                 Value: ProspectPartyID,
-                Label: 'Customer ID',
+                Label: 'Customer',
             },
             {
                 $Type: 'UI.DataField',
@@ -437,7 +427,6 @@ annotate service.Opportunity with {
 
 annotate service.Customer with {
     InternalID @Common.Label:'Internal ID';
-    CustomerFormattedName @Common.Label:'Customer name';
     ResponsibleManager @Common:{
         Label:'Responsible manager',
         Text:ResponsibleManagerID,

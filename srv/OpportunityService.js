@@ -71,7 +71,7 @@ class OpportunityService extends cds.ApplicationService {
         this.before('READ', 'Opportunity', async req => {
             if (req._path == 'Opportunity' && req._.event == 'READ' /*&& req._._queryOptions.$top == '30'*/) { // read only for general list
                 //if (req.headers["x-username"]) {
-                    var email = 'andrei_matys@atlantconsult.com';
+                    var email = req._.user.id;;
                     var partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
                     if (partner){
                         req.query.where({ 'MainContactID': partner.CODE });
@@ -111,7 +111,7 @@ class OpportunityService extends cds.ApplicationService {
         this.before('NEW', 'Opportunity', async (req) => {
             req.data.LifeCycleStatusCode_code = '1';
             req.data.LifeCycleStatusText = 'Open';
-            var email = 'andrei_matys@atlantconsult.com';
+            var email = req._.user.id;;
             //if (req.headers['x-username']){
                 const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
                 if(partner){

@@ -1,6 +1,7 @@
 using { customer } from '../db/customer-data-model';
+using {remote as external} from './external/remote';
 
-service CustomerService {
+service CustomerService @(requires: 'authenticated-user'){
     @Capabilities : {
          InsertRestrictions.Insertable : true,
          UpdateRestrictions.Updatable  : true,
@@ -8,6 +9,12 @@ service CustomerService {
     }
   entity Customer as projection on customer.Customer actions { 
     action UpdateInC4C();
+    
+    @cds.odata.bindingparameter.name : '_it'
+    @Common.SideEffects : {    
+        $Type:'Common.SideEffectsType', 
+        TargetEntities : ['_it/ToOpportunities', '_it/ToServiceRequests']        
+    } 
     action updateAllFieldsFromRemote() returns Customer;
     };
   entity StatusCodes as projection on customer.StatusCodes;
@@ -28,19 +35,26 @@ service CustomerService {
     @cds.odata.bindingparameter.name : '_it'
     @Common.SideEffects : {    
         $Type:'Common.SideEffectsType', 
-        TargetEntities : ['_it/Items']        
+        TargetEntities : ['_it/Items', '_it/Attachment']        
     }   
     action updateFromRemote() returns Opportunity;
   };
 
   entity ServiceRequest as projection on customer.ServiceRequest actions {
+    @cds.odata.bindingparameter.name : '_it'
+    @Common.SideEffects : {    
+        $Type:'Common.SideEffectsType', 
+        TargetEntities : ['_it/Attachment']        
+    }   
     action updateFromRemote() returns ServiceRequest;
   }
   entity Attachement as projection on customer.Attachment;
   entity OpportunityStatusCode as projection on customer.OpportunityStatus;
+
+  //test using importing service
+  entity RemoteCustomer as projection on customer.remoteCustomers;
 }
 annotate CustomerService.Customer with @odata.draft.enabled;
-//annotate CustomerService.Opportunity with @odata.draft.enabled;
 
 // test
 service ValueService {

@@ -1,14 +1,16 @@
 using sap from '@sap/cds/common';
 using { Country, Currency, cuid } from '@sap/cds/common';
+using {remote as external} from '../srv/external/remote';
+
 
 namespace customer;
 
 entity Customer  : cuid {
 	UUID : UUID;
 	ObjectID : String;
-	CustomerFormattedName : String;
+	CustomerFormattedName : String @Common.Label : '{i18n>Customerformattedname}';
 	Status : StatusCode;
-	ResponsibleManager : String;
+	ResponsibleManager : String @Common.Label : '{i18n>ResponsibleManager}';
 	ResponsibleManagerID : String;
 	JuridicalAddress : Address;
 	JuridicalCountry : Country;
@@ -20,6 +22,10 @@ entity Customer  : cuid {
 	ToOpportunities: Composition of many Opportunity on ToOpportunities.Customer = $self;
 	ToServiceRequests : Composition of many ServiceRequest on ToServiceRequests.Customer = $self;
 	MainContactID : String;
+}
+
+ entity remoteCustomers as projection on external.CorporateAccountCollection {
+        
 }
 
 entity Bank : cuid {
@@ -80,11 +86,11 @@ entity Item : cuid {
 	virtual ProductStatusActiveDefault: Integer default 2;
 }
 entity ItemProduct : cuid {
-	InternalID : String @readonly;
-	ProductCategory : String @readonly;
-	ProductStatus : String @readonly;
+	InternalID : String @readonly @Common.Label : '{i18n>InternalID}';
+	ProductCategory : String @readonly @Common.Label : '{i18n>ProductCategory}';
+	ProductStatus : String @readonly @Common.Label : '{i18n>ProductStatus}';
 	ProductStatusDescription : String @readonly;
-	UnitMeasure : String @readonly; // measure list?
+	UnitMeasure : String @readonly @Common.Label : '{i18n>UnitMeasure}'; // measure list?
 	OpportunityID : String @readonly;
 	toItem : Association to Item;
 	SalesPriceLists : Composition of many SalesPriceList on SalesPriceLists.ItemProductID = $self.InternalID;
@@ -125,7 +131,7 @@ entity ServiceRequest : cuid {
 	ProblemItem : String;
 	ProblemItemDescription : String;
 	virtual LifeCycleStatusCodeCompletedDefault: Integer default 4;
-	CustomerFormattedName : String;
+	CustomerFormattedName : String @Common.Label : '{i18n>Customerformattedname}';
 	MainContactID : String;
 	//toProblemsItem : Association to many Item on toProblemsItem.OpportunityID = $self.OrderID;
 }

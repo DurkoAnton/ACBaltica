@@ -97,7 +97,6 @@
         },
         "routing": {
             "routes": [
-               
                 {
                     "pattern": "PartnerProfile({key}):?query:",
                     "name": "PartnerProfileObjectPage",
@@ -110,7 +109,6 @@
                 }
             ],
             "targets": {
-               
                 "PartnerProfileObjectPage": {
                     "type": "Component",
                     "id": "PartnerProfileObjectPage",
@@ -130,6 +128,38 @@
                                 "ToCustomers/@com.sap.vocabularies.UI.v1.LineItem#Customers": {
                                     "tableSettings": {
                                         "type": "GridTable"
+                                    },
+                                    "columns": {
+                                        "DataField::InternalID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CustomerFormattedName": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Status_code": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::ResponsibleManager": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::JuridicalCountry::name": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::JuridicalAddress_City": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::JuridicalAddress_Street": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::JuridicalAddress_HomeID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::JuridicalAddress_RoomID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Note": {
+                                            "width": "auto"
+                                        }
                                     }
                                 }
                             }

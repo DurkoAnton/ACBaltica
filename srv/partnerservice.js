@@ -131,8 +131,8 @@ class PartnerService extends cds.ApplicationService {
         this.before('READ', 'Customer', async (req) => {
             if (req._path.endsWith('ToCustomers') /*&& req.headers['x-username']*/) {
                 const customersFromDB = await SELECT.from(Customer);
-                const currentEmail = 'andrei_matys@atlantconsult.com';
-                const currentPartner = await SELECT.one.from(PartnerProfile).where({ Email: currentEmail });
+                const currentEmail = req._.user.id;
+                const currentPartner = await SELECT.one.from(PartnerProfile).where({ Email: currentEmail }).columns('Code');
                 const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${currentEmail}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
                 try {
                     const createRequestParameters = {
@@ -155,7 +155,7 @@ class PartnerService extends cds.ApplicationService {
         this.before('NEW', 'Customer', async req =>{
             req.data.Status_code = "1";
            // connect to new Customer, created from Partner Page
-           const currentEmail = 'andrei_matys@atlantconsult.com';
+           const currentEmail = req._.user.id;;
            //if (req.headers['x-username']){
                 const currentPartner = await SELECT.one.from(PartnerProfile).where({Email:currentEmail});
                 if (currentPartner){
@@ -167,15 +167,14 @@ class PartnerService extends cds.ApplicationService {
         this.on('READ', PartnerProfile, async (req, next) => {
             //open one record for object page 
             if (req._path == 'PartnerProfile') {
-                
-                const currentEmail = 'andrei_matys@atlantconsult.com';
+                const currentEmail = req._.user.id;
                 if (currentEmail) {
                     const currentRecord = await SELECT.from(PartnerProfile).where({ Email: currentEmail });
+                    //delete excees created draft
+                    if (req._.data.ID){
+                        await DELETE.from(PartnerProfile.drafts).where({ID : req._.data.ID})
+                    }
                     return req.reply(currentRecord);
-                }
-                //delete excees created draft
-                if (req._.data.ID){
-                   await DELETE.from(PartnerProfile.drafts).where({ID : req._.data.ID})
                 }
             }
             else return next();
@@ -185,10 +184,10 @@ class PartnerService extends cds.ApplicationService {
 
             // check for one current Partner
             if (req._path == 'PartnerProfile'){
-                const currentEmail = 'andrei_matys@atlantconsult.com';
-                if (currentEmail){
-                    const partners = await SELECT.from(PartnerProfile).where({ Email: currentEmail });
-                    if (partners[0] == null) {
+                const currentEmail = req._.user.id;
+                //if (currentEmail){
+                    const partner = await SELECT.one.from(PartnerProfile).where({ Email: currentEmail });
+                    if (!partner) {
                         const destination = await getDestination(destinationName);
                         try {
                             const partnerProfileObj = await _getDataFromAPI(req, destination, currentEmail);
@@ -200,7 +199,7 @@ class PartnerService extends cds.ApplicationService {
                             });
                         }
                     }
-                }
+                //}
             }
         })
 
@@ -215,7 +214,7 @@ class PartnerService extends cds.ApplicationService {
             }
             req.data.LifeCycleStatusCode_code = '1';
             req.data.LifeCycleStatusText = 'Open';
-            const currentEmail = 'andrei_matys@atlantconsult.com';
+            const currentEmail = req._.user.id;;
             //if (req.headers['x-username']){
                 const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: currentEmail });
                 if(partner){
@@ -227,9 +226,10 @@ class PartnerService extends cds.ApplicationService {
         this.before('NEW', 'ServiceRequest', async (req) => {
             const parentId = this._getParentIdFromPath(req);
             const customerDB = await SELECT.one.from(Customer).where({ ID: parentId });
-            const currentEmail = 'andrei_matys@atlantconsult.com';
+            const currentEmail = req._.user.id;
             if (customerDB) {
                 req.data.CustomerID = customerDB.InternalID;
+                req.data.CustomerFormattedName = customerDB.CustomerFormattedName;
                 req.data.Customer_ID = customerDB.ID;
             }
             //if (req.headers['x-username']){
@@ -432,7 +432,7 @@ class PartnerService extends cds.ApplicationService {
         });
         
         this.on('updateAllFieldsFromRemote', async (req) => {
-            const currentEmail = 'andrei_matys@atlantconsult.com';
+            const email = req._.user.id;
             const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${email}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
 
             try {
@@ -506,10 +506,8 @@ class PartnerService extends cds.ApplicationService {
                             await UPDATE(Customer).with(customer).where({ ObjectID: account.ObjectID })
                         else
                             await INSERT(customer).into(Customer);
-
                     }
                 }
-                // this.read(Customer);
                 return this.read(PartnerProfile).where({Email : email});
             }
             catch (error) {

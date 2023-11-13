@@ -69,15 +69,13 @@ class ServiceRequestService extends cds.ApplicationService {
 
         this.before('READ', 'ServiceRequest', async req => {
             if (req._path == 'ServiceRequest' && req._.event == 'READ') { // read only for general list
-                //var decodedJWTToken = jwtDecode(req.user.token.accessToken);
-                //if (decodedJWTToken) {
                     // fix it
-                    var email = 'andrei_matys@atlantconsult.com';
+                    var email = req._.user.id;
                     var partner = await SELECT.one.from('Partner_PartnerProfile').where({ Email: email });
                     if (partner) {
                         req.query.where({ 'MainContactID': partner.CODE });
                     }
-                //}
+                
                 if (partner) {
                     const existingRequests = await SELECT.from(ServiceRequest).where({MainContactID : partner.CODE});
                     const path = `/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection?$filter=BuyerMainContactPartyID eq '${partner.CODE}'&$expand=ServiceRequestAttachmentFolder`;
@@ -212,7 +210,6 @@ class ServiceRequestService extends cds.ApplicationService {
                 let body = {
                     Name: ticket.ProblemDescription,
                     ServiceRequestUserLifeCycleStatusCode: ticket.Status_code,
-                    //oppt - document reference?
                     //category - codes are not matches
                     //processor - ovs of Employees from Remote
                 }
@@ -223,6 +220,7 @@ class ServiceRequestService extends cds.ApplicationService {
                     const itemInstance = await SELECT.one.from(Item).where({ ID: ticket.ProblemItem });
                     products.push({ ProductID: itemInstance.ProductInternalID });
                     body.ServiceRequestItem = { results: products };
+                    body.ProductID = itemInstance.ProductInternalID;
                 }
 
                 if (ticket.Attachment && ticket.Attachment.length !== 0) {
