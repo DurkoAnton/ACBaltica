@@ -404,13 +404,12 @@ annotate service.Attachement with @(UI.LineItem #Attachments: [
     },
     {
         $Type: 'UI.DataField',
-        Value: fileName,
-        Label: 'File name',
+        Value: mediaType,
+        Label: 'Media type',
     },
     {
         $Type: 'UI.DataField',
-        Value: mediaType,
-        Label: 'Media type',
+        Value: CreationDateTime,
     },
 ]);
 
@@ -423,6 +422,10 @@ annotate service.ServiceRequest with @(UI.Identification: [{
 annotate service.ServiceRequest @(Common: {SideEffects #CategoryChanged: {
     SourceProperties: ['Category_code'],
     TargetEntities  : [Category]
+}});
+annotate service.Attachement @(Common: {SideEffects #content: {
+    SourceProperties: ['content'],
+    TargetProperties  : ['mediaType']
 }});
 
 annotate service.ServiceRequest with {

@@ -299,7 +299,7 @@ annotate service.Opportunity with @(
                 $Type: 'UI.DataField',
                 Value: InternalID,
                 Label: 'Internal ID',
-                ![@UI.Hidden] : {$edmJson : {$Eq : [{$Path : 'InternalID'}, '', true]}}
+                // ![@UI.Hidden] : {$edmJson : {$Eq : [{$Path : 'InternalID'}, '', true]}}
             },
             {
                 $Type: 'UI.DataField',
@@ -780,7 +780,6 @@ annotate service.ServiceRequest with @(
 );
 
 annotate service.Attachement with @(UI.LineItem #Attachments: [
-
     {
         $Type: 'UI.DataField',
         Value: content,
@@ -788,13 +787,12 @@ annotate service.Attachement with @(UI.LineItem #Attachments: [
     },
     {
         $Type: 'UI.DataField',
-        Value: fileName,
-        Label: 'File name',
+        Value: mediaType,
+        Label: 'Media type',
     },
     {
         $Type: 'UI.DataField',
-        Value: mediaType,
-        Label: 'Media type',
+        Value: CreationDateTime,
     },
 ]);
 
@@ -1203,6 +1201,10 @@ annotate service.Item @(Common: {SideEffects #ItemProductChanged: {
     SourceProperties: ['ItemProductID'],
     TargetProperties  : ['NetPriceAmount', 'NetPriceCurrency_code'],
     TargetEntities :[toItemProduct, toItemProduct.SalesPriceLists]
+}});
+annotate service.Attachement @(Common: {SideEffects #content: {
+    SourceProperties: ['content'],
+    TargetProperties  : ['mediaType']
 }});
 
 annotate service.ServiceRequest with @(UI.Identification: [{

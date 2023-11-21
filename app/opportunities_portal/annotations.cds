@@ -227,7 +227,6 @@ annotate service.Opportunity with {
 };
 
 annotate service.Attachement with @(UI.LineItem #Attachments: [
-
     {
         $Type: 'UI.DataField',
         Value: content,
@@ -235,13 +234,12 @@ annotate service.Attachement with @(UI.LineItem #Attachments: [
     },
     {
         $Type: 'UI.DataField',
-        Value: fileName,
-        Label: 'File name',
+        Value: mediaType,
+        Label: 'Media type',
     },
     {
         $Type: 'UI.DataField',
-        Value: mediaType,
-        Label: 'Media type',
+        Value: CreationDateTime,
     },
 ]);
 
@@ -460,6 +458,10 @@ annotate service.Item @(Common: {SideEffects #ItemProductIDChanged: {
 //         SalesPriceLists
 //     ]
 // }});
+annotate service.Attachement @(Common: {SideEffects #content: {
+    SourceProperties: ['content'],
+    TargetProperties  : ['mediaType']
+}});
 annotate service.Opportunity with @(
     UI.SelectionFields : [
         InternalID,
