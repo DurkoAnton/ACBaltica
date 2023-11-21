@@ -1,6 +1,7 @@
 const cds = require('@sap/cds')
 const jwtDecode = require('jwt-decode');
-const { getObjectsWithDifferentPropertyValue, createAttachmentBody, linkSelectedOpportunity, deleteServiceRequestInstances } = require('./libs/utils');
+const { getObjectsWithDifferentPropertyValue, createAttachmentBody, linkSelectedOpportunity, 
+    deleteServiceRequestInstances, createAttachments, deleteAttachments } = require('./libs/utils');
 const { sendRequestToC4C } = require('./libs/ManageAPICalls');
 
 class ServiceRequestService extends cds.ApplicationService {
@@ -20,11 +21,14 @@ class ServiceRequestService extends cds.ApplicationService {
                     InternalID: item.ID,
                     Status_code: item.ServiceRequestLifeCycleStatusCode,
                     Processor: item.ProcessorPartyName,
-                    RequestProcessingTime: item.RequestInProcessdatetimeContent,
                     OrderID: item.SalesOrderID,
                     ProblemDescription: item.Name,
-                    //Customer_ID: customerUUID,
                     MainContactID: item.BuyerMainContactPartyID,
+                    RequestInitialDateTime : item.RequestInitialReceiptdatetimecontent,
+                    RequestEndDateTime : item.RequestedFulfillmentPeriodEndDateTime,
+                }
+                if (item.ResolvedOchnDateTime != ''){ // check for valid date time value
+                    serviceRequest.ResolutionDateTime = item.ResolvedOnDateTime;
                 }
                 let attachment;
                 if (attachmentFolder) {
@@ -67,15 +71,28 @@ class ServiceRequestService extends cds.ApplicationService {
             };
         }
 
+        this.before('PATCH', ServiceRequest, async req=>{
+            if (req.data.CustomerID){ // if Customer was changed
+                const customer = await SELECT.one.from(Customer).columns(root=>root('ResponsibleManager')).where({InternalID : req.data.CustomerID});
+                if (customer){
+                    req.data.Processor = customer.ResponsibleManager;
+                    req.data.ProcessorID = req.data.OrderID = req.data.OrderDescription = req.data.ProblemItem = req.data.ProblemItemDescription = '';
+                }
+            }
+            if (req.data.CustomerID == '') { // if Customer was clered
+                req.data.CustomerFormattedName = req.data.Processor = req.data.ProcessorID = req.data.OrderID = req.data.OrderDescription = req.data.ProblemItem = req.data.ProblemItemDescription = '';
+            }
+        })
+
         this.before('READ', 'ServiceRequest', async req => {
             if (req._path == 'ServiceRequest' && req._.event == 'READ') { // read only for general list
-                    // fix it
-                    var email = req._.user.id;
-                    var partner = await SELECT.one.from('Partner_PartnerProfile').where({ Email: email });
-                    if (partner) {
-                        req.query.where({ 'MainContactID': partner.CODE });
-                    }
-                
+                    
+                var email = req._.user.id;
+                var partner = await SELECT.one.from('Partner_PartnerProfile').where({ Email: email });
+                if (partner) {
+                    req.query.where({ 'MainContactID': partner.CODE });
+                }
+            
                 if (partner) {
                     const existingRequests = await SELECT.from(ServiceRequest).where({MainContactID : partner.CODE});
                     const path = `/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection?$filter=BuyerMainContactPartyID eq '${partner.CODE}'&$expand=ServiceRequestAttachmentFolder`;
@@ -104,14 +121,12 @@ class ServiceRequestService extends cds.ApplicationService {
         });
 
         this.before('NEW', 'ServiceRequest', async req => {
-            //if (req.headers['x-username']) {
-                var email = 'andrei_matys@atlantconsult.com';
-                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
-                if (partner) {
-                    req.data.MainContactID = partner.CODE;
-                    req.data.Category_code = '1'; //default
-                }
-           //}
+            var email = 'andrei_matys@atlantconsult.com';
+            const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
+            if (partner) {
+                req.data.MainContactID = partner.CODE;
+                req.data.Category_code = '1'; //default
+            }
         });
 
         this.on('updateFromRemote', async (req) => {
@@ -138,7 +153,7 @@ class ServiceRequestService extends cds.ApplicationService {
                 const day = String(date.getDate()).padStart(2, '0'); // Pad day with '0' if necessary
                 const formattedDate = `${year}-${month}-${day}`;
 
-                const serviceRequest = {
+                let serviceRequest = {
                     CustomerID: serviceRequestResponse.BuyerPartyID,
                     Status_code: serviceRequestResponse.ServiceRequestLifeCycleStatusCode,
                     LastChangingDate: formattedDate,
@@ -147,43 +162,21 @@ class ServiceRequestService extends cds.ApplicationService {
                     OrderID: serviceRequestResponse.SalesOrderID,
                     ProblemDescription: serviceRequestResponse.Name,
                     MainContactID: serviceRequestResponse.BuyerMainContactPartyID,
+                    RequestInitialDateTime : serviceRequestResponse.RequestInitialReceiptdatetimecontent,
+                    RequestEndDateTime : serviceRequestResponse.RequestedFulfillmentPeriodEndDateTime,
+                }
+                if (serviceRequestResponse.ResolvedOchnDateTime != ''){ // check for valid date time value
+                    serviceRequest.ResolutionDateTime = serviceRequestResponse.ResolvedOnDateTime;
                 }
 
                 await UPDATE(ServiceRequest).with(serviceRequest).where({ ObjectID: serviceRequestResponse.ObjectID });
 
-                if (serviceRequestResponse.ServiceRequestAttachmentFolder.length) {
-                    serviceRequestResponse.ServiceRequestAttachmentFolder.forEach(async attachmentResponse => {
-                        if (attachmentResponse) {
-                            const str = attachmentResponse.Binary;
-                            const content = Buffer.from(str, 'base64').toString();
-                            const buffer = Buffer.from(content, 'utf-8');
-                            const attachment = {
-                                content: buffer,
-                                fileName: attachmentResponse.Name,
-                                url: attachmentResponse.DocumentLink,
-                                mediaType: attachmentResponse.MimeType
-                            }
-                            const attachmentInDB = await SELECT.one.from(Attachement).where({ ObjectID: attachmentResponse.ObjectID });
-                            if (attachmentInDB)
-                                await UPDATE(Attachement, attachmentInDB.ID).with(attachment);
-                            else {
-                                attachment.ObjectID = attachmentResponse.ObjectID;
-                                attachment.ServiceRequest_ID = serviceRequestID;
-                                await INSERT.into(Attachement).entries(attachment);
-                            }
-                        }
-                    });
-                }
-                // if no ObjectID is in remote attachments, need to delete
-                // const attachmentsInDB = await SELECT(Attachement).where({ ServiceRequest_ID: serviceRequestID });
+                const attachmentsFromRemote = serviceRequestResponse.ServiceRequestAttachmentFolder;
+                const existingAttachmentsFromDB = await SELECT.from(Attachement).where({ServiceRequest_ID:serviceRequestID});
+                
+                createAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement, serviceRequestID, "ServiceRequest");
+                deleteAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement);
 
-                // if (attachmentsInDB.length) {
-                //     const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
-                //         serviceRequestResponse.ServiceRequestAttachmentFolder, "ObjectID", "ObjectID");
-                //     const attachmentObjectIDsToBeDeleted = attachmentsToBeDeleted.map(item => item.ObjectID);
-                //     if (attachmentObjectIDsToBeDeleted.length)
-                //         await DELETE.from(Attachement).where({ ObjectID: attachmentObjectIDsToBeDeleted });
-                // }
                 return SELECT(ServiceRequest, serviceRequestID);
             }
             catch (error) {
@@ -210,8 +203,8 @@ class ServiceRequestService extends cds.ApplicationService {
                 let body = {
                     Name: ticket.ProblemDescription,
                     ServiceRequestUserLifeCycleStatusCode: ticket.Status_code,
-                    //category - codes are not matches
-                    //processor - ovs of Employees from Remote
+                    ServiceIssueCategoryID : 'ZA_' + ticket.Category_code
+                    // dates?
                 }
                 if (internalBuyerID)
                     body.BuyerPartyID = internalBuyerID;

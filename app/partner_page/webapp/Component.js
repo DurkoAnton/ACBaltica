@@ -14,10 +14,12 @@ sap.ui.define(
              * @returns 
              */
             getStartupParameters: function() {
+                console.log('1')
                 return Promise.resolve({
                     preferredMode: ["create"]
                 });
-            }
+            },
+           
         });
     }
 );

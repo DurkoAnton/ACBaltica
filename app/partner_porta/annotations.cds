@@ -1,3 +1,15 @@
+using from '../../srv/partnerservice';
+using from '../../db/customer-data-model';
+
+using from '../../srv/partnerservice';
+using from '../../db/customer-data-model';
+
+annotate PartnerService.Customer with {
+    InternalID @Common.SemanticObject : 'Customer'
+};
+annotate PartnerService.Customer with {
+    CustomerFormattedName @Common.SemanticObject : 'Customer'
+};
 // using PartnerService as service from '../../srv/partnerservice';
 
 // annotate service.PartnerProfile with @(

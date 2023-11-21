@@ -38,6 +38,13 @@
                         "additionalParameters": "allowed"
                     }
                 }
+            },
+            "outbounds": {
+                "toApp2": {
+                    "semanticObject": "Customer",
+                    "action": "display"
+
+                }
             }
         }
     },
@@ -154,45 +161,11 @@
                             "navigation": {
                                 "ToCustomers": {
                                     "detail": {
-                                        "route": "PartnerProfile_ToCustomersObjectPage"
-                                    }
-                                }
-                            },
-                            "controlConfiguration": {
-                                "ToCustomers/@com.sap.vocabularies.UI.v1.LineItem#Customers": {
-                                    "tableSettings": {
-                                        "visibleRowCount ": 0,
-                                        "enableExport": false,
-                                        "type": "ResponsiveTable"
-                                    },
-                                    "columns": {
-                                        "DataField::InternalID": {
-                                            "width": "auto"
-                                        },
-                                        "DataField::CustomerFormattedName": {
-                                            "width": "auto"
-                                        },
-                                        "DataField::Status_code": {
-                                            "width": "auto"
-                                        },
-                                        "DataField::ResponsibleManager": {
-                                            "width": "auto"
-                                        },
-                                        "DataField::JuridicalCountry::name": {
-                                            "width": "auto"
-                                        },
-                                        "DataField::JuridicalAddress_Street": {
-                                            "width": "auto"
-                                        },
-                                        "DataField::JuridicalAddress_RoomID": {
-                                            "width": "auto"
-                                        },
-                                        "DataField::Note": {
-                                            "width": "auto"
-                                        }
+                                        "outbound": "toApp2"
                                     }
                                 }
                             }
+                           
                         }
                     },
                     "controlAggregation": "beginColumnPages",
@@ -317,7 +290,44 @@
                                     }
                                 }
                             },
-                            "editableHeaderContent": false
+                            "editableHeaderContent": false,
+                            "controlConfiguration": {
+                                "Items/@com.sap.vocabularies.UI.v1.LineItem#Items": {
+                                    "tableSettings": {
+                                        "type": "ResponsiveTable"
+                                    },
+                                    "columns": {
+                                        "DataField::ItemProductID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::toItemProduct::InternalID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::toItemProduct::ProductCategory": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::toItemProduct::ProductStatus": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::toItemProduct::UnitMeasure": {
+                                            "width": "auto"
+                                        }
+                                    }
+                                },
+                                "Attachment/@com.sap.vocabularies.UI.v1.LineItem#Attachments": {
+                                    "columns": {
+                                        "DataField::content": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::fileName": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::mediaType": {
+                                            "width": "auto"
+                                        }
+                                    }
+                                }
+                            }
                         }
                     },
                     "controlAggregation": "beginColumnPages",

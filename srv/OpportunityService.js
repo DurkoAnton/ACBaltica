@@ -1,7 +1,7 @@
 const cds = require('@sap/cds')
 //const jwt_decode = require('jwt-decode');
 //const { status } = require('express/lib/response');
-const { createAttachmentBody, createItemsBody, deleteOpportunityInstances } = require('./libs/utils');
+const { createAttachmentBody, createItemsBody, deleteOpportunityInstances, createAttachments, deleteAttachments, deleteItems } = require('./libs/utils');
 const { sendRequestToC4C } = require('./libs/ManageAPICalls');
 const { loadProductsAndPricesListsFromC4C } = require('./libs/dataLoading');
 
@@ -29,6 +29,8 @@ class OpportunityService extends cds.ApplicationService {
                     //LastChangeDateTime: item.LastChangeDateTime,
                     LastChangedBy: item.LastChangedBy,
                     MainContactID: item.PrimaryContactPartyID,
+                    CustomerComment : item.CustomerComment_SDK,
+                    NotStandartRequest : item.NotStandartRequest_SDK
                 }
                 const attachmentFolder = item.OpportunityAttachmentFolder[0];
                 let attachment;
@@ -64,20 +66,55 @@ class OpportunityService extends cds.ApplicationService {
             });
         }
 
+        this.after(['READ','NEW'], Item, async req=>{
+            // calculate item sales price Amount 
+            if (req.length != 0){
+                let data = req;
+                if (!Array.isArray(req)){
+                    data = [req];
+                }
+                for(let item of data) {
+                    
+                    if (item.toItemProduct){
+                        //item.Quantity = 2;
+                        const itemProductID = item.toItemProduct.InternalID;
+                        const priceLists = await SELECT.from(SalesPriceList).where({ItemProductID : itemProductID});
+                        const baseList = priceLists.filter(price => price.IsBasePriceList && price.ReleaseStatusCode == '3');
+                        let netPrice = 0;
+                        let netPriceCurrency;
+                        baseList.forEach(price =>{
+                            netPrice += price.Amount;
+                            netPriceCurrency = price.AmountCurrencyCode_code;
+                        })
+                        item.NetPriceCurrency_code = netPriceCurrency;
+                        item.NetPriceAmount = netPrice;
+                    }
+                 }
+            }
+        })
+
         this.on('LoadProducts', async (req) => {
             await loadProductsAndPricesListsFromC4C(ItemProduct, SalesPriceList, req);
         })
 
+        this.before('PATCH', Opportunity, async req=>{
+            if (req.data.ProspectPartyID){ // if Prospect Party was changed
+                const customer = await SELECT.one.from(Customer).columns(root=>root('ResponsibleManager')).where({InternalID : req.data.ProspectPartyID});
+                if (customer){
+                    req.data.MainEmployeeResponsiblePartyName = customer.ResponsibleManager;
+                }
+            }
+            if (req.data.ProspectPartyID == '') {
+                req.data.ProspectPartyName =  req.data.MainEmployeeResponsiblePartyName = '';
+            }
+        })
+
         this.before('READ', 'Opportunity', async req => {
-            if (req._path == 'Opportunity' && req._.event == 'READ' /*&& req._._queryOptions.$top == '30'*/) { // read only for general list
-                //if (req.headers["x-username"]) {
-                    var email = req._.user.id;;
-                    var partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
-                    if (partner){
-                        req.query.where({ 'MainContactID': partner.CODE });
-                    }
-                //}
-                if (partner) {
+            if (req._path == 'Opportunity' && req._.event == 'READ' && req._._queryOptions && req._._queryOptions.$top && req._._queryOptions.$top == '30') { // read only for general list
+                var email = req._.user.id;;
+                var partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
+                if (partner){
+                    req.query.where({ 'MainContactID': partner.CODE });
                     const existingOpportunities = await SELECT.from(Opportunity).where({MainContactID : partner.CODE});
                     const path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection?$filter=PrimaryContactPartyID eq '${partner.CODE}'&$expand=OpportunityAttachmentFolder,OpportunityItem`;
                     try {
@@ -111,13 +148,11 @@ class OpportunityService extends cds.ApplicationService {
         this.before('NEW', 'Opportunity', async (req) => {
             req.data.LifeCycleStatusCode_code = '1';
             req.data.LifeCycleStatusText = 'Open';
-            var email = req._.user.id;;
-            //if (req.headers['x-username']){
-                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
-                if(partner){
-                    req.data.MainContactID = partner.CODE;
-                }
-           // }
+            var email = req._.user.id;
+            const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
+            if(partner){
+                req.data.MainContactID = partner.CODE;
+            }
         })
 
         this.after('SAVE', 'Opportunity', async req => {
@@ -127,6 +162,8 @@ class OpportunityService extends cds.ApplicationService {
                 let requestBody = {
                     Name: opportunity.Subject,
                     LifeCycleStatusCode: opportunity.LifeCycleStatusCode_code,
+                    NotStandartRequest_SDK : opportunity.NotStandartRequest,
+                    CustomerComment_SDK : opportunity.CustomerComment,
                 }
                 if (opportunity.ProspectPartyID)
                     requestBody.ProspectPartyID = opportunity.ProspectPartyID;
@@ -137,7 +174,7 @@ class OpportunityService extends cds.ApplicationService {
                     const itemProductID = itemRow.ItemProductID;
                     const itemProduct = await SELECT.one.from(ItemProduct).where({ ID: itemProductID });
                     if (itemProduct) {
-                        products.push({ ProductID: itemProduct.InternalID })
+                        products.push({ ProductID: itemProduct.InternalID, Quantity: String(itemRow.Quantity) })
                     }
                 }
                 if (products.length > 0) {
@@ -168,7 +205,7 @@ class OpportunityService extends cds.ApplicationService {
                                 UUID: createdData.UUID,
                                 ObjectID: createdData.ObjectID,
                                 MainEmployeeResponsiblePartyName: createdData.MainEmployeeResponsiblePartyName,
-                                InternalID: createdData.ID
+                                InternalID: createdData.ID,
                             });
 
                         if (opportunity.Attachment && opportunity.Attachment.length !== 0) {
@@ -200,7 +237,7 @@ class OpportunityService extends cds.ApplicationService {
 
             const obj = await SELECT.one.from(Opportunity, opportunityID);
             if (obj.ObjectID) {
-            const path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection('${obj.ObjectID}')?$expand=OpportunityAttachmentFolder`;
+            const path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection('${obj.ObjectID}')?$expand=OpportunityAttachmentFolder,OpportunityItem`;
             try {
                 let createRequestParameters = {
                     method: 'GET',
@@ -230,6 +267,8 @@ class OpportunityService extends cds.ApplicationService {
                     LastChangeDateTime: formattedDate,
                     LastChangedBy: opportunityResponse.LastChangedBy,
                     MainContactID: opportunityResponse.PrimaryContactPartyID,
+                    CustomerComment : opportunityResponse.CustomerComment_SDK,
+                    NotStandartRequest : opportunityResponse.NotStandartRequest_SDK
                 }
                 // link to new Customer if it was changed
                 if (opportunityResponse.ProspectPartyID){
@@ -239,41 +278,24 @@ class OpportunityService extends cds.ApplicationService {
                     }
                 }
                 await UPDATE(Opportunity).with(opportunity).where({ ObjectID: opportunityResponse.ObjectID });
+              
+                const attachmentsFromRemote = opportunityResponse.OpportunityAttachmentFolder;
+                const existingAttachmentsFromDB = await SELECT.from(Attachement).where({Opportunity_ID:opportunityID});
+                
+                createAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement, opportunityID, "Opportunity");
+                deleteAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement);
 
-                if (opportunityResponse.OpportunityAttachmentFolder.length) {
-                    opportunityResponse.OpportunityAttachmentFolder.forEach(async attachmentResponse => {
-                        if (attachmentResponse) {
-                            const str = attachmentResponse.Binary;
-                            const content = Buffer.from(str, 'base64').toString();
-                            const buffer = Buffer.from(content, 'utf-8');
-                            const attachment = {
-                                content: buffer,
-                                fileName: attachmentResponse.Name,
-                                url: attachmentResponse.DocumentLink,
-                                mediaType: attachmentResponse.MimeType
-                            }
-                            const attachmentInDB = await SELECT.one.from(Attachement).where({ ObjectID: attachmentResponse.ObjectID });
-                            if (attachmentInDB)
-                                await UPDATE(Attachement, attachmentInDB.ID).with(attachment);
-                            else {
-                                attachment.ObjectID = attachmentResponse.ObjectID;
-                                attachment.Opportunity_ID = opportunityID;
-                                await INSERT.into(Attachement).entries(attachment);
-                            }
-                        }
-                    });
-                }
-                // // if no ObjectID is in remote attachments, need to delete
-                // const attachmentsInDB = await SELECT(Attachement).where({ Opportunity_ID: opportunityID });
+                //update Items
+                // const itemsFromRemote = opportunityResponse.OpportunityItem;
+                // const existingItems = await SELECT.from(Item).where({toOpportunity_ID : opportunityID});
 
-                // if (attachmentsInDB.length) {
-                //     const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
-                //         opportunityResponse.OpportunityAttachmentFolder, "ObjectID", "ObjectID");
-                //     const attachmentObjectIDsToBeDeleted = attachmentsToBeDeleted.map(item => item.ObjectID);
-                //     if (attachmentObjectIDsToBeDeleted.length)
-                //         await DELETE.from(Attachement).where({ ObjectID: attachmentObjectIDsToBeDeleted });
-                // }
+                // deleteItems(itemsFromRemote, existingItems, Item);
 
+                // const itemsToCreate = itemsFromRemote.filter(obj1 => !existingItems.some(obj2 => obj2.ObjectID === obj1.ObjectID) /*&& obj1.ObjectID != null*/);
+                // const itemBodies = await createItemsBody(itemsToCreate, ItemProduct, opportunityID)
+
+                await INSERT(itemBodies).into(Item)
+                
                 return SELECT(Opportunity, opportunityID);
             }
             catch (error) {

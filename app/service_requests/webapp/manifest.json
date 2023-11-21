@@ -160,6 +160,18 @@
                                         },
                                         "DataField::LastChangingDate": {
                                             "width": "auto"
+                                        },
+                                        "DataField::CustomerID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::RequestInitialDateTime": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::RequestEndDateTime": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::ProblemItem": {
+                                            "width": "auto"
                                         }
                                     }
                                 }

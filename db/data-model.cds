@@ -19,6 +19,7 @@ entity partnerProfile : cuid, managed {
         CountryDescription : String;
         City        : String;
         Status      : customer.StatusCode;
+        StatusDescription : String;
         Region      : String;
         HouseNumber : String;
         Street      : String;

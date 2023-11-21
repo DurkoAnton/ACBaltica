@@ -33,14 +33,25 @@ annotate service.ServiceRequest with @(UI.LineItem: [
     },
     {
         $Type: 'UI.DataField',
-        Value: RequestProcessingTime,
-        Label: '{i18n>RequestProcessingTime}',
+        Value: OrderID,
+        Label: 'Order',
     },
     {
         $Type: 'UI.DataField',
-        Value: OrderID,
-        Label: '{i18n>OrderID}',
+        Value: ProblemItem,
+        Label: 'Problem Item',
     },
+    {
+                $Type: 'UI.DataField',
+            Label: 'Request Date',
+            Value: RequestInitialDateTime,
+        },
+        {
+            $Type: 'UI.DataField',
+            Label: 'Request End Date',
+            Value: RequestEndDateTime,
+        },
+   
     {
         $Type: 'UI.DataField',
         Value: CreationDate,
@@ -77,22 +88,44 @@ annotate service.ServiceRequest with @(
                 Label: 'Category',
                 Value: Category_code,
             },
-            {
-                $Type: 'UI.DataField',
-                Label: 'Request Processing Time',
-                Value: RequestProcessingTime,
-            },
+            // {
+            //     $Type: 'UI.DataField',
+            //     Label: 'Request Processing Time',
+            //     Value: RequestProcessingTime,
+            // },
             {
                 $Type: 'UI.DataField',
                 Label: 'Creation Date',
                 Value: CreationDate,
+            },
+           
+        ],
+    },
+     UI.FieldGroup #TimeProcessing      : {
+        $Type: 'UI.FieldGroupType',
+        Data : [
+            {
+                $Type: 'UI.DataField',
+                Label: 'Request Date',
+                Value: RequestInitialDateTime,
             },
             {
                 $Type: 'UI.DataField',
                 Label: 'Last Changing Date',
                 Value: LastChangingDate,
             },
-        ],
+            {
+                $Type: 'UI.DataField',
+                Label: 'Request End Date',
+                Value: RequestEndDateTime,
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'Resolution Date',
+                Value: ResolutionDateTime,
+            },
+            
+        ]
     },
     UI.FieldGroup #Parties      : {
         $Type: 'UI.FieldGroupType',
@@ -130,6 +163,12 @@ annotate service.ServiceRequest with @(
             ID    : 'GeneralInfo',
             Label : 'General Information',
             Target: '@UI.FieldGroup#GeneralInfoSR',
+        },
+        {
+            $Type : 'UI.ReferenceFacet',
+            Label : 'Time Processing',
+            ID    : 'TimeProcessing',
+            Target: '@UI.FieldGroup#TimeProcessing',
         },
         {
             $Type : 'UI.ReferenceFacet',
@@ -335,15 +374,18 @@ annotate service.ServiceRequest with {
                     LocalDataProperty: CustomerFormattedName
                 },
                 {
-                    $Type            : 'Common.ValueListParameterOut',
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'Status_code',
+                },
+              {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'ResponsibleManager',
-                    LocalDataProperty: Processor
                 },
-                {
-                    $Type            : 'Common.ValueListParameterOut',
-                    ValueListProperty: 'ResponsibleManagerID',
-                    LocalDataProperty: ProcessorID
-                },
+                // {
+                //     $Type            : 'Common.ValueListParameterOut',
+                //     ValueListProperty: 'ResponsibleManagerID',
+                //     LocalDataProperty: ProcessorID
+                // },
                 {
                     $Type            : 'Common.ValueListParameterOut',
                     ValueListProperty: 'ID',
@@ -389,6 +431,10 @@ annotate service.ServiceRequest with {
     CreationDate @Common.Label : '{i18n>CreationDate}';
     Status @Common.Label : 'Status';
     Category @Common.Label : 'Category';
+    Processor @Common:{
+        Text : ProcessorID,
+        TextArrangement : #TextLast
+    }
 };
 
 annotate service.Opportunity with {
@@ -425,5 +471,20 @@ annotate service.Customer with {
         Text: ResponsibleManagerID,
         TextArrangement : #TextLast,
     };
+    ID @UI.Hidden:true;
+    Status @Common : { 
+        Label : 'Status',
+        Text : Status.name,
+        TextArrangement : #TextFirst,
+    };
+    // ResponsibleManager @Common :{
+    //     Label : 'Res',
+    //     Text : Status.name,
+    //     TextArrangement : #TextFirst,
+    // }
 };
 
+annotate service.ServiceRequest @(Common: {SideEffects #CustomerIDChanged: {
+    SourceProperties: ['CustomerID'],
+    TargetProperties  : ['CustomerFormattedName','Processor','OrderID','OrderDescription','ProblemItem']
+}}); 

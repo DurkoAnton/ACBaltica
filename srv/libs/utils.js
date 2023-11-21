@@ -26,6 +26,15 @@ function createAttachmentBody(item, results) {
     }
 }
 
+async function deleteItems(itemsFromRemote, itemsFromDB, ItemsEntity) {
+
+    const itemsToBeDeleted = itemsFromDB.filter(obj1 => !itemsFromRemote.some(obj2 => obj2.ObjectID === obj1.ObjectID) /*&& obj1.ObjectID != null*/);
+    if (itemsToBeDeleted.length) {
+        const itemObjectIDs = itemsToBeDeleted.map(item => item.ID);
+        await DELETE.from(ItemsEntity).where({ ID: itemObjectIDs });
+    }
+}
+
 async function createItemsBody(items, itemProductTable, opportunityID) {
     let results = [];
     for (let item of items) {
@@ -76,27 +85,25 @@ async function createNewCustomerInRemote(customerData, customerEntity, req) {
                 const UUID = c4cResponse.data.d.results.UUID;
                 const internalID = c4cResponse.data.d.results.AccountID;
 
-                await UPDATE(customerEntity, customerData.ID).with({ UUID: UUID, ObjectID: objectID, InternalID: internalID });
+                await UPDATE(customerEntity, customerData.ID).with({ UUID: UUID, ObjectID: objectID, InternalID: internalID});
                 //link new customer and current contact
-                //if (req.headers['x-username']) {
-                    const email = req._.user.id;
-                    path += '(\'' + objectID + '\')/CorporateAccountHasContactPerson';
-                    let contactID;
-                    const currentPartner = await SELECT.one.from('PARTNER_PARTNERPROFILE').where({ Email: email });
-                    if (currentPartner) {
-                        contactID = currentPartner.CODE;
-                    }
-                    const linkBody = {
-                        ContactID: contactID,
-                        MainIndicator: true
-                    };
-                    let linkToContactC4CParameters = {
-                        method: 'POST',
-                        url: path,
-                        data: linkBody,
-                    };
-                    await sendRequestToC4C(linkToContactC4CParameters);
-                //}
+                const email = req._.user.id;
+                path += '(\'' + objectID + '\')/CorporateAccountHasContactPerson';
+                let contactID;
+                const currentPartner = await SELECT.one.from('PARTNER_PARTNERPROFILE').where({ Email: email });
+                if (currentPartner) {
+                    contactID = currentPartner.CODE;
+                }
+                const linkBody = {
+                    ContactID: contactID,
+                    MainIndicator: true
+                };
+                let linkToContactC4CParameters = {
+                    method: 'POST',
+                    url: path,
+                    data: linkBody,
+                };
+                await sendRequestToC4C(linkToContactC4CParameters);
             }
         }
         catch (error) {
@@ -105,9 +112,9 @@ async function createNewCustomerInRemote(customerData, customerEntity, req) {
     }
 }
 
-async function deleteCustomerInstances(c4cResponse, customersFromDB, Customer) {
-    const partnerId = c4cResponse.data.d.results[0].ContactID;
-    const corporateAccounts = c4cResponse.data.d.results[0].ContactIsContactPersonFor;
+async function deleteCustomerInstances(partnerId, corporateAccounts, customersFromDB, Customer) {
+    //const partnerId = c4cResponse.data.d.results[0].ContactID;
+    //const corporateAccounts = c4cResponse.data.d.results[0].ContactIsContactPersonFor;
     const partnerCustomersFromDB = customersFromDB.filter(obj => obj.MainContactID === partnerId);
 
     // get objects from one array that are not present in another array of objects
@@ -119,10 +126,10 @@ async function deleteCustomerInstances(c4cResponse, customersFromDB, Customer) {
     }
 }
 
-async function deleteOpportunityInstances(c4cResponse, opportunitiesFromDB, Opportunity) {
-    const opportunitiesFromRemote = c4cResponse.data.d.results;
+async function deleteOpportunityInstances(opportunitiesFromRemote, opportunitiesFromDB, Opportunity) {
+    //const opportunitiesFromRemote = c4cResponse.data.d.results;
 
-    const opportunitiesToBeDeleted = opportunitiesFromDB.filter(obj1 => !opportunitiesFromRemote.some(obj2 => obj2.UUID === obj1.UUID));
+    const opportunitiesToBeDeleted = opportunitiesFromDB.filter(obj1 => !opportunitiesFromRemote.some(obj2 => obj2.UUID === obj1.UUID) && obj1.UUID != null);
     if (opportunitiesToBeDeleted.length) {
         const opportunityUUIDs = opportunitiesToBeDeleted.map(item => item.UUID);
         await DELETE.from(Opportunity).where({ UUID: opportunityUUIDs });
@@ -139,4 +146,46 @@ async function deleteServiceRequestInstances(c4cResponse, serviceRequestsFromDB,
     }
 }
 
-module.exports = { getObjectsWithDifferentPropertyValue, createAttachmentBody, linkSelectedOpportunity, createNewCustomerInRemote, createItemsBody, deleteCustomerInstances, deleteOpportunityInstances, deleteServiceRequestInstances };
+async function createAttachments(attachmentsFromRemote, attachmentsFromDB, AttachementEntity, parentObjectID, type) {
+    const newAttachmentsToCreate = attachmentsFromRemote.filter(newItem => !attachmentsFromDB
+        .some(existingItem => existingItem.ObjectID == newItem.ObjectID));
+    newAttachmentsToCreate.forEach(async (attachmentResponse) => {
+        if (attachmentResponse) {
+            const str = attachmentResponse.Binary;
+            const content = Buffer.from(str, 'base64').toString();
+            const buffer = Buffer.from(content, 'utf-8');
+            const attachment = {
+                content: buffer,
+                fileName: attachmentResponse.Name,
+                url: attachmentResponse.DocumentLink,
+                mediaType: attachmentResponse.MimeType
+            };
+            attachment.ObjectID = attachmentResponse.ObjectID;
+            switch(type) {
+                case "ServiceRequest":
+                    attachment.ServiceRequest_ID = parentObjectID;
+                    break;
+                case "Opportunity":
+                    attachment.Opportunity_ID = parentObjectID;
+                    break;
+                default:
+                    break;
+            }
+                
+            await INSERT.into(AttachementEntity).entries(attachment);
+        }
+    });
+}
+
+async function deleteAttachments(attachmentsFromRemote, attachmentsFromDB, AttachmentEntity) {
+
+    const attachmentsToBeDeleted = attachmentsFromDB.filter(obj1 => !attachmentsFromRemote.some(obj2 => obj2.ObjectID === obj1.ObjectID) && obj1.ObjectID != null);
+    if (attachmentsToBeDeleted.length) {
+        const attachmentObjectIDs = attachmentsToBeDeleted.map(item => item.ObjectID);
+        await DELETE.from(AttachmentEntity).where({ ObjectID: attachmentObjectIDs });
+    }
+}
+
+module.exports = { getObjectsWithDifferentPropertyValue, createAttachmentBody, linkSelectedOpportunity, createNewCustomerInRemote,
+     createItemsBody, deleteCustomerInstances, deleteOpportunityInstances, deleteServiceRequestInstances, createAttachments, deleteAttachments,
+     deleteItems };

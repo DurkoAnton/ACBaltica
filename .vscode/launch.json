@@ -14,8 +14,8 @@
       ]
     },
     {
-      "command": "cds run --with-mocks --in-memory? --port 4001",
-      "name": "cds run port 4001",
+      "command": "cds run --with-mocks --in-memory? --port 4000",
+      "name": "cds run port 4000",
       "request": "launch",
       "type": "node-terminal",
       "skipFiles": [

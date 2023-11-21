@@ -71,11 +71,17 @@ annotate service.Customer with @(
             ID    : 'AddressInformation',
             Facets: [
 
-                {
+                // {
+                //     $Type : 'UI.ReferenceFacet',
+                //     Label : '{i18n>IndividualAddress}',
+                //     ID    : 'AddressInformationIndividual',
+                //     Target: '@UI.FieldGroup#AddressInformationIndividual',
+                // },
+                { 
                     $Type : 'UI.ReferenceFacet',
-                    Label : '{i18n>IndividualAddress}',
-                    ID    : 'AddressInformationIndividual',
-                    Target: '@UI.FieldGroup#AddressInformationIndividual',
+                    Label : 'Postal Address',
+                    ID    : 'AddressInformationPostal',
+                    Target: '@UI.FieldGroup#AddressInformationPostal',
                 },
                 {
                     $Type : 'UI.ReferenceFacet',
@@ -161,27 +167,32 @@ annotate service.Customer with @(UI.FieldGroup #GeneratedGroup1: {
     Data : [
         {
             $Type: 'UI.DataField',
-            Value: CustomerFormattedName
+            Value: CustomerFormattedName,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}}, 
         },
         {
             $Type: 'UI.DataField',
             Label: 'Internal ID',
             Value: InternalID,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
         },
         {
             $Type: 'UI.DataField',
             Label: '{i18n>Status}',
             Value: Status_code,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
         },
         {
             $Type: 'UI.DataField',
             Label: '{i18n>ResponsibleManager}',
             Value: ResponsibleManager,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
         },
         {
             $Type: 'UI.DataField',
             Label: '{i18n>Note}',
             Value: Note,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
         },
     ]
 }, );
@@ -197,11 +208,11 @@ annotate service.Opportunity with @(UI.LineItem #Opportunities: [
         Label: 'Subject',
         Value: Subject,
     },
-    {
-        $Type: 'UI.DataField',
-        Label: 'Customer',
-        Value: ProspectPartyID,
-    },
+    // {
+    //     $Type: 'UI.DataField',
+    //     Label: 'Customer',
+    //     Value: ProspectPartyID,
+    // },
     {
         $Type: 'UI.DataField',
         Label: 'Status',
@@ -211,6 +222,16 @@ annotate service.Opportunity with @(UI.LineItem #Opportunities: [
         $Type: 'UI.DataField',
         Label: 'Responsible Employee',
         Value: MainEmployeeResponsiblePartyName,
+    },
+    {
+        $Type: 'UI.DataField',
+        Label: 'Not Stadard Request',
+        Value: NotStandartRequest,
+    },
+    {
+        $Type: 'UI.DataField',
+        Label: 'Customer Comment',
+        Value: CustomerComment,
     },
     {
         $Type: 'UI.DataField',
@@ -295,6 +316,11 @@ annotate service.Opportunity with @(
                 $Type: 'UI.DataField',
                 Label: 'Not Standart Request',
                 Value: NotStandartRequest,
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'Customer Comment',
+                Value: CustomerComment,
             },
             {
                 $Type: 'UI.DataField',
@@ -397,26 +423,31 @@ annotate service.Customer with @(UI.FieldGroup #AddressInformationIndividual: {
             $Type: 'UI.DataField',
             Label: '{i18n>Country}',
             Value: IndividualCountry_code,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
         },
         {
             $Type: 'UI.DataField',
             Label: '{i18n>City}',
             Value: IndividualAddress_City,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
         },
         {
             $Type: 'UI.DataField',
             Label: '{i18n>Street}',
             Value: IndividualAddress_Street,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
         },
         {
             $Type: 'UI.DataField',
             Label: '{i18n>HomeID}',
             Value: IndividualAddress_HomeID,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
         },
         {
             $Type: 'UI.DataField',
             Label: '{i18n>RoomID}',
             Value: IndividualAddress_RoomID,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
         }
     ]
 });
@@ -428,27 +459,64 @@ annotate service.Customer with @(UI.FieldGroup #AddressInformationJuridical: {
             $Type: 'UI.DataField',
             Label: '{i18n>Country}',
             Value: JuridicalCountry_code,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
         },
         {
             $Type: 'UI.DataField',
             Label: '{i18n>City}',
             Value: JuridicalAddress_City,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
         },
         {
             $Type: 'UI.DataField',
             Label: '{i18n>Street}',
             Value: JuridicalAddress_Street,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
         },
         {
             $Type: 'UI.DataField',
             Label: '{i18n>HomeID}',
             Value: JuridicalAddress_HomeID,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
         },
         {
             $Type: 'UI.DataField',
             Label: '{i18n>RoomID}',
             Value: JuridicalAddress_RoomID,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
         },
+    ]
+});
+annotate service.Customer with @(UI.FieldGroup #AddressInformationPostal: {
+    $Type: 'UI.FieldGroupType',
+    Data : [
+         {
+            $Type: 'UI.DataField',
+            Label: 'Postal Box',
+            Value: POBox,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
+
+        },
+        {
+            $Type: 'UI.DataField',
+            Label: 'Postal Country',
+            Value: POBoxCountry_code,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
+
+        },
+         {
+            $Type: 'UI.DataField',
+            Label: 'Postal Region',
+            Value: POBoxState,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
+
+        },
+        {
+            $Type: 'UI.DataField',
+            Label: 'Postal City',
+            Value: POBoxCity,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
+        }
     ]
 });
 
@@ -615,6 +683,32 @@ annotate service.ServiceRequest with @(
             },
         ],
     },
+     UI.FieldGroup #TimeProcessing      : {
+        $Type: 'UI.FieldGroupType',
+        Data : [
+            {
+                $Type: 'UI.DataField',
+                Label: 'Request Date',
+                Value: RequestInitialDateTime,
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'Last Changing Date',
+                Value: LastChangingDate,
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'Request End Date',
+                Value: RequestEndDateTime,
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'Resolution Date',
+                Value: ResolutionDateTime,
+            },
+            
+        ]
+    },
     UI.FieldGroup #Parties      : {
         $Type: 'UI.FieldGroupType',
         Data : [
@@ -651,6 +745,12 @@ annotate service.ServiceRequest with @(
             ID    : 'GeneralInfo',
             Label : 'General Information',
             Target: '@UI.FieldGroup#GeneralInfoSR',
+        },
+         {
+            $Type : 'UI.ReferenceFacet',
+            Label : 'Time Processing',
+            ID    : 'TimeProcessing',
+            Target: '@UI.FieldGroup#TimeProcessing',
         },
         {
             $Type : 'UI.ReferenceFacet',
@@ -705,11 +805,11 @@ annotate service.Customer with {
                     ValueListProperty: 'code',
                     LocalDataProperty: Status_code
                 },
-                {
-                    $Type            : 'Common.ValueListParameterOut',
-                    ValueListProperty: 'name',
-                    LocalDataProperty: Status.name
-                },
+                // {
+                //     $Type            : 'Common.ValueListParameterOut',
+                //     ValueListProperty: 'name',
+                //     LocalDataProperty: Status.name
+                // },
             ]
         }
     });
@@ -735,11 +835,11 @@ annotate service.ServiceRequest with {
                     ValueListProperty: 'code',
                     LocalDataProperty: Status_code
                 },
-                {
-                    $Type            : 'Common.ValueListParameterOut',
-                    ValueListProperty: 'name',
-                    LocalDataProperty: Status.name
-                },
+                // {
+                //     $Type            : 'Common.ValueListParameterOut',
+                //     ValueListProperty: 'name',
+                //     LocalDataProperty: Status.name
+                // },
             ]
         }
     });
@@ -1073,7 +1173,7 @@ annotate service.PartnerProfile with @(
                 $Type                   : 'UI.DataField',
                 Value                   : Status_code,
                 Label                   : 'Status',
-                ![@Common.FieldControl] : #ReadOnly,
+                //![@Common.FieldControl] : #ReadOnly,
             },
             {
                 $Type: 'UI.DataField',
@@ -1165,55 +1265,77 @@ annotate service.Customer with @(UI.LineItem #Customers: [
         $Type: 'UI.DataField',
         Label: 'ID',
         Value: InternalID,
+                  //  ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}}, 
+
     },
     {
         $Type: 'UI.DataField',
-        Value: CustomerFormattedName
+        Value: CustomerFormattedName,
+                   // ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}}, 
+
     },
     {
         $Type: 'UI.DataField',
         Label: '{i18n>Status}',
-        Value: Status_code
+        Value: Status_code,
+                   // ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}}, 
+
     },
     {
         $Type: 'UI.DataField',
         Label: '{i18n>ResponsibleManager}',
-        Value: ResponsibleManager
+        Value: ResponsibleManager,
+                  //  ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}}, 
+
     },
     {
         $Type: 'UI.DataField',
         Label: '{i18n>Country}',
-        Value: JuridicalCountry.name
+        Value: JuridicalCountry.code,
+                   // ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}}, 
+
     },
     {
         $Type: 'UI.DataField',
         Label: 'City',
-        Value: JuridicalAddress_City
+        Value: JuridicalAddress_City,
+                  //  ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}}, 
+
     },
     {
         $Type: 'UI.DataField',
         Label: 'Region',
-        Value: JuridicalAddress_Street
+        Value: JuridicalAddress_Street,
+                   // ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}}, 
+
     },
     {
         $Type: 'UI.DataField',
         Label: 'Street',
-        Value: JuridicalAddress_Street
+        Value: JuridicalAddress_Street,
+                   // ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}}, 
+
     },
     {
         $Type: 'UI.DataField',
         Label: 'House ID',
-        Value: JuridicalAddress_HomeID
+        Value: JuridicalAddress_HomeID,
+                   // ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}}, 
+
     },
     {
         $Type: 'UI.DataField',
         Label: 'Room ID',
-        Value: JuridicalAddress_RoomID
+        Value: JuridicalAddress_RoomID,
+                    //![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}}, 
+
     },
     {
         $Type: 'UI.DataField',
         Label: 'Note',
-        Value: Note
+        Value: Note,
+                   // ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}}, 
+
     },
 ]);
 
@@ -1302,7 +1424,7 @@ annotate service.PartnerProfile with @(UI.LineItem: [
 
 annotate service.PartnerProfile with {
     Country @(Common: {
-        Text                    : CountryDescription,
+        Text                    : Country.name,
         TextArrangement         : #TextLast,
         ValueListWithFixedValues: true,
         ValueList               : {
@@ -1325,8 +1447,8 @@ annotate service.PartnerProfile with {
 
 annotate service.PartnerProfile with {
     Status @(Common: {
-        Text                    : Status.name,
-        TextArrangement         : #TextOnly,
+        Text                    : StatusDescription,
+        TextArrangement         : #TextLast,
         ValueListWithFixedValues: true,
         ValueList               : {
             CollectionPath: 'StatusCodes',
@@ -1337,9 +1459,14 @@ annotate service.PartnerProfile with {
                     LocalDataProperty: Status_code
                 },
                 {
-                    $Type            : 'Common.ValueListParameterDisplayOnly',
-                    ValueListProperty: 'name'
+                    $Type            : 'Common.ValueListParameterOut',
+                    ValueListProperty: 'name',
+                    LocalDataProperty: StatusDescription
                 },
+                // {
+                //     $Type            : 'Common.ValueListParameterDisplayOnly',
+                //     ValueListProperty: 'name'
+                // },
             ]
         }
     })
@@ -1427,13 +1554,21 @@ annotate service.Opportunity with {
         TextArrangement: #TextLast
     };
 };
-annotate service.Customer with {
-    ResponsibleManager @Common:{
-        Text:ResponsibleManagerID,
-        TextArrangement : #TextLast,
-    };
-    ResponsibleManagerID @UI.Hidden: true;
-};
+// annotate service.Customer with {
+//     ResponsibleManager @Common:{
+//         Text:ResponsibleManagerID,
+//         TextArrangement : #TextLast,
+//     } @readonly;
+//     ResponsibleManagerID @UI.Hidden: true @readonly;
+//     CustomerFormattedName @readonly;
+//     Status @readonly;
+//     JuridicalCountry @readonly;
+//     JuridicalAddress @readonly;
+//     Note @readonly;
+//     // JuridicalAddress_City @readonly;
+//     // JuridicalAddress_Street @readonly;
+
+// };
 annotate service.Item with {
     // ID @Common:{
     //     Text: ProductInternalID,

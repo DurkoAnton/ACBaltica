@@ -15,6 +15,21 @@
         "vcap": {
           "name": "auth"
         }
+      },
+      "db": {
+        "binding": {
+          "type": "cf",
+          "apiEndpoint": "https://api.cf.eu20-001.hana.ondemand.com",
+          "org": "ACBaltica, UAB_btp-demo-hij0smff",
+          "space": "BTP_DEMO_SPACE",
+          "instance": "BTPdemoPortal-db",
+          "key": "BTPdemoPortal-db-key",
+          "resolved": false
+        },
+        "kind": "hana",
+        "vcap": {
+          "name": "db"
+        }
       }
     }
   }

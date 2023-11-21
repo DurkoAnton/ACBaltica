@@ -30,7 +30,9 @@
             "inbounds": {
                 "Customer-display": {
                     "signature": {
-                        "parameters": {},
+                        "parameters": {
+                            "ID": {}
+                        },
                         "additionalParameters": "allowed"
                     },
                     "semanticObject": "Customer",
@@ -38,6 +40,12 @@
                     "title": "{{flpTitle}}",
                     "subTitle": "{{flpSubtitle}}",
                     "icon": ".sap-icon--wrench"
+                }
+            },
+            "outbounds": {
+                "Opportunity": {
+                    "semanticObject": "Opportunity",
+                    "action": "display"
                 }
             }
         }
@@ -223,7 +231,10 @@
                             "controlConfiguration": {
                                 "ToOpportunities/@com.sap.vocabularies.UI.v1.LineItem#Opportunities": {
                                     "tableSettings": {
-                                        "type": "ResponsiveTable"
+                                        "type": "ResponsiveTable",
+                                        "creationMode": {
+                                            "name": "NewPage"
+                                        }
                                     },
                                     "columns": {
                                         "DataField::InternalID": {
@@ -257,6 +268,12 @@
                                             "width": "auto"
                                         },
                                         "DataField::CreatedBy": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::NotStandartRequest": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CustomerComment": {
                                             "width": "auto"
                                         }
                                     }
@@ -335,6 +352,28 @@
                                     "columns": {
                                         "DataField::toItemProduct::UnitMeasure": {
                                             "width": "auto"
+                                        },
+                                        "DataField::ItemProductID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::toItemProduct::ProductCategory": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::toItemProduct::ProductStatus": {
+                                            "width": "auto"
+                                        }
+                                    }
+                                },
+                                "Attachment/@com.sap.vocabularies.UI.v1.LineItem#Attachments": {
+                                    "columns": {
+                                        "DataField::fileName": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::content": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::mediaType": {
+                                            "width": "auto"
                                         }
                                     }
                                 }
@@ -351,6 +390,13 @@
                     "options": {
                         "settings": {
                             "contextPath": "/Customer/ToOpportunities/Items",
+                            "editableHeaderContent":false,
+                            "content": {
+                                "header": {
+                                    "visible": false,
+                                    "anchorBarVisible": false
+                                }
+                            },
                             "navigation": {},
                             "controlConfiguration": {
                                 "toItemProduct/SalesPriceLists/@com.sap.vocabularies.UI.v1.LineItem#SalesPriceLists": {

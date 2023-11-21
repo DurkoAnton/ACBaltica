@@ -10,11 +10,11 @@
     "@sap-cloud-sdk/http-client": "^3.6.0",
     "@sap/cds": "^6.8.4",
     "@sap/xsenv": "^3.4.0",
-    "@sap/xssec": "^3.2.17",
+    "@sap/xssec": "^3",
     "express": "^4",
     "hdb": "^0.19.0",
     "jwt-decode": "^4.0.0",
-    "passport": "^0.6.0"
+    "passport": "^0"
   },
   "devDependencies": {
     "@sap/ux-specification": "^1.108.16",
@@ -76,21 +76,6 @@
       "uaa": {
         "kind": "xsuaa"
       },
-      "auth": {
-        "[development]": {
-          "strategy": "mock",
-          "users": {
-            "admin": {
-              "roles": [
-                "uaa.user"
-              ]
-            }
-          }
-        },
-        "[production]": {
-          "kind": "jwt-auth"
-        }
-      },
       "rest_api": {
         "kind": "rest",
         "credentials": {
@@ -106,9 +91,27 @@
           "destination": "workflowDestination"
         }
       },
-      "remote": {
+      "api": {
         "kind": "odata-v2",
-        "model": "srv/external/remote"
+        "model": "srv/external/api",
+        "csrf": true,
+        "csrfInBatch": true,
+        "credentials": {
+          "url": "https://my307374.crm.ondemand.com/sap/c4c/odata/v1/c4codataapi",
+          "username": "DPROKOPENKO_WEB",
+          "password": "Password123"
+        }
+      },
+      "opportunity": {
+        "kind": "odata-v2",
+        "model": "srv/external/opportunity",
+        "csrf": true,
+        "csrfInBatch": true,
+        "credentials": {
+          "url": "https://my307374.crm.ondemand.com/sap/c4c/odata/v1/c4codataapi",
+          "username": "DPROKOPENKO_WEB",
+          "password": "Password123"
+        }
       }
     }
   },

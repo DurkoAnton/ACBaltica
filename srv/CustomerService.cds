@@ -1,5 +1,6 @@
 using { customer } from '../db/customer-data-model';
-using {remote as external} from './external/remote';
+using {api as external} from './external/api';
+using {opportunity as externalOppt} from './external/opportunity';
 
 service CustomerService @(requires: 'authenticated-user'){
     @Capabilities : {
@@ -7,6 +8,7 @@ service CustomerService @(requires: 'authenticated-user'){
          UpdateRestrictions.Updatable  : true,
          DeleteRestrictions.Deletable  : true
     }
+
   entity Customer as projection on customer.Customer actions { 
     action UpdateInC4C();
     
@@ -25,10 +27,17 @@ service CustomerService @(requires: 'authenticated-user'){
     entity Item as select from customer.Item 
   { *, toItemProduct.InternalID as ProductInternalID, toItemProduct.ProductCategory as ProductCategory, toItemProduct.ProductStatusDescription as ProductStatus };
 
+ @Capabilities : {
+         DeleteRestrictions.Deletable  : false
+    }
   entity ItemProduct as projection on customer.ItemProduct;
+   @Capabilities : {
+         DeleteRestrictions.Deletable  : false
+    }
   entity SalesPriceList as projection on customer.SalesPriceList;
 
   @cds.redirection.target
+  
   entity Opportunity as projection on customer.Opportunity actions {
     action LoadProducts();
 
@@ -51,8 +60,13 @@ service CustomerService @(requires: 'authenticated-user'){
   entity Attachement as projection on customer.Attachment;
   entity OpportunityStatusCode as projection on customer.OpportunityStatus;
 
-  //test using importing service
-  entity RemoteCustomer as projection on customer.remoteCustomers;
+  //Customer remote
+  entity RemoteCustomer as projection on external.CorporateAccountCollection;
+  entity RemoteContact as projection on external.ContactCollection;
+  entity RemoteOwnerEmployee as projection on external.EmployeeBasicDataCollection;
+  //Opportunity Remote
+  entity RemoteOpportunity as projection on externalOppt.OpportunityCollection;
+
 }
 annotate CustomerService.Customer with @odata.draft.enabled;
 

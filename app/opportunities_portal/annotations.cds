@@ -26,6 +26,11 @@ annotate service.Opportunity with @(UI.LineItem: [
         Label: 'Responsible Employee',
         Value: MainEmployeeResponsiblePartyName,
     },
+        {
+            $Type: 'UI.DataField',
+            Label: 'Customer Comment',
+            Value: CustomerComment,
+        },
     {
         $Type: 'UI.DataField',
         Label: 'Changed At',
@@ -99,6 +104,11 @@ annotate service.Opportunity with @(
             },
             {
                 $Type: 'UI.DataField',
+                Label: 'Customer Comment',
+                Value: CustomerComment,
+            },
+            {
+                $Type: 'UI.DataField',
                 Value: CreationDateTime,
                 Label: 'Created At',
             },
@@ -112,19 +122,49 @@ annotate service.Opportunity with @(
     UI.FieldGroup #Parties    : {
         $Type: 'UI.FieldGroupType',
         Data : [
+            {
+                $Type: 'UI.DataFieldWithIntentBasedNavigation',
+                SemanticObject : 'Customer',
+                Label: 'Customer ID',
+                Action : 'display',
+                Value : Customer_ID,
+                Mapping   : [{
+                    $Type                 : 'Common.SemanticObjectMappingType',
+                    LocalProperty         : Customer_ID,
+                    SemanticObjectProperty: 'ID',
+                } 
+            ],
+           },
+            {
+                $Type: 'UI.DataFieldWithIntentBasedNavigation',
+                SemanticObject : 'Customer',
+                Label: 'Customer ID2',
+                Action : 'display',
+                Value : ProspectPartyID,
+                Mapping   : [
+                    {
+                    $Type                 : 'Common.SemanticObjectMappingType',
+                    LocalProperty         : 'ProspectPartyID',
+                    SemanticObjectProperty: 'InternalID',
+                } ,
+                {
+                    $Type                 : 'Common.SemanticObjectMappingType',
+                    LocalProperty         : 'ID',
+                    SemanticObjectProperty: 'Customer_ID',
+                } 
+            ],
+           },
+        //  {
+        //         $Type: 'UI.DataField',
+        //         Value: ProspectPartyID,
+        //         Label: 'ProspectPartyID',
+        //     },
         //     {
-        //         $Type: 'UI.DataFieldWithIntentBasedNavigation',
-        //         SemanticObject : 'Opportunity',
-        //         Label: 'Customer ID',
-        //         Value : Customer_ID,
-        //         Action:'display'
-        //    },
-            {
-                $Type: 'UI.DataField',
-                Value: ProspectPartyID,
-                Label: 'Customer',
-            },
-            {
+        //         $Type: 'UI.DataField',
+        //         Value: Customer_ID,
+        //         Label: 'Customer',
+        //     },
+             {
                 $Type: 'UI.DataField',
                 Value: MainEmployeeResponsiblePartyName,
                 Label: 'Employee Responsible',
@@ -134,7 +174,7 @@ annotate service.Opportunity with @(
 );
 
 // annotate service.Opportunity with {
-//     ProspectPartyID @(
+//     Customer @(
 //         Common.SemanticObject : 'Customer',
 //         Common.SemanticObjectMapping: [
 //             {
@@ -162,16 +202,16 @@ annotate service.Opportunity with {
                     ValueListProperty: 'CustomerFormattedName',
                     LocalDataProperty: ProspectPartyName
                 },
-                {
-                    $Type            : 'Common.ValueListParameterOut',
-                    ValueListProperty: 'ResponsibleManager',
-                    LocalDataProperty: MainEmployeeResponsiblePartyName
-                },
-                {
-                    $Type            : 'Common.ValueListParameterOut',
-                    ValueListProperty: 'ResponsibleManagerID',
-                    LocalDataProperty: MainEmployeeResponsiblePartyID
-                },
+                // {
+                //     $Type            : 'Common.ValueListParameterOut',
+                //     ValueListProperty: 'ResponsibleManager',
+                //     LocalDataProperty: MainEmployeeResponsiblePartyName
+                // },
+                // {
+                //     $Type            : 'Common.ValueListParameterOut',
+                //     ValueListProperty: 'ResponsibleManagerID',
+                //     LocalDataProperty: MainEmployeeResponsiblePartyID
+                // },
                 {
                     $Type            : 'Common.ValueListParameterOut',
                     ValueListProperty: 'ID',
@@ -257,27 +297,39 @@ annotate service.Item with @(
             $Type: 'UI.DataField',
             Label: 'Product',
             Value: ItemProductID,
-         },
+        },
+        {
+            $Type: 'UI.DataField',
+            Label: 'Quantity',
+            Value: Quantity,
+        },
+         {
+            $Type: 'UI.DataField',
+            Label: 'Price',
+            Value: NetPriceAmount,
+        },
         //  {
         //     $Type: 'UI.DataField',
         //     Label: 'oppt',
         //     Value: toOpportunity_ID,
         // },
+        {
+            $Type: 'UI.DataField',
+            Label: 'Internal ID',
+            Value: toItemProduct.InternalID,
+        },
         // {
         //     $Type: 'UI.DataField',
-        //     Label: 'Internal ID',
-        //     Value: toItemProduct.InternalID,
+        //     Label: 'Product Category',
+        //     Value: toItemProduct.ProductCategory,
         // },
-        {
-            $Type: 'UI.DataField',
-            Label: 'Product Category',
-            Value: toItemProduct.ProductCategory,
-        },
-        {
-            $Type: 'UI.DataField',
-            Label: 'Product Status',
-            Value: toItemProduct.ProductStatus,
-        },
+        // {
+        //     $Type: 'UI.DataField',
+        //     Label: 'Product Status',
+        //     Value: toItemProduct.ProductStatus,
+        // },
+        
+        
         {
             $Type: 'UI.DataField',
             Label: 'Unit Measure',
@@ -378,13 +430,36 @@ annotate service.Opportunity with @(UI.Identification: [
     },
 ]);
 
-annotate service.Item @(Common: {SideEffects #toItemProductChanged: {
+annotate service.Item @(Common: {SideEffects #ItemProductChanged: {
+    SourceProperties: ['ItemProductID'],
+    TargetProperties  : ['NetPriceAmount', 'NetPriceCurrency_code'],
+    TargetEntities :[toItemProduct, toItemProduct.SalesPriceLists]
+}});
+
+annotate service.Item @(Common: {SideEffects #ItemProduct1Changed: {
+    SourceEntities: [toItemProduct],
+    TargetEntities :[toItemProduct.SalesPriceLists]
+}});
+
+annotate service.Opportunity @(Common: {SideEffects #ItemChanged: {
+    SourceProperties: ['Items/ItemProductID'],
+    TargetProperties  : ['Items/NetPriceCurrency/code'],
+    TargetEntities :[Items.toItemProduct,Items.toItemProduct.SalesPriceLists] 
+}});
+
+annotate service.Item @(Common: {SideEffects #ItemProductIDChanged: {
     SourceProperties: ['ItemProductID'],
     TargetEntities  : [
         toItemProduct,
         toItemProduct.SalesPriceLists
     ]
 }});
+// annotate service.ItemProduct @(Common: {SideEffects #InternalIDChanged: {
+//     SourceProperties: ['InternalID'],
+//     TargetEntities  : [
+//         SalesPriceLists
+//     ]
+// }});
 annotate service.Opportunity with @(
     UI.SelectionFields : [
         InternalID,
@@ -413,6 +488,10 @@ annotate service.Opportunity with {
 annotate service.Opportunity @(Common: {SideEffects #LifeCycleStatusCodeChanged: {
     SourceProperties: ['LifeCycleStatusCode_code'],
     TargetEntities  : [LifeCycleStatusCode]
+}}); 
+annotate service.Opportunity @(Common: {SideEffects #ProspectPartyIDChanged: {
+    SourceProperties: ['ProspectPartyID'],
+    TargetProperties  : ['ProspectPartyName','MainEmployeeResponsiblePartyName']
 }}); 
 
 annotate service.Opportunity with {

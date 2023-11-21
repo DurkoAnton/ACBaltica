@@ -27,14 +27,7 @@
         "$XSAPPNAME.PartnerRole"
       ],
       "attribute-references": []
-    },
-    {
-      "name": "RoleForAccount",
-      "description": "generated2",
-      "scope-references": [
-        "$XSAPPNAME.RoleForAccount"
-      ],
-      "attribute-references": []
     }
-  ]
+  ],
+  "attributes": []
 }

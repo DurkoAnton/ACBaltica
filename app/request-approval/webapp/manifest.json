@@ -39,7 +39,13 @@
                     },
                     "icon": ".sap-icon--wrench"
                 }
-            }
+                
+            },  "outbounds": {
+				"toApp2": {
+					"semanticObject": "Customer",
+					"action": "display"
+				}
+			}
         }
     },
     "sap.ui": {
@@ -121,11 +127,11 @@
                             "entitySet": "RequestApproval",
                             "variantManagement": "Page",
                             "navigation": {
-                                "RequestApproval": {
-                                    "detail": {
-                                        "route": "RequestApprovalObjectPage"
+                                "RequestApproval": {                                  
+                                    "detail": {                                      
+                                        "outbound": "toApp2" 
                                     }
-                                }
+                                }  
                             },
                             "controlConfiguration": {
                                 "@com.sap.vocabularies.UI.v1.LineItem": {

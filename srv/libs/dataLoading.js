@@ -48,7 +48,9 @@ async function loadProductsAndPricesListsFromC4C(ItemProduct, SalesPriceList, re
                         AmountCurrencyCode_code: priceListItem.AmountCurrencyCode,
                         PriceUnitContent: priceListItem.PriceUnitContent,
                         PriceUnitCode: priceListItem.PriceUnitCode,
-                        ItemProductID: priceListItem.ProductID
+                        ItemProductID: priceListItem.ProductID,
+                        IsBasePriceList : priceList.IsBasePriceList,
+                        ReleaseStatusCode : priceList.ReleaseStatusCode
                     };
                     await INSERT(product).into(SalesPriceList);
                 });

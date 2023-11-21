@@ -10,22 +10,23 @@ class PartnerService extends cds.ApplicationService {
 
         cds.env.features.fetch_csrf = true;
 
-        const { PartnerProfile, Attachement, ItemProduct } = this.entities;
+        const { PartnerProfile, Attachement, ItemProduct, RemoteContact,RemoteCustomer } = this.entities;
         const { Customer, Opportunity, ServiceRequest, SalesPriceList } = cds.entities('customer');
 
+        const remoteC4CAPI = await cds.connect.to('api');
+        
         function _getPath(currentUserEmail) {
             return `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${currentUserEmail}'`
         }
 
-        async function _createCustomerInstances(c4cResponse, customersFromDB, partnerCode) {
+        async function _createCustomerInstances(corporateAccounts, customersFromDB) {
+
             let customer;
-            if (!c4cResponse.data.d.results[0]) { return; }
-            const corporateAccounts = c4cResponse.data.d.results[0].ContactIsContactPersonFor;
             corporateAccounts.forEach(async item => {
                 if (customersFromDB.filter(n => n.UUID == item.CorporateAccount.UUID).length == 0) {
                     const account = item.CorporateAccount;
                     const owner = account.OwnerEmployeeBasicData;
-                    const note = account.CorporateAccountTextCollection[0];
+                    const note = account.CorporateAccountTextCollection.results;
                     if (account != undefined) {
                         customer = {
                             CustomerFormattedName: account.BusinessPartnerFormattedName,
@@ -33,7 +34,7 @@ class PartnerService extends cds.ApplicationService {
                             Status_code: account.LifeCycleStatusCode,
                             UUID: account.UUID,
                             ObjectID: account.ObjectID,
-                            MainContactID: partnerCode,
+                            MainContactID: item.ContactID,//added
 
                             JuridicalAddress_City: account.City,
                             JuridicalCountry_code: account.CountryCode,
@@ -41,14 +42,15 @@ class PartnerService extends cds.ApplicationService {
                             JuridicalAddress_HomeID: account.HouseNumber,
                             JuridicalAddress_RoomID: account.Room,
 
-                            IndividualAddress_City: account.City,
-                            IndividualCountry_code: account.CountryCode,
-                            IndividualAddress_Street: account.Street,
-                            IndividualAddress_HomeID: account.HouseNumber,
-                            IndividualAddress_RoomID: account.Room
+                            POBox : account.POBox,
+                            POBoxCountry_code : account.POBoxDeviatingCountryCode,
+                            POBoxState : account.POBoxDeviatingRegionCodeText,
+                            POBoxCity : account.POBoxDeviatingCity
                         }
                         if (owner != undefined) {
                             customer.ResponsibleManager = owner.FormattedName;
+                            customer.ResponsibleManagerID = owner.EmployeeID;
+                            customer.ResponsibleManagerEmail = owner.Email;
                         }
                         if (note != undefined) {
                             customer.Note = note.Text;
@@ -129,10 +131,11 @@ class PartnerService extends cds.ApplicationService {
         }
 
         this.before('READ', 'Customer', async (req) => {
-            if (req._path.endsWith('ToCustomers') /*&& req.headers['x-username']*/) {
-                const customersFromDB = await SELECT.from(Customer);
+            if (req._path.endsWith('ToCustomers')) {
                 const currentEmail = req._.user.id;
-                const currentPartner = await SELECT.one.from(PartnerProfile).where({ Email: currentEmail }).columns('Code');
+                const currentPartner = await SELECT.one.from(PartnerProfile).where({ Email: currentEmail }).columns('Code',);
+                const customersFromDB = await SELECT.from(Customer).where({MainContactID : currentPartner.Code});
+
                 const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${currentEmail}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
                 try {
                     const createRequestParameters = {
@@ -140,9 +143,34 @@ class PartnerService extends cds.ApplicationService {
                         url: path,
                         headers: { 'content-type': 'application/json' }
                     }
+
+                    const customers = await remoteC4CAPI.run(SELECT.from(RemoteContact).columns(root=>{
+                        root('ContactID'),
+                        root.ContactIsContactPersonFor(person=>{
+                            person('ContactID'),
+                            person.CorporateAccount(account => {
+                                account('BusinessPartnerFormattedName'),
+                                account('AccountID')
+                                account('LifeCycleStatusCode'),
+                                account('UUID')
+                                account('ObjectID')
+                                account('City'),account('CountryCode'),account('Street'),account('HouseNumber'),account('Room'),
+                                account('POBox'),account('POBoxDeviatingCountryCode'),account('POBoxDeviatingRegionCodeText'),account('POBoxDeviatingCity'),
+                                account.OwnerEmployeeBasicData(owner=>{owner('FormattedName'),owner('Email'),owner('EmployeeID')}),
+                                account.CorporateAccountTextCollection(text=>text('Text'))
+                            })
+                        })
+                    }).where({Email: currentEmail}));
+    
+                    await _createCustomerInstances(customers[0].ContactIsContactPersonFor, customersFromDB);
+                    await deleteCustomerInstances(customers[0].ContactID, customers[0].ContactIsContactPersonFor, customersFromDB, Customer);
+                
+                    /*
                     const c4cResponse = await sendRequestToC4C(createRequestParameters);
-                    await _createCustomerInstances(c4cResponse, customersFromDB, currentPartner.Code);
-                    await deleteCustomerInstances(c4cResponse, customersFromDB, Customer);
+                    const result = c4cResponse.data.d.results[0];
+                    await _createCustomerInstances(c4cResponse, customersFromDB, currentPartner.Code); // 
+                    await deleteCustomerInstances(result.ContactID,result.ContactIsContactPersonFor, customersFromDB, Customer);
+                    */
                 }
                 catch (error) {
                     req.reject({
@@ -150,30 +178,66 @@ class PartnerService extends cds.ApplicationService {
                     });
                 }
             }
+            else if (req._path != 'Customer' && req._path.endsWith(')') && req._.event != 'draftPrepare'){
+                const customerID = req.data.ID;
+                const customerPage = await SELECT.one.from(Customer,customerID).columns(root=>{root('ObjectID'),root('ID')});
+                if (customerPage){
+                     const customerInstance = await remoteC4CAPI.run(SELECT.one.from(RemoteCustomer).columns(root=>{
+                         root('*'),
+                         root.OwnerEmployeeBasicData(owner=>{owner('FormattedName'),owner('Email')}),
+                         root.CorporateAccountTextCollection(text=>text('Text'))
+                     }).where({ObjectID: customerPage.ObjectID}));
+                     const owner = customerInstance.OwnerEmployeeBasicData;
+                     const note = customerInstance.CorporateAccountTextCollection[0];
+                     let customer = {
+                         CustomerFormattedName: customerInstance.Name,
+                         Status_code: customerInstance.LifeCycleStatusCode,
+ 
+                         JuridicalAddress_City: customerInstance.City,
+                         JuridicalCountry_code: customerInstance.CountryCode,
+                         JuridicalAddress_Street: customerInstance.Street,
+                         JuridicalAddress_HomeID: customerInstance.HouseNumber,
+                         JuridicalAddress_RoomID: customerInstance.Room,
+ 
+                         POBox : customerInstance.POBox,
+                         POBoxCountry_code : customerInstance.POBoxDeviatingCountryCode,
+                         POBoxState : customerInstance.POBoxDeviatingRegionCodeText,
+                         POBoxCity : customerInstance.POBoxDeviatingCity
+                         
+                     }
+                     if (owner != undefined) {
+                         customer.ResponsiblemanagerID = customerInstance.OwnerID;
+                         customer.ResponsibleManager = owner.FormattedName;
+                         customer.ResponsibleManagerEmail = owner.Email;
+                     }
+                     if (note != undefined) {
+                         customer.Note = note.Text;
+                     }
+                     await UPDATE(Customer, customerPage.ID).with(customer);
+                 }
+             }
         });
 
         this.before('NEW', 'Customer', async req =>{
             req.data.Status_code = "1";
            // connect to new Customer, created from Partner Page
-           const currentEmail = req._.user.id;;
-           //if (req.headers['x-username']){
-                const currentPartner = await SELECT.one.from(PartnerProfile).where({Email:currentEmail});
-                if (currentPartner){
-                    req.data.MainContactID = currentPartner.Code;
-                }
-          // }                
+           const currentEmail = req._.user.id;
+            const currentPartner = await SELECT.one.from(PartnerProfile).where({Email:currentEmail});
+            if (currentPartner){
+                req.data.MainContactID = currentPartner.Code;
+            }
         })
     
         this.on('READ', PartnerProfile, async (req, next) => {
             //open one record for object page 
             if (req._path == 'PartnerProfile') {
                 const currentEmail = req._.user.id;
-                if (currentEmail) {
-                    const currentRecord = await SELECT.from(PartnerProfile).where({ Email: currentEmail });
-                    //delete excees created draft
-                    if (req._.data.ID){
-                        await DELETE.from(PartnerProfile.drafts).where({ID : req._.data.ID})
-                    }
+                const currentRecord = await SELECT.one.from(PartnerProfile).where({ Email: currentEmail });
+                //delete excees created draft
+                if (req._.data.ID){
+                    await DELETE.from(PartnerProfile.drafts).where({ID : req._.data.ID})
+                }
+                if (currentRecord){
                     return req.reply(currentRecord);
                 }
             }
@@ -185,21 +249,19 @@ class PartnerService extends cds.ApplicationService {
             // check for one current Partner
             if (req._path == 'PartnerProfile'){
                 const currentEmail = req._.user.id;
-                //if (currentEmail){
-                    const partner = await SELECT.one.from(PartnerProfile).where({ Email: currentEmail });
-                    if (!partner) {
-                        const destination = await getDestination(destinationName);
-                        try {
-                            const partnerProfileObj = await _getDataFromAPI(req, destination, currentEmail);
-                            await _mapRecordInServiceInst(partnerProfileObj);
-                        }
-                        catch (error) {
-                            req.reject({
-                                message: error.message
-                            });
-                        }
+                const partner = await SELECT.one.from(PartnerProfile).where({ Email: currentEmail });
+                if (!partner) {
+                    const destination = await getDestination(destinationName);
+                    try {
+                        const partnerProfileObj = await _getDataFromAPI(req, destination, currentEmail);
+                        await _mapRecordInServiceInst(partnerProfileObj);
                     }
-                //}
+                    catch (error) {
+                        req.reject({
+                            message: error.message
+                        });
+                    }
+                }
             }
         })
 
@@ -214,13 +276,11 @@ class PartnerService extends cds.ApplicationService {
             }
             req.data.LifeCycleStatusCode_code = '1';
             req.data.LifeCycleStatusText = 'Open';
-            const currentEmail = req._.user.id;;
-            //if (req.headers['x-username']){
-                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: currentEmail });
-                if(partner){
-                    req.data.MainContactID = partner.CODE;
-                }
-           // }
+            const currentEmail = req._.user.id;
+            const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: currentEmail });
+            if(partner){
+                req.data.MainContactID = partner.CODE;
+            }
         });
 
         this.before('NEW', 'ServiceRequest', async (req) => {
@@ -232,12 +292,10 @@ class PartnerService extends cds.ApplicationService {
                 req.data.CustomerFormattedName = customerDB.CustomerFormattedName;
                 req.data.Customer_ID = customerDB.ID;
             }
-            //if (req.headers['x-username']){
-                const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: currentEmail });
-                if(partner){
-                    req.data.MainContactID = partner.CODE;
-                }
-           // }
+            const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: currentEmail });
+            if(partner){
+                req.data.MainContactID = partner.CODE;
+            }
        });
 
         this.before('SAVE', PartnerProfile, async (req) => {
@@ -251,6 +309,7 @@ class PartnerService extends cds.ApplicationService {
                 Mobile: req.data.MobilePhone,
                 Phone: req.data.Phone,
                 Email: req.data.Email,
+                StatusCode : req.data.Status_code,
                 // Region
                 BusinessAddressHouseNumber: req.data.HouseNumber,
                 BusinessAddressStreet: req.data.Street,
@@ -272,7 +331,7 @@ class PartnerService extends cds.ApplicationService {
             }
 
             // create new Customers in remote
-            req.data.ToCustomers.forEach(async customerData => {
+            req.data.ToCustomers.filter(customer=>customer.UUID == null).forEach(async customerData => {
                 await createNewCustomerInRemote(customerData, Customer, req);
             });
 
@@ -690,7 +749,6 @@ class PartnerService extends cds.ApplicationService {
             }
         });
 
-        
         this.on('LoadProducts', async (req) => {
             await loadProductsAndPricesListsFromC4C(ItemProduct, SalesPriceList, req);
         })

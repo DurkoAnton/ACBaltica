@@ -4,12 +4,12 @@
  },
  "$version": "2.0",
  "definitions": {
-  "remote": {
+  "api": {
    "kind": "service",
    "@cds.external": true,
    "@m.IsDefaultEntityContainer": "true"
   },
-  "remote.ContactCollection": {
+  "api.ContactCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -661,7 +661,7 @@
     "ContactAttachmentFolder": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.ContactAttachmentFolderCollection",
+     "target": "api.ContactAttachmentFolderCollection",
      "cardinality": {
       "max": "*"
      },
@@ -670,7 +670,7 @@
     "ContactInternationalVersion": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.ContactInternationalVersionCollection",
+     "target": "api.ContactInternationalVersionCollection",
      "cardinality": {
       "max": "*"
      },
@@ -679,7 +679,7 @@
     "ContactIsContactPersonFor": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.ContactIsContactPersonForCollection",
+     "target": "api.ContactIsContactPersonForCollection",
      "cardinality": {
       "max": "*"
      },
@@ -688,13 +688,13 @@
     "ContactOwnerEmployeeBasicData": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.EmployeeBasicDataCollection",
+     "target": "api.EmployeeBasicDataCollection",
      "keys": []
     },
     "ContactPersonalAddress": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.ContactPersonalAddressCollection",
+     "target": "api.ContactPersonalAddressCollection",
      "cardinality": {
       "max": "*"
      },
@@ -703,7 +703,7 @@
     "ContactTextCollection": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.ContactTextCollectionCollection",
+     "target": "api.ContactTextCollectionCollection",
      "cardinality": {
       "max": "*"
      },
@@ -712,12 +712,12 @@
     "CorporateAccount": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountCollection",
+     "target": "api.CorporateAccountCollection",
      "keys": []
     }
    }
   },
-  "remote.ContactPersonalAddressCollection": {
+  "api.ContactPersonalAddressCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -971,12 +971,12 @@
     "Contact": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.ContactCollection",
+     "target": "api.ContactCollection",
      "keys": []
     }
    }
   },
-  "remote.ContactAttachmentFolderCollection": {
+  "api.ContactAttachmentFolderCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -1155,7 +1155,7 @@
     }
    }
   },
-  "remote.ContactTextCollectionCollection": {
+  "api.ContactTextCollectionCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -1306,12 +1306,12 @@
     "Contact": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.ContactCollection",
+     "target": "api.ContactCollection",
      "keys": []
     }
    }
   },
-  "remote.ContactInternationalVersionCollection": {
+  "api.ContactInternationalVersionCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -1520,12 +1520,12 @@
     "Contact": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.ContactCollection",
+     "target": "api.ContactCollection",
      "keys": []
     }
    }
   },
-  "remote.ContactIsContactPersonForCollection": {
+  "api.ContactIsContactPersonForCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -1754,12 +1754,12 @@
     "CorporateAccount": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountCollection",
+     "target": "api.CorporateAccountCollection",
      "keys": []
     }
    }
   },
-  "remote.IndividualCustomerTaxNumberCollection": {
+  "api.IndividualCustomerTaxNumberCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -1849,12 +1849,12 @@
     "IndividualCustomer": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.IndividualCustomerCollection",
+     "target": "api.IndividualCustomerCollection",
      "keys": []
     }
    }
   },
-  "remote.CorporateAccountTaxNumberCollection": {
+  "api.CorporateAccountTaxNumberCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -1944,12 +1944,12 @@
     "CorporateAccount": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountCollection",
+     "target": "api.CorporateAccountCollection",
      "keys": []
     }
    }
   },
-  "remote.IndividualCustomerSalesDataCollection": {
+  "api.IndividualCustomerSalesDataCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -2296,7 +2296,7 @@
     }
    }
   },
-  "remote.CorporateAccountSalesDataCollection": {
+  "api.CorporateAccountSalesDataCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -2664,7 +2664,7 @@
     }
    }
   },
-  "remote.CorporateAccountVisitingHoursOperatingPeriodCollection": {
+  "api.CorporateAccountVisitingHoursOperatingPeriodCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -2711,12 +2711,12 @@
     "CorporateAccountVisitingHoursRecurrence": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountVisitingHoursRecurrenceCollection",
+     "target": "api.CorporateAccountVisitingHoursRecurrenceCollection",
      "keys": []
     }
    }
   },
-  "remote.CorporateAccountHasContactPersonCollection": {
+  "api.CorporateAccountHasContactPersonCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -2946,12 +2946,12 @@
     "Contact": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.ContactCollection",
+     "target": "api.ContactCollection",
      "keys": []
     }
    }
   },
-  "remote.IndividualCustomerTeamCollection": {
+  "api.IndividualCustomerTeamCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -3093,18 +3093,18 @@
     "EmployeeBasicData": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.EmployeeBasicDataCollection",
+     "target": "api.EmployeeBasicDataCollection",
      "keys": []
     },
     "IndividualCustomer": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.IndividualCustomerCollection",
+     "target": "api.IndividualCustomerCollection",
      "keys": []
     }
    }
   },
-  "remote.CorporateAccountAddressCollection": {
+  "api.CorporateAccountAddressCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -3610,12 +3610,12 @@
     "CorporateAccount": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountCollection",
+     "target": "api.CorporateAccountCollection",
      "keys": []
     }
    }
   },
-  "remote.CorporateAccountTeamCollection": {
+  "api.CorporateAccountTeamCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -3757,18 +3757,18 @@
     "CorporateAccount": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountCollection",
+     "target": "api.CorporateAccountCollection",
      "keys": []
     },
     "EmployeeBasicData": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.EmployeeBasicDataCollection",
+     "target": "api.EmployeeBasicDataCollection",
      "keys": []
     }
    }
   },
-  "remote.CorporateAccountTextCollectionCollection": {
+  "api.CorporateAccountTextCollectionCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -3919,12 +3919,12 @@
     "CorporateAccount": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountCollection",
+     "target": "api.CorporateAccountCollection",
      "keys": []
     }
    }
   },
-  "remote.CorporateAccountAttachmentFolderCollection": {
+  "api.CorporateAccountAttachmentFolderCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -4103,7 +4103,7 @@
     }
    }
   },
-  "remote.CorporateAccountCollection": {
+  "api.CorporateAccountCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -4859,7 +4859,7 @@
     "CorporateAccountAddress": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountAddressCollection",
+     "target": "api.CorporateAccountAddressCollection",
      "cardinality": {
       "max": "*"
      },
@@ -4868,7 +4868,7 @@
     "CorporateAccountAttachmentFolder": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountAttachmentFolderCollection",
+     "target": "api.CorporateAccountAttachmentFolderCollection",
      "cardinality": {
       "max": "*"
      },
@@ -4877,7 +4877,7 @@
     "CorporateAccountHasContactPerson": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountHasContactPersonCollection",
+     "target": "api.CorporateAccountHasContactPersonCollection",
      "cardinality": {
       "max": "*"
      },
@@ -4886,7 +4886,7 @@
     "CorporateAccountIdentification": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountIdentificationCollection",
+     "target": "api.CorporateAccountIdentificationCollection",
      "cardinality": {
       "max": "*"
      },
@@ -4895,7 +4895,7 @@
     "CorporateAccountInternationalVersion": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountInternationalVersionCollection",
+     "target": "api.CorporateAccountInternationalVersionCollection",
      "cardinality": {
       "max": "*"
      },
@@ -4904,7 +4904,7 @@
     "CorporateAccountSalesData": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountSalesDataCollection",
+     "target": "api.CorporateAccountSalesDataCollection",
      "cardinality": {
       "max": "*"
      },
@@ -4913,7 +4913,7 @@
     "CorporateAccountSkills": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountSkillsCollection",
+     "target": "api.CorporateAccountSkillsCollection",
      "cardinality": {
       "max": "*"
      },
@@ -4922,7 +4922,7 @@
     "CorporateAccountTaxNumber": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountTaxNumberCollection",
+     "target": "api.CorporateAccountTaxNumberCollection",
      "cardinality": {
       "max": "*"
      },
@@ -4931,7 +4931,7 @@
     "CorporateAccountTeam": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountTeamCollection",
+     "target": "api.CorporateAccountTeamCollection",
      "cardinality": {
       "max": "*"
      },
@@ -4940,7 +4940,7 @@
     "CorporateAccountTextCollection": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountTextCollectionCollection",
+     "target": "api.CorporateAccountTextCollectionCollection",
      "cardinality": {
       "max": "*"
      },
@@ -4949,7 +4949,7 @@
     "CorporateAccountVisitingHours": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountVisitingHoursCollection",
+     "target": "api.CorporateAccountVisitingHoursCollection",
      "cardinality": {
       "max": "*"
      },
@@ -4958,7 +4958,7 @@
     "CorporateAccountVisitingInformationDetails": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountVisitingInformationDetailsCollection",
+     "target": "api.CorporateAccountVisitingInformationDetailsCollection",
      "cardinality": {
       "max": "*"
      },
@@ -4967,18 +4967,18 @@
     "OwnerEmployeeBasicData": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.EmployeeBasicDataCollection",
+     "target": "api.EmployeeBasicDataCollection",
      "keys": []
     },
     "ParentAccount": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountCollection",
+     "target": "api.CorporateAccountCollection",
      "keys": []
     }
    }
   },
-  "remote.IndividualCustomerTextCollectionCollection": {
+  "api.IndividualCustomerTextCollectionCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -5129,12 +5129,12 @@
     "IndividualCustomer": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.IndividualCustomerCollection",
+     "target": "api.IndividualCustomerCollection",
      "keys": []
     }
    }
   },
-  "remote.IndividualCustomerAttachmentFolderCollection": {
+  "api.IndividualCustomerAttachmentFolderCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -5313,7 +5313,7 @@
     }
    }
   },
-  "remote.IndividualCustomerCollection": {
+  "api.IndividualCustomerCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -6150,7 +6150,7 @@
     "IndividualCustomerAddress": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.IndividualCustomerAddressCollection",
+     "target": "api.IndividualCustomerAddressCollection",
      "cardinality": {
       "max": "*"
      },
@@ -6159,7 +6159,7 @@
     "IndividualCustomerAttachmentFolder": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.IndividualCustomerAttachmentFolderCollection",
+     "target": "api.IndividualCustomerAttachmentFolderCollection",
      "cardinality": {
       "max": "*"
      },
@@ -6168,7 +6168,7 @@
     "IndividualCustomerIdentification": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.IndividualCustomerIdentificationCollection",
+     "target": "api.IndividualCustomerIdentificationCollection",
      "cardinality": {
       "max": "*"
      },
@@ -6177,7 +6177,7 @@
     "IndividualCustomerSalesData": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.IndividualCustomerSalesDataCollection",
+     "target": "api.IndividualCustomerSalesDataCollection",
      "cardinality": {
       "max": "*"
      },
@@ -6186,7 +6186,7 @@
     "IndividualCustomerSkills": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.IndividualCustomerSkillsCollection",
+     "target": "api.IndividualCustomerSkillsCollection",
      "cardinality": {
       "max": "*"
      },
@@ -6195,7 +6195,7 @@
     "IndividualCustomerTaxNumber": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.IndividualCustomerTaxNumberCollection",
+     "target": "api.IndividualCustomerTaxNumberCollection",
      "cardinality": {
       "max": "*"
      },
@@ -6204,7 +6204,7 @@
     "IndividualCustomerTeam": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.IndividualCustomerTeamCollection",
+     "target": "api.IndividualCustomerTeamCollection",
      "cardinality": {
       "max": "*"
      },
@@ -6213,7 +6213,7 @@
     "IndividualCustomerTextCollection": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.IndividualCustomerTextCollectionCollection",
+     "target": "api.IndividualCustomerTextCollectionCollection",
      "cardinality": {
       "max": "*"
      },
@@ -6222,7 +6222,7 @@
     "IndividualCustomerVisitingInformationDetails": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.IndividualCustomerVisitingInformationDetailsCollection",
+     "target": "api.IndividualCustomerVisitingInformationDetailsCollection",
      "cardinality": {
       "max": "*"
      },
@@ -6231,12 +6231,12 @@
     "OwnerEmployeeBasicData": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.EmployeeBasicDataCollection",
+     "target": "api.EmployeeBasicDataCollection",
      "keys": []
     }
    }
   },
-  "remote.IndividualCustomerAddressCollection": {
+  "api.IndividualCustomerAddressCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -6718,12 +6718,12 @@
     "IndividualCustomer": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.IndividualCustomerCollection",
+     "target": "api.IndividualCustomerCollection",
      "keys": []
     }
    }
   },
-  "remote.CorporateAccountVisitingHoursCollection": {
+  "api.CorporateAccountVisitingHoursCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -6802,13 +6802,13 @@
     "CorporateAccount": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountCollection",
+     "target": "api.CorporateAccountCollection",
      "keys": []
     },
     "CorporateAccountVisitingHoursRecurrence": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountVisitingHoursRecurrenceCollection",
+     "target": "api.CorporateAccountVisitingHoursRecurrenceCollection",
      "cardinality": {
       "max": "*"
      },
@@ -6816,7 +6816,7 @@
     }
    }
   },
-  "remote.CorporateAccountVisitingHoursRecurrenceCollection": {
+  "api.CorporateAccountVisitingHoursRecurrenceCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -6912,13 +6912,13 @@
     "CorporateAccountVisitingHours": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountVisitingHoursCollection",
+     "target": "api.CorporateAccountVisitingHoursCollection",
      "keys": []
     },
     "CorporateAccountVisitingHoursOperatingPeriod": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountVisitingHoursOperatingPeriodCollection",
+     "target": "api.CorporateAccountVisitingHoursOperatingPeriodCollection",
      "cardinality": {
       "max": "*"
      },
@@ -6926,7 +6926,7 @@
     }
    }
   },
-  "remote.IndividualCustomerSkillsCollection": {
+  "api.IndividualCustomerSkillsCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -6998,12 +6998,12 @@
     "IndividualCustomer": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.IndividualCustomerCollection",
+     "target": "api.IndividualCustomerCollection",
      "keys": []
     }
    }
   },
-  "remote.CorporateAccountSkillsCollection": {
+  "api.CorporateAccountSkillsCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -7075,12 +7075,12 @@
     "CorporateAccount": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountCollection",
+     "target": "api.CorporateAccountCollection",
      "keys": []
     }
    }
   },
-  "remote.CorporateAccountVisitingInformationDetailsCollection": {
+  "api.CorporateAccountVisitingInformationDetailsCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -7222,7 +7222,7 @@
     }
    }
   },
-  "remote.IndividualCustomerVisitingInformationDetailsCollection": {
+  "api.IndividualCustomerVisitingInformationDetailsCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -7364,7 +7364,7 @@
     }
    }
   },
-  "remote.CorporateAccountInternationalVersionCollection": {
+  "api.CorporateAccountInternationalVersionCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -7723,12 +7723,12 @@
     "CorporateAccount": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountCollection",
+     "target": "api.CorporateAccountCollection",
      "keys": []
     }
    }
   },
-  "remote.CorporateAccountIdentificationCollection": {
+  "api.CorporateAccountIdentificationCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -7865,12 +7865,12 @@
     "CorporateAccount": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.CorporateAccountCollection",
+     "target": "api.CorporateAccountCollection",
      "keys": []
     }
    }
   },
-  "remote.IndividualCustomerIdentificationCollection": {
+  "api.IndividualCustomerIdentificationCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -8007,12 +8007,12 @@
     "IndividualCustomer": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.IndividualCustomerCollection",
+     "target": "api.IndividualCustomerCollection",
      "keys": []
     }
    }
   },
-  "remote.BusinessUserCollection": {
+  "api.BusinessUserCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -8329,7 +8329,7 @@
     "BusinessUserBusinessRoleAssignment": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.BusinessUserBusinessRoleAssignmentCollection",
+     "target": "api.BusinessUserBusinessRoleAssignmentCollection",
      "cardinality": {
       "max": "*"
      },
@@ -8338,7 +8338,7 @@
     "BusinessUserSubscriptionAssignment": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.BusinessUserSubscriptionAssignmentCollection",
+     "target": "api.BusinessUserSubscriptionAssignmentCollection",
      "cardinality": {
       "max": "*"
      },
@@ -8347,12 +8347,12 @@
     "EmployeeBasicData": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.EmployeeBasicDataCollection",
+     "target": "api.EmployeeBasicDataCollection",
      "keys": []
     }
    }
   },
-  "remote.BusinessUserBusinessRoleAssignmentCollection": {
+  "api.BusinessUserBusinessRoleAssignmentCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -8415,7 +8415,7 @@
     }
    }
   },
-  "remote.BusinessUserSubscriptionAssignmentCollection": {
+  "api.BusinessUserSubscriptionAssignmentCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -8503,7 +8503,7 @@
     }
    }
   },
-  "remote.EmployeeBasicDataCollection": {
+  "api.EmployeeBasicDataCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -8891,18 +8891,18 @@
     "BusinessUser": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.BusinessUserCollection",
+     "target": "api.BusinessUserCollection",
      "keys": []
     },
     "ManagerEmployeeBasicData": {
      "@cds.ambiguous": "missing on condition?",
      "type": "cds.Association",
-     "target": "remote.EmployeeBasicDataCollection",
+     "target": "api.EmployeeBasicDataCollection",
      "keys": []
     }
    }
   },
-  "remote.BusinessUserDateFormatCodeCollection": {
+  "api.BusinessUserDateFormatCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -8929,7 +8929,7 @@
     }
    }
   },
-  "remote.BusinessUserDecimalFormatCodeCollection": {
+  "api.BusinessUserDecimalFormatCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -8956,7 +8956,7 @@
     }
    }
   },
-  "remote.BusinessUserLogonLanguageCodeCollection": {
+  "api.BusinessUserLogonLanguageCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -8983,7 +8983,7 @@
     }
    }
   },
-  "remote.BusinessUserPasswordPolicyCodeCollection": {
+  "api.BusinessUserPasswordPolicyCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9010,7 +9010,7 @@
     }
    }
   },
-  "remote.BusinessUserSubscriptionAssignmentUserTypeCodeCollection": {
+  "api.BusinessUserSubscriptionAssignmentUserTypeCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9037,7 +9037,7 @@
     }
    }
   },
-  "remote.BusinessUserTimeFormatCodeCollection": {
+  "api.BusinessUserTimeFormatCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9064,7 +9064,7 @@
     }
    }
   },
-  "remote.BusinessUserTimeZoneCodeCollection": {
+  "api.BusinessUserTimeZoneCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9091,7 +9091,7 @@
     }
    }
   },
-  "remote.BusinessUserUserAccountTypeCodeCollection": {
+  "api.BusinessUserUserAccountTypeCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9118,7 +9118,7 @@
     }
    }
   },
-  "remote.ContactAcademicTitleCodeCollection": {
+  "api.ContactAcademicTitleCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9145,7 +9145,7 @@
     }
    }
   },
-  "remote.ContactAdditionalAcademicTitleCodeCollection": {
+  "api.ContactAdditionalAcademicTitleCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9172,7 +9172,7 @@
     }
    }
   },
-  "remote.ContactAttachmentFolderCategoryCodeCollection": {
+  "api.ContactAttachmentFolderCategoryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9199,7 +9199,7 @@
     }
    }
   },
-  "remote.ContactAttachmentFolderTypeCodeCollection": {
+  "api.ContactAttachmentFolderTypeCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9226,7 +9226,7 @@
     }
    }
   },
-  "remote.ContactBestReachedByCodeCollection": {
+  "api.ContactBestReachedByCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9253,7 +9253,7 @@
     }
    }
   },
-  "remote.ContactBusinessAddressCountryCodeCollection": {
+  "api.ContactBusinessAddressCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9280,7 +9280,7 @@
     }
    }
   },
-  "remote.ContactContactPermissionCodeCollection": {
+  "api.ContactContactPermissionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9307,7 +9307,7 @@
     }
    }
   },
-  "remote.ContactDepartmentCodeCollection": {
+  "api.ContactDepartmentCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9334,7 +9334,7 @@
     }
    }
   },
-  "remote.ContactFunctionCodeCollection": {
+  "api.ContactFunctionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9361,7 +9361,7 @@
     }
    }
   },
-  "remote.ContactGenderCodeCollection": {
+  "api.ContactGenderCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9388,7 +9388,7 @@
     }
    }
   },
-  "remote.ContactInternationalVersionAcademicTitleCodeCollection": {
+  "api.ContactInternationalVersionAcademicTitleCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9415,7 +9415,7 @@
     }
    }
   },
-  "remote.ContactInternationalVersionAdditionalAcademicTitleCodeCollection": {
+  "api.ContactInternationalVersionAdditionalAcademicTitleCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9442,7 +9442,7 @@
     }
    }
   },
-  "remote.ContactInternationalVersionInternationalVersionCodeCollection": {
+  "api.ContactInternationalVersionInternationalVersionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9469,7 +9469,7 @@
     }
    }
   },
-  "remote.ContactInternationalVersionTitleCodeCollection": {
+  "api.ContactInternationalVersionTitleCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9496,7 +9496,7 @@
     }
    }
   },
-  "remote.ContactIsContactPersonForBestReachedByCodeCollection": {
+  "api.ContactIsContactPersonForBestReachedByCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9523,7 +9523,7 @@
     }
    }
   },
-  "remote.ContactIsContactPersonForDepartmentCodeCollection": {
+  "api.ContactIsContactPersonForDepartmentCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9550,7 +9550,7 @@
     }
    }
   },
-  "remote.ContactIsContactPersonForFunctionCodeCollection": {
+  "api.ContactIsContactPersonForFunctionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9577,7 +9577,7 @@
     }
    }
   },
-  "remote.ContactIsContactPersonForVIPReasonCodeCollection": {
+  "api.ContactIsContactPersonForVIPReasonCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9604,7 +9604,7 @@
     }
    }
   },
-  "remote.ContactLanguageCodeCollection": {
+  "api.ContactLanguageCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9631,7 +9631,7 @@
     }
    }
   },
-  "remote.ContactMaritalStatusCodeCollection": {
+  "api.ContactMaritalStatusCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9658,7 +9658,7 @@
     }
    }
   },
-  "remote.ContactNamePrefixCodeCollection": {
+  "api.ContactNamePrefixCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9685,7 +9685,7 @@
     }
    }
   },
-  "remote.ContactPerceptionOfCompanyCodeCollection": {
+  "api.ContactPerceptionOfCompanyCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9712,7 +9712,7 @@
     }
    }
   },
-  "remote.ContactPersonalAddressCountryCodeCollection": {
+  "api.ContactPersonalAddressCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9739,7 +9739,7 @@
     }
    }
   },
-  "remote.ContactPersonalAddressTimeZoneCodeCollection": {
+  "api.ContactPersonalAddressTimeZoneCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9766,7 +9766,7 @@
     }
    }
   },
-  "remote.ContactProfessionCodeCollection": {
+  "api.ContactProfessionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9793,7 +9793,7 @@
     }
    }
   },
-  "remote.ContactStatusCodeCollection": {
+  "api.ContactStatusCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9820,7 +9820,7 @@
     }
    }
   },
-  "remote.ContactTextCollectionLanguageCodeCollection": {
+  "api.ContactTextCollectionLanguageCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9847,7 +9847,7 @@
     }
    }
   },
-  "remote.ContactTitleCodeCollection": {
+  "api.ContactTitleCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9874,7 +9874,7 @@
     }
    }
   },
-  "remote.ContactVIPContactCodeCollection": {
+  "api.ContactVIPContactCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9901,7 +9901,7 @@
     }
    }
   },
-  "remote.CorporateAccountAddressBestReachedByCodeCollection": {
+  "api.CorporateAccountAddressBestReachedByCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9928,7 +9928,7 @@
     }
    }
   },
-  "remote.CorporateAccountAddressCountryCodeCollection": {
+  "api.CorporateAccountAddressCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9955,7 +9955,7 @@
     }
    }
   },
-  "remote.CorporateAccountAddressLanguageCodeCollection": {
+  "api.CorporateAccountAddressLanguageCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -9982,7 +9982,7 @@
     }
    }
   },
-  "remote.CorporateAccountAddressPOBoxDeviatingCountryCodeCollection": {
+  "api.CorporateAccountAddressPOBoxDeviatingCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10009,7 +10009,7 @@
     }
    }
   },
-  "remote.CorporateAccountAddressTimeZoneCodeCollection": {
+  "api.CorporateAccountAddressTimeZoneCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10036,7 +10036,7 @@
     }
    }
   },
-  "remote.CorporateAccountAttachmentFolderCategoryCodeCollection": {
+  "api.CorporateAccountAttachmentFolderCategoryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10063,7 +10063,7 @@
     }
    }
   },
-  "remote.CorporateAccountAttachmentFolderTypeCodeCollection": {
+  "api.CorporateAccountAttachmentFolderTypeCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10090,7 +10090,7 @@
     }
    }
   },
-  "remote.CorporateAccountBestReachedByCodeCollection": {
+  "api.CorporateAccountBestReachedByCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10117,7 +10117,7 @@
     }
    }
   },
-  "remote.CorporateAccountBillingBlockingReasonCodeCollection": {
+  "api.CorporateAccountBillingBlockingReasonCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10144,7 +10144,7 @@
     }
    }
   },
-  "remote.CorporateAccountContactPermissionCodeCollection": {
+  "api.CorporateAccountContactPermissionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10171,7 +10171,7 @@
     }
    }
   },
-  "remote.CorporateAccountCountryCodeCollection": {
+  "api.CorporateAccountCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10198,7 +10198,7 @@
     }
    }
   },
-  "remote.CorporateAccountCustomerABCClassificationCodeCollection": {
+  "api.CorporateAccountCustomerABCClassificationCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10225,7 +10225,7 @@
     }
    }
   },
-  "remote.CorporateAccountDeliveryBlockingReasonCodeCollection": {
+  "api.CorporateAccountDeliveryBlockingReasonCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10252,7 +10252,7 @@
     }
    }
   },
-  "remote.CorporateAccountHasContactPersonBestReachedByCodeCollection": {
+  "api.CorporateAccountHasContactPersonBestReachedByCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10279,7 +10279,7 @@
     }
    }
   },
-  "remote.CorporateAccountHasContactPersonDepartmentCodeCollection": {
+  "api.CorporateAccountHasContactPersonDepartmentCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10306,7 +10306,7 @@
     }
    }
   },
-  "remote.CorporateAccountHasContactPersonFunctionCodeCollection": {
+  "api.CorporateAccountHasContactPersonFunctionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10333,7 +10333,7 @@
     }
    }
   },
-  "remote.CorporateAccountHasContactPersonVIPReasonCodeCollection": {
+  "api.CorporateAccountHasContactPersonVIPReasonCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10360,7 +10360,7 @@
     }
    }
   },
-  "remote.CorporateAccountIdentificationCountryCodeCollection": {
+  "api.CorporateAccountIdentificationCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10387,7 +10387,7 @@
     }
    }
   },
-  "remote.CorporateAccountIdentificationIDTypeCodeCollection": {
+  "api.CorporateAccountIdentificationIDTypeCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10414,7 +10414,7 @@
     }
    }
   },
-  "remote.CorporateAccountInternationalVersionCountryCodeCollection": {
+  "api.CorporateAccountInternationalVersionCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10441,7 +10441,7 @@
     }
    }
   },
-  "remote.CorporateAccountInternationalVersionInternationalVersionCodeCollection": {
+  "api.CorporateAccountInternationalVersionInternationalVersionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10468,7 +10468,7 @@
     }
    }
   },
-  "remote.CorporateAccountInternationalVersionPOBoxDeviatingCountryCodeCollection": {
+  "api.CorporateAccountInternationalVersionPOBoxDeviatingCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10495,7 +10495,7 @@
     }
    }
   },
-  "remote.CorporateAccountInternationalVersionTimeZoneCodeCollection": {
+  "api.CorporateAccountInternationalVersionTimeZoneCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10522,7 +10522,7 @@
     }
    }
   },
-  "remote.CorporateAccountLanguageCodeCollection": {
+  "api.CorporateAccountLanguageCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10549,7 +10549,7 @@
     }
    }
   },
-  "remote.CorporateAccountLegalFormCodeCollection": {
+  "api.CorporateAccountLegalFormCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10576,7 +10576,7 @@
     }
    }
   },
-  "remote.CorporateAccountLifeCycleStatusCodeCollection": {
+  "api.CorporateAccountLifeCycleStatusCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10603,7 +10603,7 @@
     }
    }
   },
-  "remote.CorporateAccountNielsenRegionCodeCollection": {
+  "api.CorporateAccountNielsenRegionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10630,7 +10630,7 @@
     }
    }
   },
-  "remote.CorporateAccountOrderBlockingReasonCodeCollection": {
+  "api.CorporateAccountOrderBlockingReasonCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10657,7 +10657,7 @@
     }
    }
   },
-  "remote.CorporateAccountPOBoxDeviatingCountryCodeCollection": {
+  "api.CorporateAccountPOBoxDeviatingCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10684,7 +10684,7 @@
     }
    }
   },
-  "remote.CorporateAccountRoleCodeCollection": {
+  "api.CorporateAccountRoleCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10711,7 +10711,7 @@
     }
    }
   },
-  "remote.CorporateAccountSalesDataBillingBlockingReasonCodeCollection": {
+  "api.CorporateAccountSalesDataBillingBlockingReasonCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10738,7 +10738,7 @@
     }
    }
   },
-  "remote.CorporateAccountSalesDataCurrencyCodeCollection": {
+  "api.CorporateAccountSalesDataCurrencyCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10765,7 +10765,7 @@
     }
    }
   },
-  "remote.CorporateAccountSalesDataCustomerGroupCodeCollection": {
+  "api.CorporateAccountSalesDataCustomerGroupCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10792,7 +10792,7 @@
     }
    }
   },
-  "remote.CorporateAccountSalesDataDeliveryBlockingReasonCodeCollection": {
+  "api.CorporateAccountSalesDataDeliveryBlockingReasonCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10819,7 +10819,7 @@
     }
    }
   },
-  "remote.CorporateAccountSalesDataDeliveryPriorityCodeCollection": {
+  "api.CorporateAccountSalesDataDeliveryPriorityCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10846,7 +10846,7 @@
     }
    }
   },
-  "remote.CorporateAccountSalesDataDistributionChannelCodeCollection": {
+  "api.CorporateAccountSalesDataDistributionChannelCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10873,7 +10873,7 @@
     }
    }
   },
-  "remote.CorporateAccountSalesDataDivisionCodeCollection": {
+  "api.CorporateAccountSalesDataDivisionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10900,7 +10900,7 @@
     }
    }
   },
-  "remote.CorporateAccountSalesDataIncotermsClassificationCodeCollection": {
+  "api.CorporateAccountSalesDataIncotermsClassificationCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10927,7 +10927,7 @@
     }
    }
   },
-  "remote.CorporateAccountSalesDataOrderBlockingReasonCodeCollection": {
+  "api.CorporateAccountSalesDataOrderBlockingReasonCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10954,7 +10954,7 @@
     }
    }
   },
-  "remote.CorporateAccountSalesDataPaymentTermsCodeCollection": {
+  "api.CorporateAccountSalesDataPaymentTermsCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -10981,7 +10981,7 @@
     }
    }
   },
-  "remote.CorporateAccountSalesDataPriceGroupCodeCollection": {
+  "api.CorporateAccountSalesDataPriceGroupCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11008,7 +11008,7 @@
     }
    }
   },
-  "remote.CorporateAccountSalesDataPriceListCodeCollection": {
+  "api.CorporateAccountSalesDataPriceListCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11035,7 +11035,7 @@
     }
    }
   },
-  "remote.CorporateAccountTaxNumberCountryCodeCollection": {
+  "api.CorporateAccountTaxNumberCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11062,7 +11062,7 @@
     }
    }
   },
-  "remote.CorporateAccountTeamDistributionChannelCodeCollection": {
+  "api.CorporateAccountTeamDistributionChannelCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11089,7 +11089,7 @@
     }
    }
   },
-  "remote.CorporateAccountTeamDivisionCodeCollection": {
+  "api.CorporateAccountTeamDivisionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11116,7 +11116,7 @@
     }
    }
   },
-  "remote.CorporateAccountTeamPartyRoleCodeCollection": {
+  "api.CorporateAccountTeamPartyRoleCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11143,7 +11143,7 @@
     }
    }
   },
-  "remote.CorporateAccountTextCollectionLanguageCodeCollection": {
+  "api.CorporateAccountTextCollectionLanguageCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11170,7 +11170,7 @@
     }
    }
   },
-  "remote.CorporateAccountTimeZoneCodeCollection": {
+  "api.CorporateAccountTimeZoneCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11197,7 +11197,7 @@
     }
    }
   },
-  "remote.CorporateAccountVisitingHoursTimeZoneCodeCollection": {
+  "api.CorporateAccountVisitingHoursTimeZoneCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11224,7 +11224,7 @@
     }
    }
   },
-  "remote.CorporateAccountVisitingHoursWorkingDayCalendarCodeCollection": {
+  "api.CorporateAccountVisitingHoursWorkingDayCalendarCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11251,7 +11251,7 @@
     }
    }
   },
-  "remote.CorporateAccountVisitingInformationDetailsDistributionChannelCodeCollection": {
+  "api.CorporateAccountVisitingInformationDetailsDistributionChannelCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11278,7 +11278,7 @@
     }
    }
   },
-  "remote.CorporateAccountVisitingInformationDetailsDivisionCodeCollection": {
+  "api.CorporateAccountVisitingInformationDetailsDivisionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11305,7 +11305,7 @@
     }
    }
   },
-  "remote.CorporateAccountVisitingInformationDetailsVisitTypeCodeCollection": {
+  "api.CorporateAccountVisitingInformationDetailsVisitTypeCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11332,7 +11332,7 @@
     }
    }
   },
-  "remote.EmployeeBasicDataAcademicTitleCodeCollection": {
+  "api.EmployeeBasicDataAcademicTitleCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11359,7 +11359,7 @@
     }
    }
   },
-  "remote.EmployeeBasicDataCountryCodeCollection": {
+  "api.EmployeeBasicDataCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11386,7 +11386,7 @@
     }
    }
   },
-  "remote.EmployeeBasicDataGenderCodeCollection": {
+  "api.EmployeeBasicDataGenderCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11413,7 +11413,7 @@
     }
    }
   },
-  "remote.EmployeeBasicDataLanguageCodeCollection": {
+  "api.EmployeeBasicDataLanguageCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11440,7 +11440,7 @@
     }
    }
   },
-  "remote.EmployeeBasicDataTimeZoneCodeCollection": {
+  "api.EmployeeBasicDataTimeZoneCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11467,7 +11467,7 @@
     }
    }
   },
-  "remote.EmployeeBasicDataTitleCodeCollection": {
+  "api.EmployeeBasicDataTitleCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11494,7 +11494,7 @@
     }
    }
   },
-  "remote.EmployeeBasicDataUserPasswordPolicyCodeCollection": {
+  "api.EmployeeBasicDataUserPasswordPolicyCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11521,7 +11521,7 @@
     }
    }
   },
-  "remote.IndividualCustomerAcademicTitleCodeCollection": {
+  "api.IndividualCustomerAcademicTitleCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11548,7 +11548,7 @@
     }
    }
   },
-  "remote.IndividualCustomerAddressBestReachedByCodeCollection": {
+  "api.IndividualCustomerAddressBestReachedByCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11575,7 +11575,7 @@
     }
    }
   },
-  "remote.IndividualCustomerAddressCountryCodeCollection": {
+  "api.IndividualCustomerAddressCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11602,7 +11602,7 @@
     }
    }
   },
-  "remote.IndividualCustomerAddressPOBoxDeviatingCountryCodeCollection": {
+  "api.IndividualCustomerAddressPOBoxDeviatingCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11629,7 +11629,7 @@
     }
    }
   },
-  "remote.IndividualCustomerAddressTimeZoneCodeCollection": {
+  "api.IndividualCustomerAddressTimeZoneCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11656,7 +11656,7 @@
     }
    }
   },
-  "remote.IndividualCustomerAttachmentFolderCategoryCodeCollection": {
+  "api.IndividualCustomerAttachmentFolderCategoryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11683,7 +11683,7 @@
     }
    }
   },
-  "remote.IndividualCustomerAttachmentFolderTypeCodeCollection": {
+  "api.IndividualCustomerAttachmentFolderTypeCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11710,7 +11710,7 @@
     }
    }
   },
-  "remote.IndividualCustomerBestReachedByCodeCollection": {
+  "api.IndividualCustomerBestReachedByCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11737,7 +11737,7 @@
     }
    }
   },
-  "remote.IndividualCustomerBillingBlockingReasonCodeCollection": {
+  "api.IndividualCustomerBillingBlockingReasonCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11764,7 +11764,7 @@
     }
    }
   },
-  "remote.IndividualCustomerContactPermissionCodeCollection": {
+  "api.IndividualCustomerContactPermissionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11791,7 +11791,7 @@
     }
    }
   },
-  "remote.IndividualCustomerCountryCodeCollection": {
+  "api.IndividualCustomerCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11818,7 +11818,7 @@
     }
    }
   },
-  "remote.IndividualCustomerCustomerABCClassificationCodeCollection": {
+  "api.IndividualCustomerCustomerABCClassificationCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11845,7 +11845,7 @@
     }
    }
   },
-  "remote.IndividualCustomerDeliveryBlockingReasonCodeCollection": {
+  "api.IndividualCustomerDeliveryBlockingReasonCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11872,7 +11872,7 @@
     }
    }
   },
-  "remote.IndividualCustomerGenderCodeCollection": {
+  "api.IndividualCustomerGenderCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11899,7 +11899,7 @@
     }
    }
   },
-  "remote.IndividualCustomerIdentificationCountryCodeCollection": {
+  "api.IndividualCustomerIdentificationCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11926,7 +11926,7 @@
     }
    }
   },
-  "remote.IndividualCustomerIdentificationIDTypeCodeCollection": {
+  "api.IndividualCustomerIdentificationIDTypeCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11953,7 +11953,7 @@
     }
    }
   },
-  "remote.IndividualCustomerLanguageCodeCollection": {
+  "api.IndividualCustomerLanguageCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -11980,7 +11980,7 @@
     }
    }
   },
-  "remote.IndividualCustomerLifeCycleStatusCodeCollection": {
+  "api.IndividualCustomerLifeCycleStatusCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12007,7 +12007,7 @@
     }
    }
   },
-  "remote.IndividualCustomerMaritalStatusCodeCollection": {
+  "api.IndividualCustomerMaritalStatusCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12034,7 +12034,7 @@
     }
    }
   },
-  "remote.IndividualCustomerNamePrefixCodeCollection": {
+  "api.IndividualCustomerNamePrefixCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12061,7 +12061,7 @@
     }
    }
   },
-  "remote.IndividualCustomerNationalityCountryCodeCollection": {
+  "api.IndividualCustomerNationalityCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12088,7 +12088,7 @@
     }
    }
   },
-  "remote.IndividualCustomerOrderBlockingReasonCodeCollection": {
+  "api.IndividualCustomerOrderBlockingReasonCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12115,7 +12115,7 @@
     }
    }
   },
-  "remote.IndividualCustomerPOBoxDeviatingCountryCodeCollection": {
+  "api.IndividualCustomerPOBoxDeviatingCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12142,7 +12142,7 @@
     }
    }
   },
-  "remote.IndividualCustomerProfessionCodeCollection": {
+  "api.IndividualCustomerProfessionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12169,7 +12169,7 @@
     }
    }
   },
-  "remote.IndividualCustomerRoleCodeCollection": {
+  "api.IndividualCustomerRoleCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12196,7 +12196,7 @@
     }
    }
   },
-  "remote.IndividualCustomerSalesDataBillingBlockingReasonCodeCollection": {
+  "api.IndividualCustomerSalesDataBillingBlockingReasonCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12223,7 +12223,7 @@
     }
    }
   },
-  "remote.IndividualCustomerSalesDataCurrencyCodeCollection": {
+  "api.IndividualCustomerSalesDataCurrencyCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12250,7 +12250,7 @@
     }
    }
   },
-  "remote.IndividualCustomerSalesDataCustomerGroupCodeCollection": {
+  "api.IndividualCustomerSalesDataCustomerGroupCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12277,7 +12277,7 @@
     }
    }
   },
-  "remote.IndividualCustomerSalesDataDeliveryBlockingReasonCodeCollection": {
+  "api.IndividualCustomerSalesDataDeliveryBlockingReasonCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12304,7 +12304,7 @@
     }
    }
   },
-  "remote.IndividualCustomerSalesDataDeliveryPriorityCodeCollection": {
+  "api.IndividualCustomerSalesDataDeliveryPriorityCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12331,7 +12331,7 @@
     }
    }
   },
-  "remote.IndividualCustomerSalesDataDistributionChannelCodeCollection": {
+  "api.IndividualCustomerSalesDataDistributionChannelCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12358,7 +12358,7 @@
     }
    }
   },
-  "remote.IndividualCustomerSalesDataDivisionCodeCollection": {
+  "api.IndividualCustomerSalesDataDivisionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12385,7 +12385,7 @@
     }
    }
   },
-  "remote.IndividualCustomerSalesDataIncotermsClassificationCodeCollection": {
+  "api.IndividualCustomerSalesDataIncotermsClassificationCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12412,7 +12412,7 @@
     }
    }
   },
-  "remote.IndividualCustomerSalesDataOrderBlockingReasonCodeCollection": {
+  "api.IndividualCustomerSalesDataOrderBlockingReasonCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12439,7 +12439,7 @@
     }
    }
   },
-  "remote.IndividualCustomerSalesDataPaymentTermsCodeCollection": {
+  "api.IndividualCustomerSalesDataPaymentTermsCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12466,7 +12466,7 @@
     }
    }
   },
-  "remote.IndividualCustomerSalesDataPriceGroupCodeCollection": {
+  "api.IndividualCustomerSalesDataPriceGroupCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12493,7 +12493,7 @@
     }
    }
   },
-  "remote.IndividualCustomerSalesDataPriceListCodeCollection": {
+  "api.IndividualCustomerSalesDataPriceListCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12520,7 +12520,7 @@
     }
    }
   },
-  "remote.IndividualCustomerTaxJurisdictionCodeCollection": {
+  "api.IndividualCustomerTaxJurisdictionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12547,7 +12547,7 @@
     }
    }
   },
-  "remote.IndividualCustomerTaxNumberCountryCodeCollection": {
+  "api.IndividualCustomerTaxNumberCountryCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12574,7 +12574,7 @@
     }
    }
   },
-  "remote.IndividualCustomerTeamDistributionChannelCodeCollection": {
+  "api.IndividualCustomerTeamDistributionChannelCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12601,7 +12601,7 @@
     }
    }
   },
-  "remote.IndividualCustomerTeamDivisionCodeCollection": {
+  "api.IndividualCustomerTeamDivisionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12628,7 +12628,7 @@
     }
    }
   },
-  "remote.IndividualCustomerTeamPartyRoleCodeCollection": {
+  "api.IndividualCustomerTeamPartyRoleCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12655,7 +12655,7 @@
     }
    }
   },
-  "remote.IndividualCustomerTextCollectionLanguageCodeCollection": {
+  "api.IndividualCustomerTextCollectionLanguageCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12682,7 +12682,7 @@
     }
    }
   },
-  "remote.IndividualCustomerTimeZoneCodeCollection": {
+  "api.IndividualCustomerTimeZoneCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12709,7 +12709,7 @@
     }
    }
   },
-  "remote.IndividualCustomerTitleCodeCollection": {
+  "api.IndividualCustomerTitleCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12736,7 +12736,7 @@
     }
    }
   },
-  "remote.IndividualCustomerVisitingInformationDetailsDistributionChannelCodeCollection": {
+  "api.IndividualCustomerVisitingInformationDetailsDistributionChannelCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12763,7 +12763,7 @@
     }
    }
   },
-  "remote.IndividualCustomerVisitingInformationDetailsDivisionCodeCollection": {
+  "api.IndividualCustomerVisitingInformationDetailsDivisionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12790,7 +12790,7 @@
     }
    }
   },
-  "remote.IndividualCustomerVisitingInformationDetailsVisitTypeCodeCollection": {
+  "api.IndividualCustomerVisitingInformationDetailsVisitTypeCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12817,7 +12817,7 @@
     }
    }
   },
-  "remote.BusinessUserSubscriptionAssignmentUserSubscriptionTypeCodeCollection": {
+  "api.BusinessUserSubscriptionAssignmentUserSubscriptionTypeCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12854,7 +12854,7 @@
     }
    }
   },
-  "remote.ContactBusinessAddressStateCodeCollection": {
+  "api.ContactBusinessAddressStateCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12891,7 +12891,7 @@
     }
    }
   },
-  "remote.ContactPersonalAddressStateCodeCollection": {
+  "api.ContactPersonalAddressStateCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12928,7 +12928,7 @@
     }
    }
   },
-  "remote.CorporateAccountAddressPOBoxDeviatingStateCodeCollection": {
+  "api.CorporateAccountAddressPOBoxDeviatingStateCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -12965,7 +12965,7 @@
     }
    }
   },
-  "remote.CorporateAccountAddressStateCodeCollection": {
+  "api.CorporateAccountAddressStateCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -13002,7 +13002,7 @@
     }
    }
   },
-  "remote.CorporateAccountIdentificationStateCodeCollection": {
+  "api.CorporateAccountIdentificationStateCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -13039,7 +13039,7 @@
     }
    }
   },
-  "remote.CorporateAccountIndustrialSectorCodeCollection": {
+  "api.CorporateAccountIndustrialSectorCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -13076,7 +13076,7 @@
     }
    }
   },
-  "remote.CorporateAccountInternationalVersionPOBoxDeviatingRegionCodeCollection": {
+  "api.CorporateAccountInternationalVersionPOBoxDeviatingRegionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -13113,7 +13113,7 @@
     }
    }
   },
-  "remote.CorporateAccountInternationalVersionStateCodeCollection": {
+  "api.CorporateAccountInternationalVersionStateCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -13150,7 +13150,7 @@
     }
    }
   },
-  "remote.CorporateAccountPOBoxDeviatingRegionCodeCollection": {
+  "api.CorporateAccountPOBoxDeviatingRegionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -13187,7 +13187,7 @@
     }
    }
   },
-  "remote.CorporateAccountStateCodeCollection": {
+  "api.CorporateAccountStateCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -13224,7 +13224,7 @@
     }
    }
   },
-  "remote.CorporateAccountTaxNumberTaxTypeCodeCollection": {
+  "api.CorporateAccountTaxNumberTaxTypeCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -13261,7 +13261,7 @@
     }
    }
   },
-  "remote.EmployeeBasicDataRegionCodeCollection": {
+  "api.EmployeeBasicDataRegionCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -13298,7 +13298,7 @@
     }
    }
   },
-  "remote.IndividualCustomerAddressPOBoxDeviatingStateCodeCollection": {
+  "api.IndividualCustomerAddressPOBoxDeviatingStateCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -13335,7 +13335,7 @@
     }
    }
   },
-  "remote.IndividualCustomerAddressStateCodeCollection": {
+  "api.IndividualCustomerAddressStateCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -13372,7 +13372,7 @@
     }
    }
   },
-  "remote.IndividualCustomerIdentificationStateCodeCollection": {
+  "api.IndividualCustomerIdentificationStateCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -13409,7 +13409,7 @@
     }
    }
   },
-  "remote.IndividualCustomerPOBoxDeviatingStateCodeCollection": {
+  "api.IndividualCustomerPOBoxDeviatingStateCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -13446,7 +13446,7 @@
     }
    }
   },
-  "remote.IndividualCustomerStateCodeCollection": {
+  "api.IndividualCustomerStateCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -13483,7 +13483,7 @@
     }
    }
   },
-  "remote.IndividualCustomerTaxNumberTaxTypeCodeCollection": {
+  "api.IndividualCustomerTaxNumberTaxTypeCodeCollection": {
    "kind": "entity",
    "@cds.external": true,
    "@cds.persistence.skip": true,
@@ -13520,7 +13520,7 @@
     }
    }
   },
-  "remote.ContactQueryByElements": {
+  "api.ContactQueryByElements": {
    "kind": "function",
    "@cds.external": true,
    "params": {
@@ -13611,11 +13611,11 @@
    },
    "returns": {
     "items": {
-     "type": "remote.ContactCollection"
+     "type": "api.ContactCollection"
     }
    }
   },
-  "remote.CorporateAccountQueryByElements": {
+  "api.CorporateAccountQueryByElements": {
    "kind": "function",
    "@cds.external": true,
    "params": {
@@ -13721,11 +13721,11 @@
    },
    "returns": {
     "items": {
-     "type": "remote.CorporateAccountCollection"
+     "type": "api.CorporateAccountCollection"
     }
    }
   },
-  "remote.IndividualCustomerQueryByElements": {
+  "api.IndividualCustomerQueryByElements": {
    "kind": "function",
    "@cds.external": true,
    "params": {
@@ -13813,7 +13813,7 @@
    },
    "returns": {
     "items": {
-     "type": "remote.IndividualCustomerCollection"
+     "type": "api.IndividualCustomerCollection"
     }
    }
   }

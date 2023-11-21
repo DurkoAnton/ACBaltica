@@ -127,7 +127,10 @@
                             "controlConfiguration": {
                                 "ToCustomers/@com.sap.vocabularies.UI.v1.LineItem#Customers": {
                                     "tableSettings": {
-                                        "type": "GridTable"
+                                        "creationMode": {
+                                            "name": "NewPage"
+                                        },
+                                        "type": "ResponsiveTable"
                                     },
                                     "columns": {
                                         "DataField::InternalID": {

@@ -131,6 +131,7 @@
                     "name": "sap.fe.templates.ListReport",
                     "options": {
                         "settings": {
+                            "initialLoad": "Enabled",
                             "entitySet": "Opportunity",
                             "variantManagement": "Page",
                             "navigation": {
@@ -140,46 +141,48 @@
                                     }
                                 }
                             },
-                            "initialLoad": true,
                             "controlConfiguration": {
                                 "@com.sap.vocabularies.UI.v1.LineItem": {
                                     "tableSettings": {
                                         "type": "ResponsiveTable"
                                     },
-                                        "columns": {
-                                            "DataField::InternalID": {
-                                                "width": "auto"
-                                            },
-                                            "DataField::Subject": {
-                                                "width": "auto"
-                                            },
-                                            "DataField::ProspectPartyID": {
-                                                "width": "auto"
-                                            },
-                                            "DataField::ProspectPartyName": {
-                                                "width": "auto"
-                                            },
-                                            "DataField::LifeCycleStatusCode::name": {
-                                                "width": "auto"
-                                            },
-                                            "DataField::MainEmployeeResponsiblePartyID": {
-                                                "width": "auto"
-                                            },
-                                            "DataField::MainEmployeeResponsiblePartyName": {
-                                                "width": "auto"
-                                            },
-                                            "DataField::LastChangeDateTime": {
-                                                "width": "auto"
-                                            },
-                                            "DataField::LastChangedBy": {
-                                                "width": "auto"
-                                            },
-                                            "DataField::CreationDateTime": {
-                                                "width": "auto"
-                                            },
-                                            "DataField::CreatedBy": {
-                                                "width": "auto"
-                                            }
+                                    "columns": {
+                                        "DataField::ProspectPartyName": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::MainEmployeeResponsiblePartyID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::LastChangedBy": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CreatedBy": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::InternalID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Subject": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::ProspectPartyID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::LifeCycleStatusCode::name": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::MainEmployeeResponsiblePartyName": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CustomerComment": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::LastChangeDateTime": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CreationDateTime": {
+                                            "width": "auto"
+                                        }
                                     }
                                 }
                             }
@@ -199,7 +202,7 @@
                             "navigation": {
                                 "Items": {
                                     "detail": {
-                                        "route": "OpportunityItemsObjectPage"
+                                        "route": "Opportunity_ItemsObjectPage"
                                     }
                                 }
                             },

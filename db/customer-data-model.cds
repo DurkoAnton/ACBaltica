@@ -1,7 +1,6 @@
 using sap from '@sap/cds/common';
 using { Country, Currency, cuid } from '@sap/cds/common';
-using {remote as external} from '../srv/external/remote';
-
+using {api as external} from '../srv/external/api';
 
 namespace customer;
 
@@ -12,6 +11,7 @@ entity Customer  : cuid {
 	Status : StatusCode;
 	ResponsibleManager : String @Common.Label : '{i18n>ResponsibleManager}';
 	ResponsibleManagerID : String;
+	ResponsibleManagerEmail : String; // for approval process
 	JuridicalAddress : Address;
 	JuridicalCountry : Country;
 	IndividualCountry : Country;
@@ -22,10 +22,12 @@ entity Customer  : cuid {
 	ToOpportunities: Composition of many Opportunity on ToOpportunities.Customer = $self;
 	ToServiceRequests : Composition of many ServiceRequest on ToServiceRequests.Customer = $self;
 	MainContactID : String;
-}
 
- entity remoteCustomers as projection on external.CorporateAccountCollection {
-        
+	// Postal Address
+	POBox : String;
+	POBoxCountry : Country;
+	POBoxState : String;
+	POBoxCity : String;
 }
 
 entity Bank : cuid {
@@ -60,28 +62,47 @@ entity ValueHelpTable {
 entity Opportunity : cuid{
 	UUID : UUID;
 	ObjectID : String;
-	InternalID : String @readonly;
+	InternalID : String @readonly default '';
 	ProspectPartyID: String;
+	@Common:{
+		SemanticObject : 'Customer',
+		// SemanticObjectMapping: [
+        //      {
+        //          LocalProperty : ProspectPartyID,
+        //          SemanticObjectProperty : 'InternalID',
+        //      },
+		// 	//  {
+        //     //      LocalProperty : Customer_ID,
+        //     //      SemanticObjectProperty : 'ID',
+        //     //  }
+        //  ]
+	}
+		
 	ProspectPartyName: String;
 	Subject: String;
 	LifeCycleStatusCode: Association to OpportunityStatus;
 	LifeCycleStatusText: String;
 	MainEmployeeResponsiblePartyID: String @readonly;
-	MainEmployeeResponsiblePartyName: String;
+	MainEmployeeResponsiblePartyName: String @readonly;
 	CreationDateTime: Date @cds.on.insert : $now;
 	CreatedBy: String;
 	LastChangeDateTime: Date @cds.on.insert : $now  @cds.on.update : $now;
 	LastChangedBy: String;
-	Customer : Association to one Customer;
+	Customer : Association to one Customer /*@Common.SemanticObject : 'Customer'*/;
 	Items : Composition of many Item on Items.toOpportunity = $self;
 	Attachment : Composition of many Attachment on Attachment.Opportunity = $self;
-	NotStandartRequest : Boolean;
+	NotStandartRequest : Boolean default false;
 	MainContactID : String;
+	CustomerComment : String default '';
 }
 entity Item : cuid {
 	OpportunityID : String;
 	toOpportunity : Association to Opportunity;
 	ItemProductID : String; // id cap
+	Quantity : Integer default 1;
+	NetPriceAmount : Decimal @Measures.ISOCurrency : NetPriceCurrency_code @readonly;
+	NetPriceCurrency : Currency @readonly;
+	ObjectID : String;
 	toItemProduct : Association to ItemProduct on toItemProduct.ID = $self.ItemProductID;
 	virtual ProductStatusActiveDefault: Integer default 2;
 }
@@ -89,7 +110,7 @@ entity ItemProduct : cuid {
 	InternalID : String @readonly @Common.Label : '{i18n>InternalID}';
 	ProductCategory : String @readonly @Common.Label : '{i18n>ProductCategory}';
 	ProductStatus : String @readonly @Common.Label : '{i18n>ProductStatus}';
-	ProductStatusDescription : String @readonly;
+	ProductStatusDescription : String @readonly @Common.Label : '{i18n>ProductStatus}';
 	UnitMeasure : String @readonly @Common.Label : '{i18n>UnitMeasure}'; // measure list?
 	OpportunityID : String @readonly;
 	toItem : Association to Item;
@@ -104,6 +125,8 @@ entity SalesPriceList : cuid {
 	AmountCurrencyCode : Currency @readonly;
 	PriceUnitContent : String @Measures.Unit : PriceUnitCode @readonly;
 	PriceUnitCode : String @readonly; //unit code list
+	IsBasePriceList : Boolean;
+	ReleaseStatusCode : String(1);
 }
 entity OpportunityStatus : sap.common.CodeList { 
     key code : String(2);
@@ -133,7 +156,12 @@ entity ServiceRequest : cuid {
 	virtual LifeCycleStatusCodeCompletedDefault: Integer default 4;
 	CustomerFormattedName : String @Common.Label : '{i18n>Customerformattedname}';
 	MainContactID : String;
-	//toProblemsItem : Association to many Item on toProblemsItem.OpportunityID = $self.OrderID;
+
+	// Time intervals
+	RequestInitialDateTime : DateTime;//RequestInitialReceiptdatetimecontent
+	RequestEndDateTime : DateTime;	  //RequestedFulfillmentPeriodEndDateTime
+	ResolutionDateTime : DateTime; 	  //ResolvedOnDateTime
+
 }
 
 type ServiceRequestStatusCode :  Association to ServiceRequestStatusCodes;
@@ -142,7 +170,7 @@ entity ServiceRequestStatusCodes : sap.common.CodeList{
 }
 
 entity CategoryCodes : sap.common.CodeList{
-	key code : String(2);
+	key code : String(2) default '1';
 }
 
 entity Attachment : cuid {
@@ -154,3 +182,5 @@ entity Attachment : cuid {
 	ServiceRequest : Association to ServiceRequest;
 	Opportunity : Association to Opportunity;
 }
+
+//entity RemoteCustomer as select from external.CorporateAccountCollection;

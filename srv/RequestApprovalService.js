@@ -100,7 +100,7 @@ class RequestApprovalService extends cds.ApplicationService {
                             delete body[property];
                         }
                     }
-                    const mail = req.req.headers['x-username'];
+                    const mail = req._.user.id;
                     const context = {
                         objectID : customer.ObjectID,
                         internalID : customer.InternalID,
@@ -109,7 +109,7 @@ class RequestApprovalService extends cds.ApplicationService {
                         old : oldData,
                         new: newData,
                         responsibleContact : mail,
-                        responsibleManager : 'antondurko01gmail.com',//test
+                        responsibleManager : customer.ResponsibleManagerEmail,//test
                         body: body
                     }
                     const workflow = await cds.connect.to('workflowService');

@@ -1,11 +1,12 @@
 using { partner } from '../db/data-model';
 using { customer} from '../db/customer-data-model';
+using {api as external} from './external/api';
 
 service PartnerService @(requires: 'authenticated-user'){
     @Capabilities : {
         InsertRestrictions.Insertable : true,
         UpdateRestrictions.Updatable  : true,
-        DeleteRestrictions.Deletable  : true
+        DeleteRestrictions.Deletable  : false
     }
     entity PartnerProfile as projection on partner.partnerProfile
     actions{
@@ -16,6 +17,11 @@ service PartnerService @(requires: 'authenticated-user'){
         }  
         action updateAllFieldsFromRemote() returns PartnerProfile;
     }
+    //  @Capabilities : {
+    //     InsertRestrictions.Insertable : true,
+    //     UpdateRestrictions.Updatable  : true,
+    //     DeleteRestrictions.Deletable  : true
+    // }
     entity Customer as projection on customer.Customer;
   entity Item as select from customer.Item 
   { *, toItemProduct.InternalID as ProductInternalID, toItemProduct.ProductCategory as ProductCategory, toItemProduct.ProductStatusDescription as ProductStatus };
@@ -44,6 +50,12 @@ service PartnerService @(requires: 'authenticated-user'){
   entity StatusCodes as projection on customer.StatusCodes;
   entity ServiceRequestStatusCode as projection on customer.ServiceRequestStatusCodes;
   entity CategoryCodes as projection on customer.CategoryCodes;
+
+  //remote Objects
+  entity RemoteCustomer as projection on external.CorporateAccountCollection;
+  entity RemoteContact as projection on external.ContactCollection;
+  //entity RemoteContactIsPersonFor as projection on external.ContactIsContactPersonForCollection;
+  entity RemoteOwnerEmployee as projection on external.EmployeeBasicDataCollection;
 }
 
 annotate PartnerService.PartnerProfile with @odata.draft.enabled;
