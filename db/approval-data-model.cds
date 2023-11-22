@@ -1,3 +1,4 @@
+using sap from '@sap/cds/common';
 using { managed, cuid, Country } from '@sap/cds/common';
 using  customer from './customer-data-model';
 
@@ -7,6 +8,8 @@ entity RequestApproval : cuid {
     CustomerID : UUID;
     Customer : Association to one customer.Customer on Customer.ID = $self.CustomerID;
     MainContactID : String;
+	CreationDateTime: Timestamp @cds.on.insert : $now @Common.Label : '{i18n>CreationDateTime}';
+    Status : RequestApprovalStatusCode;
     
     currentData : CustomerDataSet;
     currentStatusCode : Association to customer.StatusCodes;
@@ -15,6 +18,11 @@ entity RequestApproval : cuid {
     newStatusCode : Association to customer.StatusCodes;
     newCountry : Country;
     
+}
+
+type RequestApprovalStatusCode :  Association to RequestApprovalStatusCodes;
+entity RequestApprovalStatusCodes : sap.common.CodeList{
+	key code : String(2) default '1';
 }
 
 type CustomerDataSet {

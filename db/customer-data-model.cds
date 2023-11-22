@@ -181,7 +181,7 @@ entity Attachment : cuid {
 	url       : String;
 	ServiceRequest : Association to ServiceRequest;
 	Opportunity : Association to Opportunity;
-	CreationDateTime: Date @cds.on.insert : $now @Common.Label : '{i18n>CreationDateTime}';
+	CreationDateTime: Timestamp @cds.on.insert : $now @Common.Label : '{i18n>CreationDateTime}';
 }
 
 //entity RemoteCustomer as select from external.CorporateAccountCollection;
