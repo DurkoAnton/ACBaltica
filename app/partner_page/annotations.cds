@@ -103,12 +103,11 @@ annotate service.Customer with @(
             ID    : 'ServiceRequests',
             Target: 'ToServiceRequests/@UI.LineItem#ServiceRequests',
         },
-
-        {
-            $Type : 'UI.ReferenceFacet',
-            Label : 'Bank Information',
-            Target: 'BankData/@UI.LineItem#Banks'
-        }
+        // {
+        //     $Type : 'UI.ReferenceFacet',
+        //     Label : 'Bank Information',
+        //     Target: 'BankData/@UI.LineItem#Banks'
+        // }
     ],
 
 );
@@ -507,7 +506,7 @@ annotate service.Customer with @(UI.FieldGroup #AddressInformationPostal: {
          {
             $Type: 'UI.DataField',
             Label: 'Postal Region',
-            Value: POBoxState,
+            Value: POBoxState_code,
             ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
 
         },
@@ -977,7 +976,7 @@ annotate service.Customer with @(UI.SelectionFields: [
     InternalID,
     Status_code,
     ResponsibleManager,
-    JuridicalAddress_Region_descr,
+    //JuridicalAddress_Region_name,
     JuridicalAddress_Country_code,
 ]);
 
@@ -1111,18 +1110,25 @@ annotate service.ItemProduct with {
     });
 };
 
-annotate service.Item @(Common: {SideEffects #toItemProductChanged: {
-    SourceProperties: ['ItemProductID'],
-    TargetEntities  : [
-        toItemProduct,
-        toItemProduct.SalesPriceLists
-    ]
-}});
-annotate service.Attachement @(Common: {SideEffects #content: {
-    SourceProperties: ['content'],
-    TargetProperties  : ['mediaType']
-}});
-
+// annotate service.Item @(Common: {SideEffects #toItemProductChanged: {
+//     SourceProperties: ['ItemProductID'],
+//     TargetEntities  : [
+//         toItemProduct,
+//         toItemProduct.SalesPriceLists
+//     ]
+// }});
+// annotate service.Attachement @(Common: {SideEffects #content: {
+//     SourceProperties: ['content'],
+//     TargetProperties  : ['mediaType']
+// }});
+// annotate service.PartnerProfile @(Common: {SideEffects #code: {
+//     SourceProperties: ['Region/code'],
+//     TargetEntities : [Region]
+// }});
+// annotate service.PartnerProfile @(Common: {SideEffects #region: {
+//     SourceProperties: [Region.code],
+//     TargetProperties  : [Region.name]
+// }});
 annotate service.PartnerProfile with @(
     UI.Facets                       : [
         {
@@ -1215,7 +1221,7 @@ annotate service.PartnerProfile with @(
             },
             {
                 $Type: 'UI.DataField',
-                Value: Region,
+                Value: Region_code,
                 Label: 'Region',
             },
             {
@@ -1437,14 +1443,39 @@ annotate service.PartnerProfile with {
                     ValueListProperty: 'code',
                     LocalDataProperty: Country_code
                 },
+                // {
+                //     $Type            : 'Common.ValueListParameterOut',
+                //     ValueListProperty: 'name',
+                //     LocalDataProperty: CountryDescription
+                // },
+            ]
+        }
+    });
+    Region @(Common: {
+        Text                    : RegionDescription,
+        TextArrangement         : #TextLast,
+        ValueListWithFixedValues: true,
+        ValueList               : {
+            CollectionPath: 'RegionCode',
+            Parameters    : [
+                {
+                    $Type            : 'Common.ValueListParameterInOut',
+                    ValueListProperty: 'code',
+                    LocalDataProperty: Region_code
+                },
                 {
                     $Type            : 'Common.ValueListParameterOut',
                     ValueListProperty: 'name',
-                    LocalDataProperty: CountryDescription
+                    LocalDataProperty: RegionDescription
                 },
+                // {
+                //     $Type            : 'Common.ValueListParameterDisplayOnly',
+                //     ValueListProperty: 'name',
+                // },
             ]
         }
-    })
+    });
+    Email @readonly;
 };
 
 annotate service.PartnerProfile with {
@@ -1465,14 +1496,20 @@ annotate service.PartnerProfile with {
                     ValueListProperty: 'name',
                     LocalDataProperty: StatusDescription
                 },
-                // {
-                //     $Type            : 'Common.ValueListParameterDisplayOnly',
-                //     ValueListProperty: 'name'
-                // },
             ]
         }
-    })
+    });
+    Region @readonly;
+    PostalCode @readonly;
+    Country @readonly; 
+    City @readonly;
+    Street @readonly;
+    HouseNumber @readonly;
 };
+
+// annotate service.StatusCodes with{
+//     code @UI.Hidden;
+// } 
 
 annotate service.PartnerProfile with @(UI.Identification: [{
     $Type : 'UI.DataFieldForAction',
@@ -1556,21 +1593,21 @@ annotate service.Opportunity with {
         TextArrangement: #TextLast
     };
 };
-// annotate service.Customer with {
-//     ResponsibleManager @Common:{
-//         Text:ResponsibleManagerID,
-//         TextArrangement : #TextLast,
-//     } @readonly;
-//     ResponsibleManagerID @UI.Hidden: true @readonly;
-//     CustomerFormattedName @readonly;
-//     Status @readonly;
-//     JuridicalCountry @readonly;
-//     JuridicalAddress @readonly;
-//     Note @readonly;
-//     // JuridicalAddress_City @readonly;
-//     // JuridicalAddress_Street @readonly;
+annotate service.Customer with {
+    ResponsibleManager @Common:{
+        Text:ResponsibleManagerID,
+        TextArrangement : #TextLast,
+    } @readonly;
+    ResponsibleManagerID @UI.Hidden: true @readonly;
+    CustomerFormattedName @readonly;
+    Status @readonly;
+    JuridicalCountry @readonly;
+    JuridicalAddress @readonly;
+    Note @readonly;
+    // JuridicalAddress_City @readonly;
+    // JuridicalAddress_Street @readonly;
 
-// };
+};
 annotate service.Item with {
     // ID @Common:{
     //     Text: ProductInternalID,

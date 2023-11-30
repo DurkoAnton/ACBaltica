@@ -1,0 +1,2627 @@
+{
+ "meta": {
+  "creator": "cds-dk 7.3.2"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "interaction": {
+   "kind": "service",
+   "@cds.external": true,
+   "@m.IsDefaultEntityContainer": "true"
+  },
+  "interaction.ServiceRequestInteractionTicketCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "ETag": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ID": {
+     "type": "cds.String",
+     "length": 35,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "EntityLastChangedOn": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ServiceRequestLifeCycleStatusCode": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ServiceRequestUserLifeCycleStatusCode": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ServiceRequestInteractionInteractions": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionInteractionsCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "ServiceRequestInteractionOngoingInteraction": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOngoingInteractionCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionInteractionsCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "ETag": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ID": {
+     "type": "cds.String",
+     "length": 35,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "InformationSensitivityCode": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "InitiatingActivityUUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "InitiatorCode": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "LifeCycleStatusCode": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "PredecessorActivityUUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "PriorityCode": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ProcessingTypeCode": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ReportedDateTime": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ReportedDate": {
+     "type": "cds.Date",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false",
+     "@sap.display.format": "Date"
+    },
+    "ScheduledStartDate": {
+     "type": "cds.Date",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false",
+     "@sap.display.format": "Date"
+    },
+    "SocialMediaActivityProviderUUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ScheduledEndDate": {
+     "type": "cds.Date",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false",
+     "@sap.display.format": "Date"
+    },
+    "ScheduledEndDateTime": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ScheduledStartDateTime": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "TransmittedDate": {
+     "type": "cds.Date",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false",
+     "@sap.display.format": "Date"
+    },
+    "TransmittedDateTime": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "TypeCode": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "FromEmailURI": {
+     "type": "cds.String",
+     "length": 254,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "FromPartyID": {
+     "type": "cds.String",
+     "length": 60,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "FromPartyName": {
+     "type": "cds.String",
+     "length": 255,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "SubjectName": {
+     "type": "cds.String",
+     "length": 765,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "GroupCode": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "DataOriginTypeCode": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "CreationDate": {
+     "type": "cds.Date",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false",
+     "@sap.display.format": "Date"
+    },
+    "CreationDateTime": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "CreationIdentityUUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "LastChangeDateTime": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "LastChangeIdentityUUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "IsDraft": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "NumberOfAttachments": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "PhoneCallExternalID": {
+     "type": "cds.String",
+     "length": 35,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "IsMemoEditableForUser": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "IsSubjectSetByML": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "EntityLastChangedOn": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "Text": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "FromPartyUUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "FirstRepliedDateTime": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ActivitySentimentTypeCode": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "InteractionInternalComment": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ServiceRequestInteractionTextCollection": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionTextCollectionCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "ServiceRequestInteractionAttachment": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionAttachmentCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "ServiceRequestInteractionToParty": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionToPartyCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "ServiceRequestInteractionEMailCC": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionEMailCCCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "ServiceRequestInteractionParty": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionPartyCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "ServiceRequestInteractionEMailBCC": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionEMailBCCCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "ServiceRequestInteractionAttachmentHeader": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionAttachmentHeaderCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "ServiceRequestInteractionOriginalContent": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOriginalContentCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionToPartyCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "ParentObjectID": {
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ETag": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "EmailURI": {
+     "type": "cds.String",
+     "length": 254,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "PartyID": {
+     "type": "cds.String",
+     "length": 60,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "PartyName": {
+     "type": "cds.String",
+     "length": 255,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "PartyUUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "RoleCategoryCode": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "TypeCode": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ServiceRequestInteractionInteractions": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionInteractionsCollection",
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionEMailCCCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "ParentObjectID": {
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ETag": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "EmailURI": {
+     "type": "cds.String",
+     "length": 254,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "PartyID": {
+     "type": "cds.String",
+     "length": 60,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "PartyName": {
+     "type": "cds.String",
+     "length": 255,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "PartyUUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "RoleCategoryCode": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ServiceRequestInteractionInteractions": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionInteractionsCollection",
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionAttachmentCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "true",
+   "@sap.updatable": "false",
+   "@sap.deletable": "true",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "ParentObjectID": {
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ETag": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "UUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Name": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "MimeType": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "Binary": {
+     "type": "cds.LargeBinary",
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "SizeInkB": {
+     "type": "cds.Decimal",
+     "precision": 31,
+     "scale": 14,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "DocumentLink": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "OutputRelevanceIndicator": {
+     "type": "cds.Boolean",
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "LinkWebURI": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "TypeCode": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "CategoryCode": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "CreatedOn": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTime",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "CreatedBy": {
+     "type": "cds.String",
+     "length": 80,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "LastUpdatedOn": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTime",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "LastUpdatedBy": {
+     "type": "cds.String",
+     "length": 80,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "Title": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionAttachmentHeaderCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "ParentObjectID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "DocumentUUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "TypeCode": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "MIMECode": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "Name": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ServiceRequestInteractionInteractions": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionInteractionsCollection",
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionPartyCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "ParentObjectID": {
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ETag": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "PartyName": {
+     "type": "cds.String",
+     "length": 255,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "PartyID": {
+     "type": "cds.String",
+     "length": 60,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "RoleCode": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "RoleCategoryCode": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "PartyUUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "EmailURI": {
+     "type": "cds.String",
+     "length": 254,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "FormattedPhoneNumberDescription": {
+     "type": "cds.String",
+     "length": 350,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "BupaRoleCode": {
+     "type": "cds.String",
+     "length": 6,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ServiceRequestInteractionInteractions": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionInteractionsCollection",
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOriginalContentCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "ParentObjectID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "BodyContent": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ContentType": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ServiceRequestInteractionInteractions": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionInteractionsCollection",
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionTextCollectionCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "true",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "ParentObjectID": {
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ETag": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "FormattedText": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "true",
+     "@sap.updatable": "true",
+     "@sap.filterable": "true"
+    },
+    "Text": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "true",
+     "@sap.updatable": "true",
+     "@sap.filterable": "true"
+    },
+    "TypeCode": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ServiceRequestInteractionInteractions": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionInteractionsCollection",
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionEMailBCCCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "ParentObjectID": {
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ETag": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "EmailURI": {
+     "type": "cds.String",
+     "length": 254,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "PartyID": {
+     "type": "cds.String",
+     "length": 60,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "PartyName": {
+     "type": "cds.String",
+     "length": 255,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "PartyUUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "RoleCategoryCode": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "ServiceRequestInteractionInteractions": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionInteractionsCollection",
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingInteractionCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "ETag": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ServiceRequestID": {
+     "type": "cds.String",
+     "length": 35,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ServiceRequestUUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "Subject": {
+     "type": "cds.String",
+     "length": 765,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "TransmissionStatus": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "TypeCode": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "EntityLastChangedOn": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "NumberOfAttachments": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "CreationDateTime": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "CreationIdentityUUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "LastChangeIdentityUUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "FromEmailURI": {
+     "type": "cds.String",
+     "length": 254,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ServiceRequestInteractionOngoingToParty": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOngoingToPartyCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "ServiceRequestInteractionOngoingEmailCC": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOngoingEmailCCCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "ServiceRequestInteractionOngoingEmailBCC": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOngoingEmailBCCCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "ServiceRequestInteractionOngoingParty": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOngoingPartyCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "ServiceRequestInteractionOngoingAttachmentFolder": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOngoingAttachmentFolderCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "ServiceRequestInteractionOngoingAttachmentHeader": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOngoingAttachmentHeaderCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "ServiceRequestInteractionOngoingOriginalContent": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOngoingOriginalContentCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "ServiceRequestInteractionOngoingErrorLog": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOngoingErrorLogCollection",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingToPartyCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "ParentObjectID": {
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ETag": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "RoleCategoryCode": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.creatable": "false",
+     "@sap.updatable": "true",
+     "@sap.filterable": "false"
+    },
+    "EmailURI": {
+     "type": "cds.String",
+     "length": 254,
+     "@sap.creatable": "false",
+     "@sap.updatable": "true",
+     "@sap.filterable": "false"
+    },
+    "ServiceRequestInteractionOngoingInteraction": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOngoingInteractionCollection",
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingEmailCCCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "ParentObjectID": {
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ETag": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "RoleCategoryCode": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.creatable": "false",
+     "@sap.updatable": "true",
+     "@sap.filterable": "false"
+    },
+    "EmailURI": {
+     "type": "cds.String",
+     "length": 254,
+     "@sap.creatable": "false",
+     "@sap.updatable": "true",
+     "@sap.filterable": "false"
+    },
+    "ServiceRequestInteractionOngoingInteraction": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOngoingInteractionCollection",
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingEmailBCCCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "ParentObjectID": {
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ETag": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "EmailURI": {
+     "type": "cds.String",
+     "length": 254,
+     "@sap.creatable": "false",
+     "@sap.updatable": "true",
+     "@sap.filterable": "false"
+    },
+    "RoleCategoryCode": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.creatable": "false",
+     "@sap.updatable": "true",
+     "@sap.filterable": "false"
+    },
+    "ServiceRequestInteractionOngoingInteraction": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOngoingInteractionCollection",
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingPartyCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "ParentObjectID": {
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ETag": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "EmailURI": {
+     "type": "cds.String",
+     "length": 254,
+     "@sap.creatable": "true",
+     "@sap.updatable": "true",
+     "@sap.filterable": "false"
+    },
+    "RoleCategoryCode": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.creatable": "true",
+     "@sap.updatable": "true",
+     "@sap.filterable": "false"
+    },
+    "ServiceRequestInteractionOngoingInteraction": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOngoingInteractionCollection",
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingAttachmentFolderCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "true",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "ParentObjectID": {
+     "type": "cds.String",
+     "length": 70,
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "ETag": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTimeOffset",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "UUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Name": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "MimeType": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "Binary": {
+     "type": "cds.LargeBinary",
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "SizeInkB": {
+     "type": "cds.Decimal",
+     "precision": 31,
+     "scale": 14,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "DocumentLink": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "OutputRelevanceIndicator": {
+     "type": "cds.Boolean",
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "LinkWebURI": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "TypeCode": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "CategoryCode": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "CreatedOn": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTime",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "CreatedBy": {
+     "type": "cds.String",
+     "length": 80,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "LastUpdatedOn": {
+     "type": "cds.Timestamp",
+     "@odata.Type": "Edm.DateTime",
+     "@odata.Precision": 7,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "LastUpdatedBy": {
+     "type": "cds.String",
+     "length": 80,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    },
+    "Title": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "true",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true"
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingAttachmentHeaderCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "ParentObjectID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "DocumentUUID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "TypeCode": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "MIMECode": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "Name": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ServiceRequestInteractionOngoingInteraction": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOngoingInteractionCollection",
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingOriginalContentCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "ParentObjectID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "BodyContent": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ServiceRequestInteractionOngoingInteraction": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOngoingInteractionCollection",
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingErrorLogCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "elements": {
+    "ObjectID": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "ParentObjectID": {
+     "type": "cds.UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ErrorText": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "false"
+    },
+    "ServiceRequestInteractionOngoingInteraction": {
+     "@cds.ambiguous": "missing on condition?",
+     "type": "cds.Association",
+     "target": "interaction.ServiceRequestInteractionOngoingInteractionCollection",
+     "keys": []
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionAttachmentCategoryCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionAttachmentHeaderMIMECodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionAttachmentHeaderTypeCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionEMailBCCRoleCategoryCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionEMailCCRoleCategoryCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionInteractionsActivitySentimentTypeCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionInteractionsDataOriginTypeCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionInteractionsInformationSensitivityCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionInteractionsInitiatorCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionInteractionsLifeCycleStatusCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionInteractionsPriorityCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionInteractionsProcessingTypeCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionInteractionsTypeCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingAttachmentHeaderMIMECodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingAttachmentHeaderTypeCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingEmailBCCRoleCategoryCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingEmailCCRoleCategoryCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingIntAttachmentFolderCategoryCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingInteractionTransmissionStatusCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingInteractionTypeCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingPartyRoleCategoryCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingToPartyRoleCategoryCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionPartyBupaRoleCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionPartyRoleCategoryCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionPartyRoleCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionTicketServiceRequestLifeCycleStatusCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionTicketServiceRequestUserLifeCycleStatusCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionToPartyRoleCategoryCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionToPartyTypeCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionAttachmentTypeCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Context": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionInteractionsGroupCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Context": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionOngoingIntAttachmentFolderTypeCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Context": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  },
+  "interaction.ServiceRequestInteractionTextCollectionTypeCodeCollection": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.semantics": "fixed-values",
+   "elements": {
+    "Context": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Code": {
+     "key": true,
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    },
+    "Description": {
+     "type": "cds.LargeString",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.filterable": "true",
+     "notNull": true
+    }
+   }
+  }
+ }
+}

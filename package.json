@@ -98,7 +98,7 @@
         "csrfInBatch": true,
         "credentials": {
           "url": "https://my307374.crm.ondemand.com/sap/c4c/odata/v1/c4codataapi",
-          "username": "DPROKOPENKO_WEB",
+          "username": "_BTP USER",
           "password": "Password123"
         }
       },
@@ -109,7 +109,29 @@
         "csrfInBatch": true,
         "credentials": {
           "url": "https://my307374.crm.ondemand.com/sap/c4c/odata/v1/c4codataapi",
-          "username": "DPROKOPENKO_WEB",
+          "username": "_BTP USER",
+          "password": "Password123"
+        }
+      },
+      "ticket": {
+        "kind": "odata-v2",
+        "model": "srv/external/ticket",
+        "csrf": true,
+        "csrfInBatch": true,
+        "credentials": {
+          "url": "https://my307374.crm.ondemand.com/sap/c4c/odata/v1/c4codataapi",
+          "username": "_BTP USER",
+          "password": "Password123"
+        }
+      },
+      "interaction": {
+        "kind": "odata-v2",
+        "model": "srv/external/interaction",
+        "csrf": true,
+        "csrfInBatch": true,
+        "credentials": {
+          "url": "https://my307374.crm.ondemand.com/sap/c4c/odata/v1/servicerequestinteraction",
+          "username": "_BTP USER",
           "password": "Password123"
         }
       }

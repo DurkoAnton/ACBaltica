@@ -136,8 +136,8 @@ async function deleteOpportunityInstances(opportunitiesFromRemote, opportunities
     }
 }
 
-async function deleteServiceRequestInstances(c4cResponse, serviceRequestsFromDB, ServiceRequest) {
-    const serviceRequestsFromRemote = c4cResponse.data.d.results;
+async function deleteServiceRequestInstances(serviceRequestsFromRemote, serviceRequestsFromDB, ServiceRequest) {
+    //const serviceRequestsFromRemote = c4cResponse.data.d.results;
 
     const serviceRequestsToBeDeleted = serviceRequestsFromDB.filter(obj1 => !serviceRequestsFromRemote.some(obj2 => obj2.UUID === obj1.UUID) && obj1.UUID != null);
     if (serviceRequestsToBeDeleted.length) {

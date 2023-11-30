@@ -39,13 +39,7 @@
                     },
                     "icon": ".sap-icon--wrench"
                 }
-                
-            },  "outbounds": {
-				"toApp2": {
-					"semanticObject": "Customer",
-					"action": "display"
-				}
-			}
+            }
         }
     },
     "sap.ui": {
@@ -127,11 +121,11 @@
                             "entitySet": "RequestApproval",
                             "variantManagement": "Page",
                             "navigation": {
-                                "RequestApproval": {                                  
-                                    "detail": {                                      
-                                        "outbound": "toApp2" 
+                                "RequestApproval": {
+                                    "detail": {
+                                        "route": "RequestApprovalObjectPage"
                                     }
-                                }  
+                                }
                             },
                             "controlConfiguration": {
                                 "@com.sap.vocabularies.UI.v1.LineItem": {
@@ -149,6 +143,15 @@
                                             "width": "auto"
                                         },
                                         "DataField::currentData_CustomerFormattedName": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CreationDateTime": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Status_code": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::currentData_ResponsibleManager": {
                                             "width": "auto"
                                         }
                                     }

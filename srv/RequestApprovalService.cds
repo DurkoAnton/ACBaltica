@@ -21,7 +21,7 @@ service RequestApprovalService @(requires: 'authenticated-user') {
             $Type         : 'Common.SideEffectsType',
             TargetEntities: ['_it/Status']
         }
-        action reject()                 returns RequestApproval;
+        action rejectApproval()         returns RequestApproval;
     };
 
     entity RequestApprovalStatusCodes as projection on approval.RequestApprovalStatusCodes;

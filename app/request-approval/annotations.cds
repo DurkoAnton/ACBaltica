@@ -3,13 +3,28 @@ using RequestApprovalService as service from '../../srv/RequestApprovalService';
 annotate service.RequestApproval with @(UI.LineItem: [
     {
         $Type: 'UI.DataField',
-        Label: 'CustomerID',
+        Label: 'Customer',
         Value: Customer.InternalID,
     },
+    // {
+    //     $Type: 'UI.DataField',
+    //     Label: 'Customer',
+    //     Value: currentData_CustomerFormattedName,
+    // },
     {
         $Type: 'UI.DataField',
-        Label: 'Customer',
-        Value: currentData_CustomerFormattedName,
+        Label: 'Status',
+        Value: Status_code,
+    },
+     {
+                $Type: 'UI.DataField',
+                Label: 'Responsible manager',
+                Value: currentData_ResponsibleManager,
+    },
+     {
+        $Type: 'UI.DataField',
+        Label: 'Created At',
+        Value: CreationDateTime,
     },
 ]);
 
@@ -24,12 +39,12 @@ annotate service.RequestApproval with @(
         {
             $Type : 'UI.CollectionFacet',
             ID    : 'CompareData',
-            Label : 'Old/New General Information',
+            Label : 'General Information',
             Facets: [
 
                 {
                     $Type                   : 'UI.ReferenceFacet',
-                    Label                   : 'Old Data',
+                    Label                   : 'Current Data',
                     ID                      : 'OldData',
                     Target                  : '@UI.FieldGroup#OldData',
                     ![@Common.FieldControl] : #ReadOnly,
@@ -46,11 +61,11 @@ annotate service.RequestApproval with @(
         {
             $Type : 'UI.CollectionFacet',
             ID    : 'CompareJurAddressData',
-            Label : 'Old/New Address Information',
+            Label : 'Juridical Address Information',
             Facets: [
                 {
                     $Type : 'UI.ReferenceFacet',
-                    Label : 'Old Address Data',
+                    Label : 'Current Address Data',
                     ID    : 'OldJurAddressData',
                     Target: '@UI.FieldGroup#OldJurAddressData',
 
@@ -60,6 +75,25 @@ annotate service.RequestApproval with @(
                     Label : 'New Address Data',
                     ID    : 'NewJurAddressData',
                     Target: '@UI.FieldGroup#NewJurAddressData',
+                },
+            ]
+        },
+        {
+            $Type : 'UI.CollectionFacet',
+            ID    : 'ComparePostalAddressData',
+            Label : 'Postal Address Information',
+            Facets: [
+                {
+                    $Type : 'UI.ReferenceFacet',
+                    Label : 'Current Postal Address Data',
+                    ID    : 'OldPostalAddressData',
+                    Target: '@UI.FieldGroup#OldPostalAddressData',
+                },
+                {
+                    $Type : 'UI.ReferenceFacet',
+                    Label : 'New Postal Address Data',
+                    ID    : 'NewPostalAddressData',
+                    Target: '@UI.FieldGroup#NewPostalAddressData',
                 },
             ]
         },
@@ -75,12 +109,12 @@ annotate service.RequestApproval with @(
                 Value                   : currentData_CustomerFormattedName,
                 ![@Common.FieldControl] : #ReadOnly,
             },
-            {
-                $Type                   : 'UI.DataField',
-                Label                   : 'Responsible Manager',
-                Value                   : currentData_ResponsibleManager,
-                ![@Common.FieldControl] : #ReadOnly,
-            },
+            // {
+            //     $Type                   : 'UI.DataField',
+            //     Label                   : 'Responsible Manager',
+            //     Value                   : currentData_ResponsibleManager,
+            //     ![@Common.FieldControl] : #ReadOnly,
+            // },
             {
                 $Type                   : 'UI.DataField',
                 Label                   : 'Status',
@@ -130,6 +164,35 @@ annotate service.RequestApproval with @(
             },
         ]
     },
+    UI.FieldGroup #OldPostalAddressData: {
+        $Type: 'UI.FieldGroupType',
+        Data : [
+            {
+                $Type: 'UI.DataField',
+                Label: 'Postal Box',
+                Value: currentData_POBox,
+                ![@Common.FieldControl] : #ReadOnly,
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'Postal Country',
+                Value: currentPOBoxCountry_code,
+                ![@Common.FieldControl] : #ReadOnly,
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'Postal Region',
+                Value: currentData_POBoxState,
+                ![@Common.FieldControl] : #ReadOnly,
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'Postal City',
+                Value: currentData_POBoxCity,
+                ![@Common.FieldControl] : #ReadOnly,
+            },
+        ]
+    },
     UI.FieldGroup #NewJurAddressData: {
         $Type: 'UI.FieldGroupType',
         Data : [
@@ -165,7 +228,35 @@ annotate service.RequestApproval with @(
             },
         ]
     },
-
+    UI.FieldGroup #NewPostalAddressData: {
+        $Type: 'UI.FieldGroupType',
+        Data : [
+            {
+                $Type: 'UI.DataField',
+                Label: 'Postal Box',
+                Value: newData_POBox,
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'Status_code'}, '1' ]}, 3, 1 ]}},
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'Postal Country',
+                Value: newPOBoxCountry_code,
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'Status_code'}, '1' ]}, 3, 1 ]}},
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'Postal Region',
+                Value: newData_POBoxState,
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'Status_code'}, '1' ]}, 3, 1 ]}},
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'Postal City',
+                Value: newData_POBoxCity,
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'Status_code'}, '1' ]}, 3, 1 ]}},
+            },
+        ]
+    },
     UI.FieldGroup #NewData          : {
         $Type: 'UI.FieldGroupType',
         Data : [
@@ -175,12 +266,12 @@ annotate service.RequestApproval with @(
                 Value: newData_CustomerFormattedName,
                 ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'Status_code'}, '1' ]}, 3, 1 ]}},
             },
-            {
-                $Type: 'UI.DataField',
-                Label: 'Responsible Manager',
-                Value: newData_ResponsibleManager,
-                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'Status_code'}, '1' ]}, 3, 1 ]}},
-            },
+            // {
+            //     $Type: 'UI.DataField',
+            //     Label: 'Responsible Manager',
+            //     Value: newData_ResponsibleManager,
+            //     ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'Status_code'}, '1' ]}, 3, 1 ]}},
+            // },
             {
                 $Type: 'UI.DataField',
                 Label: 'Status',
@@ -191,7 +282,7 @@ annotate service.RequestApproval with @(
                 $Type                   : 'UI.DataField',
                 Label                   : 'Note',
                 Value                   : newData_Note,
-                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'Status_code'}, '1' ]}, 7, 1 ]}},
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'Status_code'}, '1' ]}, 3, 1 ]}},
             },
         ]
     },
@@ -213,12 +304,20 @@ annotate service.RequestApproval with @(
             },
             {
                 $Type: 'UI.DataField',
-                Value: CreationDateTime,
+                Label: 'Responsible manager',
+                Value: currentData_ResponsibleManager,
+                ![@Common.FieldControl] : #ReadOnly,
             },
             {
                 $Type: 'UI.DataField',
+                Label: 'Status',
                 Value: Status_code,
-            }
+            },
+            {
+                $Type: 'UI.DataField',
+                Value: CreationDateTime,
+            },
+            
         ],
     },
 );
@@ -250,11 +349,6 @@ annotate service.RequestApproval with {
                     ValueListProperty: 'Note',
                     LocalDataProperty: currentData_Note
                 },
-                // {
-                //     $Type            : 'Common.ValueListParameterOut',
-                //     ValueListProperty: 'Status/name',
-                //     LocalDataProperty: currentStatusDescription
-                // },
                 {
                     $Type            : 'Common.ValueListParameterOut',
                     ValueListProperty: 'Status_code',
@@ -265,11 +359,6 @@ annotate service.RequestApproval with {
                     ValueListProperty: 'JuridicalCountry_code',
                     LocalDataProperty: currentCountry_code
                 },
-                //  {
-                //     $Type            : 'Common.ValueListParameterOut',
-                //     ValueListProperty: 'JuridicalCountry/name',
-                //     LocalDataProperty: currentCountryDescription
-                // },
                 {
                     $Type            : 'Common.ValueListParameterOut',
                     ValueListProperty: 'JuridicalAddress_City',
@@ -290,6 +379,27 @@ annotate service.RequestApproval with {
                     ValueListProperty: 'JuridicalAddress_RoomID',
                     LocalDataProperty: currentData_JuridicalRoomID
                 },
+                {
+                    $Type            : 'Common.ValueListParameterOut',
+                    ValueListProperty: 'POBox',
+                    LocalDataProperty: currentData_POBox
+                },
+                {
+                    $Type            : 'Common.ValueListParameterOut',
+                    ValueListProperty: 'POBoxCity',
+                    LocalDataProperty: currentData_POBoxCity
+                },
+                {
+                    $Type            : 'Common.ValueListParameterOut',
+                    ValueListProperty: 'POBoxState_code',
+                    LocalDataProperty: currentData_POBoxState
+                },
+                {
+                    $Type            : 'Common.ValueListParameterOut',
+                    ValueListProperty: 'POBoxCountry_code',
+                    LocalDataProperty: currentPOBoxCountry_code
+                },
+                
                 //copy to new values
                 {
                     $Type            : 'Common.ValueListParameterOut',
@@ -306,11 +416,6 @@ annotate service.RequestApproval with {
                     ValueListProperty: 'Note',
                     LocalDataProperty: newData_Note
                 },
-                // {
-                //     $Type            : 'Common.ValueListParameterOut',
-                //     ValueListProperty: 'Status/name',
-                //     LocalDataProperty: newStatusDescription
-                // },
                 {
                     $Type            : 'Common.ValueListParameterOut',
                     ValueListProperty: 'Status_code',
@@ -341,6 +446,31 @@ annotate service.RequestApproval with {
                     ValueListProperty: 'JuridicalAddress_RoomID',
                     LocalDataProperty: newData_JuridicalRoomID
                 },
+                {
+                    $Type            : 'Common.ValueListParameterOut',
+                    ValueListProperty: 'ObjectID',
+                    LocalDataProperty: CustomerObjectID
+                },
+                {
+                    $Type            : 'Common.ValueListParameterOut',
+                    ValueListProperty: 'POBox',
+                    LocalDataProperty: newData_POBox
+                },
+                {
+                    $Type            : 'Common.ValueListParameterOut',
+                    ValueListProperty: 'POBoxCity',
+                    LocalDataProperty: newData_POBoxCity
+                },
+                {
+                    $Type            : 'Common.ValueListParameterOut',
+                    ValueListProperty: 'POBoxState_code',
+                    LocalDataProperty: newData_POBoxState
+                },
+                {
+                    $Type            : 'Common.ValueListParameterOut',
+                    ValueListProperty: 'POBoxCountry_code',
+                    LocalDataProperty: newPOBoxCountry_code
+                },
             ]
         }
     });
@@ -351,6 +481,7 @@ annotate service.RequestApproval with {
     newCountry        @(Common: {
         Text           : newCountry.name,
         TextArrangement: #TextLast,
+        ValueListWithFixedValues : true,
         ValueList      : {
             CollectionPath: 'Countries',
             Parameters    : [
@@ -408,8 +539,24 @@ annotate service.RequestApproval with {
             ]
         }
     });
-
+    currentPOBoxCountry@(Common: {
+        Text                    : newPOBoxCountry.name,
+        TextArrangement         : #TextLast,
+        ValueListWithFixedValues: true,
+    }); 
+    newPOBoxCountry@(Common: {
+        Text                    : newPOBoxCountry.name,
+        TextArrangement         : #TextLast,
+        ValueListWithFixedValues: true,
+    }); 
 };
+
+// annotate service.Customer with {
+//   InternalID @Common:{
+//     Text : CustomerFormattedName,
+//     TextArrangement : #TextFirst
+//   }
+// };
 
 // annotate service.ServiceRequest @(Common: {SideEffects #CustomerChanged: {
 //     SourceProperties: ['CustomerID'],
@@ -423,17 +570,13 @@ annotate service.RequestApproval with @(UI.Identification: [
     {
         $Type : 'UI.DataFieldForAction',
         Action: 'RequestApprovalService.sendRequestForApproval',
-        Label : 'Send Approval Request'
+        Label : 'Send Approval Request',
+        ![@UI.Hidden] : {$edmJson : {$Ne : [{$Path : 'Status_code'},'1']}}
     },
     {
-        $Type : 'UI.DataFieldForAction',
+        $Type: 'UI.DataFieldForAction',
         Action: 'RequestApprovalService.approve',
-        Label : 'Approve'
-    },
-    {
-        $Type : 'UI.DataFieldForAction',
-        Action : 'RequestApprovalService.reject',
-        Label : 'Reject'
+        Label: 'approve'
     }
 ]);
 
@@ -449,5 +592,26 @@ annotate service.RequestApproval with @(UI.HeaderInfo: {
 annotate service.RequestApproval with @(UI.SelectionFields: [CustomerID, ]);
 
 annotate service.RequestApproval with {
-    CustomerID @Common.Label: '{i18n>CustomerID}'
+    CustomerID @Common.Label: '{i18n>CustomerID}';
+    newData { 
+        Note @mandatory;
+    }; 
+};
+
+annotate service.RequestApproval with {
+    CustomerID @Common:{
+        SemanticObject : 'Customer',
+         SemanticObjectMapping : [
+            {
+                $Type : 'Common.SemanticObjectMappingType',
+                LocalProperty : 'ID',
+                SemanticObjectProperty : 'none',
+            },
+           {
+                $Type : 'Common.SemanticObjectMappingType',
+                LocalProperty : 'Status_code',
+                SemanticObjectProperty : 'none',
+            },
+        ], 
+    }
 };

@@ -10,10 +10,14 @@ class CustomerService extends cds.ApplicationService {
     async init() {
 
         const { Customer, Opportunity, ServiceRequest, Attachement, Item, ItemProduct, SalesPriceList,
-                RemoteCustomer, RemoteContact, RemoteOpportunity } = this.entities;
+                RemoteCustomer, RemoteContact, RemoteOpportunity, RemoteServiceRequest, ServiceRequestInteraction,
+                RemoteInteraction} = this.entities;
 
         const remoteC4CAPI = await cds.connect.to('api');
         const remoteOpptAPI = await cds.connect.to('opportunity');
+        const remoteTicketAPI = await cds.connect.to('ticket');
+        const remoteAPI = await cds.connect.to('interaction');
+
 
         async function _createCustomerInstances(corporateAccounts, customersFromDB) {
 
@@ -111,11 +115,11 @@ class CustomerService extends cds.ApplicationService {
             });
         }
 
-        async function _createServiceRequestInstances(c4cResponse, customerUUID, serviceRequestsFromDB) {
-            const serviceRequests = c4cResponse.data.d.results;
+        async function _createServiceRequestInstances(serviceRequests, customerUUID, serviceRequestsFromDB) {
+           // const serviceRequests = c4cResponse.data.d.results;
             serviceRequests.forEach(async item => {
                 if (serviceRequestsFromDB.filter(n => n.UUID == item.UUID).length == 0) {
-                    const attachmentFolder = item.ServiceRequestAttachmentFolder[0];
+                    const attachmentFolder = item.ServiceRequestAttachmentFolder;
                     let serviceRequest = {
                         UUID: item.UUID,
                         ObjectID: item.ObjectID,
@@ -124,45 +128,41 @@ class CustomerService extends cds.ApplicationService {
                         InternalID: item.ID,
                         Status_code: item.ServiceRequestLifeCycleStatusCode,
                         Processor: item.ProcessorPartyName,
-                        RequestProcessingTime: item.RequestInProcessdatetimeContent,
-                        OrderID: item.SalesOrderID,
-                        ProblemDescription: item.Name,
+                        //RequestProcessingTime: item.RequestInProcessdatetimeContent,
+                        //OrderID: item.SalesOrderID,
+                        Subject :  item.Name,
+                        CreationDate : item.CreationDateTime,
+                        LastChangingDate : item.LastChangeDateTime,
                         Customer_ID: customerUUID,
                         MainContactID: item.BuyerMainContactPartyID,
+                        RequestInitialDateTime : item.RequestInitialReceiptdatetimecontent,
+                        RequestEndDateTime : item.RequestedFulfillmentPeriodEndDateTime,
+                        Attachment :[]
+                    }
+                    if (item.ResolvedOnDateTime != ''){ // check for valid date time value
+                        serviceRequest.ResolutionDateTime = item.ResolvedOnDateTime;
+                    }
+                    if (item.ServiceIssueCategoryID != ''){
+                        serviceRequest.Category_code = item.ServiceIssueCategoryID.replace('ZA_','');
                     }
                     let attachment;
-                    if (attachmentFolder) {
-                        let str = attachmentFolder.Binary;
+                    attachmentFolder.forEach(attachmentInst => {
+                        let str = attachmentInst.Binary;
                         let content = Buffer.from(str, 'base64').toString();
                         let buffer = Buffer.from(content, 'utf-8');
                         attachment = {
                             content: buffer,
-                            fileName: attachmentFolder.Name,
-                            url: attachmentFolder.DocumentLink,
+                            fileName: attachmentInst.Name,
+                            url: attachmentInst.DocumentLink,
                             mediaType: 'text/plain'
                         }
+                        serviceRequest.Attachment.push(attachment)
+                    });
+                    const text = item.ServiceRequestTextCollection[0];
+                    if (text){
+                        serviceRequest.ProblemDescription = text.Text;
                     }
-                    // format date
-                    var milliSeconds = item.CreationDateTime.substring(item.CreationDateTime.indexOf('(') + 1, item.CreationDateTime.indexOf(')'))
-                    var date = new Date(1970, 0, 1, 0, 0, 0, Number(milliSeconds));
-
-                    let year = date.getFullYear();
-                    let month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed, so add 1 and pad with '0' if necessary
-                    let day = String(date.getDate()).padStart(2, '0'); // Pad day with '0' if necessary
-                    serviceRequest.CreationDate = `${year}-${month}-${day}`;
-
-                    milliSeconds = item.LastChangeDateTime.substring(item.LastChangeDateTime.indexOf('(') + 1, item.LastChangeDateTime.indexOf(')'))
-                    date = new Date(1970, 0, 1, 0, 0, 0, Number(milliSeconds));
-                    year = date.getFullYear();
-                    month = String(date.getMonth() + 1).padStart(2, '0');
-                    day = String(date.getDate()).padStart(2, '0');
-
-                    serviceRequest.LastChangingDate = `${year}-${month}-${day}`;
-                    const requestResult = await INSERT(serviceRequest).into(ServiceRequest);
-                    if (attachment && requestResult.affectedRows > 0) {
-                        attachment.ServiceRequest_ID = requestResult.results[0].values[13]; // link attachment and SR   values[13]-id
-                        await INSERT(attachment).into(Attachement);
-                    }
+                    await INSERT(serviceRequest).into(ServiceRequest);
                 }
             });
         }
@@ -172,7 +172,8 @@ class CustomerService extends cds.ApplicationService {
             const path = req._path;
             // stop calling api when showing help value lists
             // on list req._queryOptions.$top == 30
-            if (path == 'Customer' && req._queryOptions && req._queryOptions.$top && req._queryOptions.$top == '30') {
+            const customersEditing = path.includes('IsActiveEntity=false'); // fetch customer from remote only for reading page not editing
+            if (path == 'Customer' && !customersEditing && req._queryOptions && req._queryOptions.$top && req._queryOptions.$top == '30') {
                 const customersFromDB = await SELECT.from(Customer);
                 if (!req.req) return; // get all Customers only for List Report
                 var email = req._.user.id;
@@ -183,7 +184,7 @@ class CustomerService extends cds.ApplicationService {
                         person('ContactID'),
                         person.CorporateAccount(account => {
                             account('BusinessPartnerFormattedName'),
-                            account('AccountID')
+                            account('AccountID'),
                             account('LifeCycleStatusCode'),
                             account('UUID')
                             account('ObjectID')
@@ -198,75 +199,14 @@ class CustomerService extends cds.ApplicationService {
                 await _createCustomerInstances(customers[0].ContactIsContactPersonFor, customersFromDB);
                 await deleteCustomerInstances(customers[0].ContactID, customers[0].ContactIsContactPersonFor, customersFromDB, Customer);
                 
-                // const start2 = new Date().getTime();
-                // const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${email}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
-                // try {
-                //     const createRequestParameters = {
-                //         method: 'GET',
-                //         url: path,
-                //         headers: { 'content-type': 'application/json' }
-                //     }
-                //     const c4cResponse = await sendRequestToC4C(createRequestParameters);
-                //     const end2 = new Date().getTime();
-                    
-                //     const contactInst = c4cResponse.data.d.results[0];
-                //     await _createCustomerInstances(contactInst.ContactIsContactPersonFor, customersFromDB);
-                //     await deleteCustomerInstances(contactInst.ContactID, contactInst.ContactIsContactPersonFor, customersFromDB, Customer);
-                //     console.log(`delta: ${end2 - start2}ms`);
-                // }
-                // catch (error) {
-                //     req.reject({
-                //         message: error.message
-                //     });
-                // }
-
                 if (req._path == 'Customer' && req._.event == 'READ') { // read only for general list
-                    //var email = req._.user.id;
                     const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
                     if (partner) {
                         req.query.where({ 'MainContactID': partner.CODE });
                     }
                 }
             }
-             //update object page header data
-            else if (path != 'Customer' && path.endsWith(')') && req._.event != 'draftPrepare'){
-               const customerID = req._path.substring(12, 48);
-               const customerPage = await SELECT.one.from(Customer,customerID).columns(root=>{root('ObjectID'),root('ID')});
-               if (customerPage){
-                    const customerInstance = await remoteC4CAPI.run(SELECT.one.from(RemoteCustomer).columns(root=>{
-                        root('*'),
-                        root.OwnerEmployeeBasicData(owner=>{owner('FormattedName'),owner('Email')}),
-                        root.CorporateAccountTextCollection(text=>text('Text'))
-                    }).where({ObjectID: customerPage.ObjectID}));
-                    const owner = customerInstance.OwnerEmployeeBasicData;
-                    const note = customerInstance.CorporateAccountTextCollection[0];
-                    let customer = {
-                        CustomerFormattedName: customerInstance.Name,
-                        Status_code: customerInstance.LifeCycleStatusCode,
-
-                        JuridicalAddress_City: customerInstance.City,
-                        JuridicalCountry_code: customerInstance.CountryCode,
-                        JuridicalAddress_Street: customerInstance.Street,
-                        JuridicalAddress_HomeID: customerInstance.HouseNumber,
-                        JuridicalAddress_RoomID: customerInstance.Room,
-
-                        POBox : customerInstance.POBox,
-                        POBoxCountry_code : customerInstance.POBoxDeviatingCountryCode,
-                        POBoxState : customerInstance.POBoxDeviatingRegionCodeText,
-                        POBoxCity : customerInstance.POBoxDeviatingCity
-                        
-                    }
-                    if (owner != undefined) {
-                        customer.ResponsiblemanagerID = customerInstance.OwnerID;
-                        customer.ResponsibleManager = owner.FormattedName;
-                        customer.ResponsibleManagerEmail = owner.Email;
-                    }
-                    if (note != undefined) {
-                        customer.Note = note.Text;
-                    }
-                    await UPDATE(Customer, customerPage.ID).with(customer);
-                }
-            }
+            
         })
 
         this.after('READ', 'ServiceRequest', each => {
@@ -278,16 +218,18 @@ class CustomerService extends cds.ApplicationService {
         this.before('READ', 'ServiceRequest', async (req) => {
 
             // OWL SR Read - > get all SRs   
-            if (req._path.startsWith('Customer') && req._path.endsWith('ToServiceRequests') && req.event == 'READ') {
+            const path = req._path;
+            const editing = path.includes('IsActiveEntity=false'); // fetch from remote only for reading page not editing
+            if (path.startsWith('Customer') && path.endsWith('ToServiceRequests') && !editing && req.event == 'READ' && req._ && req._._queryOptions && req._._queryOptions.$top) {
                 // const serviceRequestsFromDB = await SELECT.from(ServiceRequest);
                 let customerUUID = req._path.substring(12, 48);
                 var customerInternalID;
                 var serviceRequestsFromDB;
                 if (customerUUID) {
                     
-                    customerFromDB = await SELECT.from(Customer).where({ ID: customerUUID });
-                    if (customerFromDB[0] != undefined) {
-                        customerInternalID = customerFromDB[0].InternalID;
+                    customerFromDB = await SELECT.one.from(Customer).columns('InternalID').where({ ID: customerUUID });
+                    if (customerFromDB != undefined) {
+                        customerInternalID = customerFromDB.InternalID;
                     }
                     serviceRequestsFromDB = await SELECT.from(ServiceRequest).where({ Customer_ID: customerUUID });
                 }
@@ -295,24 +237,35 @@ class CustomerService extends cds.ApplicationService {
                 if (customerInternalID) {
                     var customerFromDB;
 
-                    const path = `/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection?$filter=BuyerPartyID eq '${customerInternalID}'&$expand=ServiceRequestAttachmentFolder`;
-                    try {
-                        const createRequestParameters = {
-                            method: 'get',
-                            url: path,
-                            headers: {
-                                'content-type': 'application/json'
-                            }
-                        }
+                    const ex = cds.parse.expr(`BuyerPartyID = '${customerInternalID}'`);
+                    const serviceRequests = await remoteTicketAPI.run(SELECT.from(RemoteServiceRequest).columns(root=>{
+                        root('*'),
+                        root.ServiceRequestTextCollection(text=>text('*')),
+                        root.ServiceRequestAttachmentFolder(attachment =>attachment('*'))
+                    }).where(ex));
 
-                        const c4cResponse = await sendRequestToC4C(createRequestParameters);
-                        await _createServiceRequestInstances(c4cResponse, customerUUID, serviceRequestsFromDB);
-                        await deleteServiceRequestInstances(c4cResponse, serviceRequestsFromDB, ServiceRequest)
-                    }
-                    catch (error) {
-                        req.reject({
-                            message: error.message
-                        });
+                    await _createServiceRequestInstances(serviceRequests, customerUUID, serviceRequestsFromDB);
+                    await deleteServiceRequestInstances(serviceRequests, serviceRequestsFromDB, ServiceRequest)
+                }
+            } else if(path.startsWith('Customer') && path.includes('ToServiceRequests') && path.endsWith(')') && req.event == 'READ'){
+                //update status from remote when 
+                const servicePath = path.substring(path.indexOf('ToServiceRequests'));
+                const serviceEditing = servicePath.includes('IsActiveEntity=false');
+                if (!serviceEditing){ // only for viewing
+                    const serviceInst = await SELECT.one.from(ServiceRequest, req.data.ID);
+                    if (serviceInst && serviceInst.ObjectID){
+                        const serviceRequest= await remoteTicketAPI.run(SELECT.one.from(RemoteServiceRequest).columns(root=>{
+                            root('ServiceRequestLifeCycleStatusCode'),root('ResolvedOnDateTime')
+                        }).where({ObjectID: serviceInst.ObjectID}));
+                        if (serviceRequest){
+                            let refreshBody = {
+                                Status_code : serviceRequest.ServiceRequestLifeCycleStatusCode
+                            }
+                            if (serviceRequest.ResolvedOnDateTime != ''){
+                                refreshBody.ResolutionDateTime = serviceRequest.ResolvedOnDateTime;
+                            }
+                            await UPDATE(ServiceRequest, req.data.ID).with(refreshBody)
+                        }
                     }
                 }
             }
@@ -320,10 +273,12 @@ class CustomerService extends cds.ApplicationService {
 
         this.before('READ', 'Opportunity', async (req) => {
 
-            if (req._path.startsWith('Customer') && req._path.endsWith('ToOpportunities') && req.event == 'READ' && req._ && req._._queryOptions && req._._queryOptions.$top) {
+            const path = req._path;
+            const editing = path.includes('IsActiveEntity=false'); // fetch from remote only for reading page not editing
+            if (path.startsWith('Customer') && path.endsWith('ToOpportunities') && !editing && req.event == 'READ' && req._ && req._._queryOptions && req._._queryOptions.$top) {
 
                 let opportunitiesFromDB = [];
-                const parentId = req._path.substring(12, 48);
+                const parentId = path.substring(12, 48);
                 if (parentId) {
                     opportunitiesFromDB = await SELECT.from(Opportunity).where({ Customer_ID: parentId });
                 }
@@ -365,6 +320,21 @@ class CustomerService extends cds.ApplicationService {
                     //         message: error.message
                     //     });
                     // }
+                }
+            } else if(path.startsWith('Customer') && path.includes('ToOpportunities') && path.endsWith(')') && req.event == 'READ'){
+                //update status from remote when 
+                const opptPath = path.substring(path.indexOf('ToOpportunities'));
+                const opptEditing = opptPath.includes('IsActiveEntity=false');
+                if (!opptEditing){ // only for viewing
+                   const opptInst = await SELECT.one.from(Opportunity, req.data.ID);
+                   if (opptInst && opptInst.ObjectID){
+                        const opportunity= await remoteOpptAPI.run(SELECT.one.from(RemoteOpportunity).columns(root=>{
+                            root('LifeCycleStatusCode'), root('LifeCycleStatusCodeText')
+                        }).where({ObjectID: opptInst.ObjectID}));
+                        if (opportunity){
+                            await UPDATE(Opportunity, req.data.ID).with({LifeCycleStatusCode_code : opportunity.LifeCycleStatusCode})
+                        }
+                   }
                 }
             }
         })
@@ -431,10 +401,15 @@ class CustomerService extends cds.ApplicationService {
                 req.data.CustomerID = customerDB.InternalID;
                 req.data.CustomerFormattedName = customerDB.CustomerFormattedName;
                 req.data.Customer_ID = customerDB.ID;
+                req.data.Category_code = '2';
+                req.data.ProcessorID = customerDB.ResponsibleManagerID;
+                req.data.Processor = customerDB.ResponsibleManager;
+                req.data.RequestInitialDateTime = new Date().toString();
+                req.data.RequestEndDateTime = new Date().toString();
             }
-            const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email:  email });
+            const partner = await SELECT.one.from("Partner_PartnerProfile").columns('Code').where({ Email:  email });
             if (partner) {
-                req.data.MainContactID = partner.CODE;
+                req.data.MainContactID = partner.Code;
             }
         })
 
@@ -446,11 +421,27 @@ class CustomerService extends cds.ApplicationService {
                 req.data.MainContactID = partner.CODE;
             }
         })
+
+        this.before('CANCEL', 'Opportunity', async (req) => {
+            const id = req.data.ID;
+            const opportunity = await SELECT.one.from(Opportunity, id);
+            if(opportunity.ObjectID){
+                await remoteOpptAPI.run(DELETE.from(RemoteOpportunity).where({ObjectID:opportunity.ObjectID}));
+            }
+        });
+
+        this.before('CANCEL', 'ServiceRequest', async (req) => {
+            const id = req.data.ID;
+            const serviceRequest = await SELECT.one.from(ServiceRequest, id);
+            if(serviceRequest.ObjectID){
+                await remoteTicketAPI.run(DELETE.from(RemoteServiceRequest).where({ObjectID:serviceRequest.ObjectID}));
+            }
+        });
         
         this.after('SAVE', 'Customer', async (req) => {
             //create new Opportunities in remote
             const newOpports = req.ToOpportunities.filter(n => n.UUID == null)
-            newOpports.forEach(async item => {
+            for(let item of newOpports) {
                 let requestBody = {
                     Name: item.Subject,
                     ProspectPartyID: item.ProspectPartyID,
@@ -458,6 +449,9 @@ class CustomerService extends cds.ApplicationService {
                     CustomerComment_SDK : item.CustomerComment,
                     NotStandartRequest_SDK : item.NotStandartRequest,
                     PrimaryContactPartyID : req.MainContactID
+                }
+                if (req.ResponsibleManagerID){
+                    requestBody.MainEmployeeResponsiblePartyID = req.ResponsibleManagerID;
                 }
                 // add products
                 const products = [];
@@ -491,14 +485,12 @@ class CustomerService extends cds.ApplicationService {
                     const createdOppt = await sendRequestToC4C(createRequestParameters);
                     if (createdOppt && createdOppt.data && createdOppt.data.d && createdOppt.data.d.results) {
                         const createdData = createdOppt.data.d.results;
-                        //const r = await UPDATE(Customer, req.ID).with({Status_code:'1'});
-                        await UPDATE(Opportunity,item.ID )
+                        await UPDATE(Opportunity, item.ID)
                             .with({
                                 UUID: createdData.UUID,
                                 ObjectID: createdData.ObjectID,
-                                MainEmployeeResponsiblePartyName: createdData.MainEmployeeResponsiblePartyName,
+                                //MainEmployeeResponsiblePartyName: createdData.MainEmployeeResponsiblePartyName,
                                 InternalID: createdData.ID
-
                             });
 
                         if (item.Attachment && item.Attachment.length !== 0) {
@@ -515,16 +507,15 @@ class CustomerService extends cds.ApplicationService {
                                 const ObjectID = attachmentsInResponse[i].ObjectID;
                                 await UPDATE(Attachement, attachmentInDB.ID).set({ ObjectID: ObjectID });
                             }
-                            //return req.reply(req)
                         }
                     }
                 } catch (e) {
                     console.log(e)
                 }
-            })
-            // create new Service Requests in remote
+            }
+           // create new Service Requests in remote
             const newTickets = req.ToServiceRequests.filter(n => n.UUID == null);
-            newTickets.forEach(async item => {
+           for(let item of newTickets) {
                 let customer;
                 const customerID = item.Customer_ID;
                 let internalBuyerID;
@@ -536,10 +527,23 @@ class CustomerService extends cds.ApplicationService {
                 }
 
                 let body = {
-                    Name: item.ProblemDescription,
-                    BuyerPartyID: internalBuyerID,
-                    ServiceRequestUserLifeCycleStatusCode: item.Status_code
-                   
+                    Name: item.Subject,
+                    ServiceRequestUserLifeCycleStatusCode: item.Status_code,
+                    ServiceIssueCategoryID : 'ZA_' + item.Category_code,
+                    RequestInitialReceiptdatetimecontent : item.RequestInitialDateTime,
+                    RequestedFulfillmentPeriodEndDateTime : item.RequestEndDateTime,
+                    BuyerMainContactPartyID : customer[0].MainContactID
+                    //ProcessorPartyID : item.ProcessorID,
+                    //ServiceRequestTextCollection : [{Text:item.ProblemDescription}]
+                }
+                if (internalBuyerID){
+                    body.BuyerPartyID = internalBuyerID;
+                }
+                if (item.ProcessorID){
+                    body.ProcessorPartyID = item.ProcessorID;
+                }
+                if (item.ProblemDescription){
+                    body.ServiceRequestTextCollection = [{Text:item.ProblemDescription}];
                 }
                 // link selected Opportunity
                 await linkSelectedOpportunity(item, Opportunity, body);
@@ -550,6 +554,7 @@ class CustomerService extends cds.ApplicationService {
                     const itemInstance = await SELECT.one.from(Item).where({ ID: item.ProblemItem });
                     products.push({ ProductID: itemInstance.ProductInternalID });
                     body.ServiceRequestItem = { results: products };
+                    body.ProductID = itemInstance.ProductInternalID;
                 }
 
                 if (item.Attachment && item.Attachment.length !== 0) {
@@ -564,20 +569,22 @@ class CustomerService extends cds.ApplicationService {
                     data: body,
                     headers: { 'content-type': 'application/json' }
                 }
-                const c4cResponse = await sendRequestToC4C(createRequestParameters);
+               
+                const c4cResponse = await sendRequestToC4C(createRequestParameters);                
                 // Update UUID
-                if (c4cResponse.status == '201' && c4cResponse.data.d.results != undefined) {
+                 if (c4cResponse.status == '201' && c4cResponse.data.d.results != undefined) {
+                   
                     const data = c4cResponse.data.d.results;
                     const objectID = data.ObjectID;
                     const UUID = data.UUID;
-                    if (objectID && UUID) {
+
+                     if (objectID && UUID) {
+
                         await UPDATE(ServiceRequest, item.ID).with({
                             UUID: UUID,
                             ObjectID: objectID,
                             InternalID: data.ID,
-                            Processor: data.ProcessorPartyName
                         });
-                        //return this.read('ServiceRequest');
                     }
                     if (item.Attachment && item.Attachment.length !== 0) {
                         createRequestParameters = {
@@ -595,9 +602,9 @@ class CustomerService extends cds.ApplicationService {
                         }
                     }
                 }
-            });
+            }
 
-            const customerData = req;
+           const customerData = req;
            await createNewCustomerInRemote(customerData, Customer, req);
 
         });
@@ -740,7 +747,6 @@ class CustomerService extends cds.ApplicationService {
             const toOpportunitiesString = "ToOpportunities(ID=";
             const opportunitiesStart = inputString.indexOf(toOpportunitiesString);
 
-
             if (serviceRequestsStart !== -1) {
                 const startIndex = serviceRequestsStart + toServiceRequestsString.length
                 const serviceRequestID = inputString.substring(startIndex, startIndex + 36);
@@ -770,10 +776,48 @@ class CustomerService extends cds.ApplicationService {
                         Status_code: serviceRequestResponse.ServiceRequestLifeCycleStatusCode,
                         LastChangingDate: formattedDate,
                         Processor: serviceRequestResponse.ProcessorPartyName,
-                        RequestProcessingTime: serviceRequestResponse.RequestInProcessdatetimeContent,
-                        OrderID: serviceRequestResponse.SalesOrderID,
-                        ProblemDescription: serviceRequestResponse.Name,
+                        Subject: serviceRequestResponse.Name,
                         MainContactID: serviceRequestResponse.BuyerMainContactPartyID,
+                        RequestInitialDateTime : serviceRequestResponse.RequestInitialReceiptdatetimecontent,
+                        RequestEndDateTime : serviceRequestResponse.RequestedFulfillmentPeriodEndDateTime,
+                    }
+                    if (serviceRequestResponse.ResolvedOnDateTime != ''){ // check for valid date time value
+                        serviceRequest.ResolutionDateTime = serviceRequestResponse.ResolvedOnDateTime;
+                    }
+                    if (serviceRequestResponse.ServiceRequestTextCollection[0]){
+                        serviceRequest.ProblemDescription = serviceRequestResponse.ServiceRequestTextCollection[0].Text;
+                    }
+
+                     //fetch interactions
+                    await DELETE(ServiceRequestInteraction).where({ServiceRequest_ID : serviceRequestID});
+                    const interactions = await remoteAPI.run(SELECT.from(RemoteInteraction).columns(root=>{
+                        root('*'),
+                        root.ServiceRequestInteractionInteractions(interaction => {
+                            interaction('*'),
+                            interaction.ServiceRequestInteractionToParty(party => party('*'))
+                        })
+                    }).where({ID : obj.InternalID}));
+
+                    for(let item of interactions[0].ServiceRequestInteractionInteractions){
+                        let newInteraction = {
+                            InternalID : item.ID,
+                            Sender : item.FromPartyName + '('+item.FromPartyID + ')',
+                            Text : item.Text,
+                            CreationDateTime : item.CreationDateTime,
+                            Subject : item.SubjectName,
+                            ServiceRequest_ID : serviceRequestID
+                        }
+                        const toParty = item.ServiceRequestInteractionToParty[0];
+                        if (toParty){
+                            newInteraction.Recepients = toParty.EmailURI;
+                        }
+                        // delete unexpected tags
+                        let formattedText = newInteraction.Text;
+                        formattedText = formattedText.replaceAll('&nbsp;',' ');
+                        formattedText = formattedText.replace(/(<([^>]+)>)/gi, '');
+                        newInteraction.Text = formattedText;
+
+                        await INSERT(newInteraction).into(ServiceRequestInteraction)
                     }
 
                     await UPDATE(ServiceRequest).with(serviceRequest).where({ ObjectID: serviceRequestResponse.ObjectID });
@@ -784,7 +828,7 @@ class CustomerService extends cds.ApplicationService {
                     createAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement, serviceRequestID, "ServiceRequest");
                     deleteAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement);
 
-                    return SELECT(ServiceRequest, serviceRequestID);
+                    //return SELECT(ServiceRequest, serviceRequestID);
                 }
                 catch (error) {
                     req.reject({
@@ -853,14 +897,14 @@ class CustomerService extends cds.ApplicationService {
                         createAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement, opportunityID, "Opportunity");
                         deleteAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement);
 
-                        return SELECT(Opportunity, opportunityID);
+                        // return SELECT(Opportunity, opportunityID);
                     }
                     catch (error) {
                         req.reject({
                             message: error.message
                         });
                     }
-                }
+               }
             }
         });
 

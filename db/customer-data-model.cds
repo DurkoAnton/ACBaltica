@@ -1,6 +1,8 @@
 using sap from '@sap/cds/common';
 using { Country, Currency, cuid } from '@sap/cds/common';
 using {api as external} from '../srv/external/api';
+using {interaction as externalSR} from '../srv/external/interaction';
+
 
 namespace customer;
 
@@ -26,7 +28,7 @@ entity Customer  : cuid {
 	// Postal Address
 	POBox : String;
 	POBoxCountry : Country;
-	POBoxState : String;
+	POBoxState : Association to RegionCode;
 	POBoxCity : String;
 }
 
@@ -40,14 +42,20 @@ entity Bank : cuid {
 
 type Address {
 	Country : Country;
-	Region : Region;
+	Region : Association to RegionCode;
 	City : String;
 	Street : String;
 	HomeID : String;
 	RoomID : String;
 }
-type Region : sap.common.CodeList{}
-
+type Region : sap.common.CodeList{
+	country: String(2);
+}
+entity RegionCode : sap.common.CodeList {
+	key code : String(3);
+	country: String(2);
+}
+    
 type StatusCode :  Association to StatusCodes;
 entity StatusCodes : sap.common.CodeList{
 	key code : String(2);
@@ -63,30 +71,16 @@ entity Opportunity : cuid{
 	UUID : UUID;
 	ObjectID : String;
 	InternalID : String @readonly default '';
-	ProspectPartyID: String;
-	@Common:{
-		SemanticObject : 'Customer',
-		// SemanticObjectMapping: [
-        //      {
-        //          LocalProperty : ProspectPartyID,
-        //          SemanticObjectProperty : 'InternalID',
-        //      },
-		// 	//  {
-        //     //      LocalProperty : Customer_ID,
-        //     //      SemanticObjectProperty : 'ID',
-        //     //  }
-        //  ]
-	}
-		
+	ProspectPartyID: String;	
 	ProspectPartyName: String;
 	Subject: String;
 	LifeCycleStatusCode: Association to OpportunityStatus;
 	LifeCycleStatusText: String;
 	MainEmployeeResponsiblePartyID: String @readonly;
 	MainEmployeeResponsiblePartyName: String @readonly;
-	CreationDateTime: Date @cds.on.insert : $now;
+	CreationDateTime: DateTime @cds.on.insert : $now;
 	CreatedBy: String;
-	LastChangeDateTime: Date @cds.on.insert : $now  @cds.on.update : $now;
+	LastChangeDateTime: DateTime @cds.on.insert : $now  @cds.on.update : $now;
 	LastChangedBy: String;
 	Customer : Association to one Customer /*@Common.SemanticObject : 'Customer'*/;
 	Items : Composition of many Item on Items.toOpportunity = $self;
@@ -131,20 +125,21 @@ entity SalesPriceList : cuid {
 entity OpportunityStatus : sap.common.CodeList { 
     key code : String(2);
 }
-
+ 
 entity ServiceRequest : cuid {
 	UUID : UUID @readonly;
 	ObjectID : String;
-	CustomerID : String;
-	InternalID : String  @readonly;
+	Subject : String;
+	CustomerID : String default '';
+	InternalID : String  @readonly default '';
 	Status : ServiceRequestStatusCode;
 	StatusDescription : String default 'Open';
-	CreationDate : Date @cds.on.insert : $now;
-	LastChangingDate : Date @cds.on.insert : $now  @cds.on.update : $now;
-	Processor : String;
+	CreationDate : DateTime @cds.on.insert : $now @readonly;
+	LastChangingDate : DateTime @cds.on.insert : $now  @cds.on.update : $now @readonly;
+	Processor : String @readonly;
 	ProcessorID : String @readonly;
 	RequestProcessingTime : String;
-	OrderID : String;
+	OrderID : String default '';
 	OrderDescription : String;
 	ProblemDescription : String;
 	Attachment : Composition of many Attachment on Attachment.ServiceRequest = $self;
@@ -162,7 +157,18 @@ entity ServiceRequest : cuid {
 	RequestEndDateTime : DateTime;	  //RequestedFulfillmentPeriodEndDateTime
 	ResolutionDateTime : DateTime; 	  //ResolvedOnDateTime
 
+	Interactions : Composition of many ServiceRequestInteraction on Interactions.ServiceRequest = $self;
 }
+
+entity ServiceRequestInteraction : cuid{
+	InternalID : String @readonly;
+	Sender : String @readonly;
+	Recepients : String @readonly;
+	Text : String @UI.MultiLineText @readonly;
+	CreationDateTime : DateTime @readonly;
+	Subject : String @readonly;
+	ServiceRequest : Association to ServiceRequest @readonly;
+};
 
 type ServiceRequestStatusCode :  Association to ServiceRequestStatusCodes;
 entity ServiceRequestStatusCodes : sap.common.CodeList{
@@ -183,5 +189,3 @@ entity Attachment : cuid {
 	Opportunity : Association to Opportunity;
 	CreationDateTime: Timestamp @cds.on.insert : $now @Common.Label : '{i18n>CreationDateTime}';
 }
-
-//entity RemoteCustomer as select from external.CorporateAccountCollection;

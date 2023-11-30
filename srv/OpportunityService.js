@@ -9,7 +9,9 @@ class OpportunityService extends cds.ApplicationService {
     async init() {
 
         const { Customer } = cds.entities('customer')
-        const { Opportunity, Attachement, Item, ItemProduct, SalesPriceList } = this.entities;
+        const { Opportunity, Attachement, Item, ItemProduct, SalesPriceList, RemoteOpportunity } = this.entities;
+        
+        const remoteOpptAPI = await cds.connect.to('opportunity');
 
         async function _createOpportunityInstances(opportunities) {
             opportunities.forEach(async item => {
@@ -110,8 +112,10 @@ class OpportunityService extends cds.ApplicationService {
         })
 
         this.before('READ', 'Opportunity', async req => {
-            if (req._path == 'Opportunity' && req._.event == 'READ' && req._._queryOptions && req._._queryOptions.$top && req._._queryOptions.$top == '30') { // read only for general list
-                var email = req._.user.id;;
+            const path = req._path;
+            const editing = path.includes('IsActiveEntity=false'); // fetch from remote only for reading page not editing
+            if (path == 'Opportunity' && !editing && req._.event == 'READ' && req._._queryOptions && req._._queryOptions.$top && req._._queryOptions.$top == '30') { // read only for general list
+                var email = req._.user.id;
                 var partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
                 if (partner){
                     req.query.where({ 'MainContactID': partner.CODE });
@@ -130,12 +134,28 @@ class OpportunityService extends cds.ApplicationService {
                         // exclude existing rows to create only new
                         const newOpptsToCreate = remoteOpportunitites.filter(newItem => !existingOpportunities.some(existingItem => existingItem.ObjectID == newItem.ObjectID));
                         await _createOpportunityInstances(newOpptsToCreate);
-                        await deleteOpportunityInstances(c4cResponse, existingOpportunities, Opportunity);
+                        await deleteOpportunityInstances(c4cResponse.data.d.results, existingOpportunities, Opportunity);
                     }
                     catch (error) {
                         req.reject({
                             message: error.message
                         });
+                    }
+                }
+            }
+            else if(path.startsWith('Opportunity') && path.endsWith(')') && req.event == 'READ'){
+                //update status from remote when 
+                //const opptPath = path.substring(path.indexOf('ToOpportunities'));
+                const opptEditing = path.includes('IsActiveEntity=false');
+                if (!opptEditing){ // only for viewing
+                    const opptInst = await SELECT.one.from(Opportunity, req.data.ID);
+                    if (opptInst && opptInst.ObjectID){
+                        const opportunity= await remoteOpptAPI.run(SELECT.one.from(RemoteOpportunity).columns(root=>{
+                            root('LifeCycleStatusCode'), root('LifeCycleStatusCodeText')
+                        }).where({ObjectID: opptInst.ObjectID}));
+                        if (opportunity){
+                            await UPDATE(Opportunity, req.data.ID).with({LifeCycleStatusCode_code : opportunity.LifeCycleStatusCode})
+                        }
                     }
                 }
             }
@@ -155,15 +175,32 @@ class OpportunityService extends cds.ApplicationService {
             }
         })
 
+        this.before('DELETE', 'Opportunity', async (req) => {
+            const id = req.data.ID;
+            const opportunity = await SELECT.one.from(Opportunity, id);
+            if(opportunity.ObjectID){
+                await remoteOpptAPI.run(DELETE.from(RemoteOpportunity).where({ObjectID:opportunity.ObjectID}));
+            }
+        });
+
         this.after('SAVE', 'Opportunity', async req => {
             // create new Opportunities in remote
             const opportunity = req;
             if (opportunity.UUID === null) {
+                
                 let requestBody = {
                     Name: opportunity.Subject,
                     LifeCycleStatusCode: opportunity.LifeCycleStatusCode_code,
-                    NotStandartRequest_SDK : opportunity.NotStandartRequest,
                     CustomerComment_SDK : opportunity.CustomerComment,
+                    NotStandartRequest_SDK : opportunity.NotStandartRequest,
+                    PrimaryContactPartyID : opportunity.MainContactID,
+                }
+                if (req.Customer_ID){
+                    const customer = await SELECT.one.from(Customer).where({ID : req.Customer_ID}).columns('ResponsibleManagerID');
+                    if (customer && customer.ResponsibleManagerID){
+                        requestBody.MainEmployeeResponsiblePartyID = customer.ResponsibleManagerID;
+                    }
+
                 }
                 if (opportunity.ProspectPartyID)
                     requestBody.ProspectPartyID = opportunity.ProspectPartyID;
@@ -204,7 +241,7 @@ class OpportunityService extends cds.ApplicationService {
                             .with({
                                 UUID: createdData.UUID,
                                 ObjectID: createdData.ObjectID,
-                                MainEmployeeResponsiblePartyName: createdData.MainEmployeeResponsiblePartyName,
+                                //MainEmployeeResponsiblePartyName: createdData.MainEmployeeResponsiblePartyName,
                                 InternalID: createdData.ID,
                             });
 
@@ -294,7 +331,7 @@ class OpportunityService extends cds.ApplicationService {
                 // const itemsToCreate = itemsFromRemote.filter(obj1 => !existingItems.some(obj2 => obj2.ObjectID === obj1.ObjectID) /*&& obj1.ObjectID != null*/);
                 // const itemBodies = await createItemsBody(itemsToCreate, ItemProduct, opportunityID)
 
-                await INSERT(itemBodies).into(Item)
+                //await INSERT(itemBodies).into(Item)
                 
                 return SELECT(Opportunity, opportunityID);
             }

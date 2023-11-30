@@ -1,4 +1,5 @@
 using { customer } from '../db/customer-data-model';
+using {opportunity as externalOppt} from './external/opportunity';
 
 service OpportunityService @(requires: 'authenticated-user'){
      @Capabilities : {
@@ -23,6 +24,8 @@ service OpportunityService @(requires: 'authenticated-user'){
   entity Attachement as projection on customer.Attachment;
   entity OpportunityStatusCode as projection on customer.OpportunityStatus;
   entity Customer as projection on customer.Customer;
+
+  entity RemoteOpportunity as projection on externalOppt.OpportunityCollection;
 }
 
 annotate OpportunityService.Opportunity with @odata.draft.enabled;

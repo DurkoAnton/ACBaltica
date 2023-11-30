@@ -43,7 +43,6 @@
                 "toApp2": {
                     "semanticObject": "Customer",
                     "action": "display"
-
                 }
             }
         }
@@ -164,8 +163,55 @@
                                         "outbound": "toApp2"
                                     }
                                 }
+                            },
+                            "controlConfiguration": {
+                                "ToCustomers/@com.sap.vocabularies.UI.v1.LineItem#Customers": {
+                                    "tableSettings": {
+                                        "visibleRowCount ": 0,
+                                        "enableExport": false,
+                                        "type": "ResponsiveTable",
+                                        "creationMode": {
+                                            "name": "NewPage"
+                                        },
+                                        "personalization": {
+                                            "filter": true,
+                                            "sort": true
+                                        }
+                                    },
+                                    "columns": {
+                                        "DataField::InternalID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CustomerFormattedName": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Status_code": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::ResponsibleManager": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::JuridicalCountry::code": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::JuridicalAddress_City": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::JuridicalAddress_Street": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::JuridicalAddress_HomeID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::JuridicalAddress_RoomID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Note": {
+                                            "width": "auto"
+                                        }
+                                    }
+                                }
                             }
-                           
                         }
                     },
                     "controlAggregation": "beginColumnPages",

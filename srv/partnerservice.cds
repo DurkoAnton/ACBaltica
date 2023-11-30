@@ -17,11 +17,11 @@ service PartnerService @(requires: 'authenticated-user'){
         }  
         action updateAllFieldsFromRemote() returns PartnerProfile;
     }
-    //  @Capabilities : {
-    //     InsertRestrictions.Insertable : true,
-    //     UpdateRestrictions.Updatable  : true,
-    //     DeleteRestrictions.Deletable  : true
-    // }
+     @Capabilities : {
+        InsertRestrictions.Insertable : false,
+        UpdateRestrictions.Updatable  : true,
+        DeleteRestrictions.Deletable  : false
+    }
     entity Customer as projection on customer.Customer;
   entity Item as select from customer.Item 
   { *, toItemProduct.InternalID as ProductInternalID, toItemProduct.ProductCategory as ProductCategory, toItemProduct.ProductStatusDescription as ProductStatus };
@@ -51,6 +51,8 @@ service PartnerService @(requires: 'authenticated-user'){
   entity ServiceRequestStatusCode as projection on customer.ServiceRequestStatusCodes;
   entity CategoryCodes as projection on customer.CategoryCodes;
 
+  entity RegionCode as projection on customer.RegionCode;
+  
   //remote Objects
   entity RemoteCustomer as projection on external.CorporateAccountCollection;
   entity RemoteContact as projection on external.ContactCollection;

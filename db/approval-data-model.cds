@@ -6,18 +6,22 @@ namespace approval;
 
 entity RequestApproval : cuid {
     CustomerID : UUID;
+    CustomerObjectID : String;
     Customer : Association to one customer.Customer on Customer.ID = $self.CustomerID;
     MainContactID : String;
 	CreationDateTime: Timestamp @cds.on.insert : $now @Common.Label : '{i18n>CreationDateTime}';
-    Status : RequestApprovalStatusCode;
+    Status : RequestApprovalStatusCode @readonly;
     
     currentData : CustomerDataSet;
+    currentPOBoxCountry : Country;
     currentStatusCode : Association to customer.StatusCodes;
     currentCountry : Country;
     newData : CustomerDataSet;
+    newPOBoxCountry : Country;
     newStatusCode : Association to customer.StatusCodes;
     newCountry : Country;
     
+    bodyToRemote : {};
 }
 
 type RequestApprovalStatusCode :  Association to RequestApprovalStatusCodes;
@@ -35,4 +39,8 @@ type CustomerDataSet {
         JuridicalStreet : String ;
         JuridicalHomeID : String ;
         JuridicalRoomID : String ;
+        // Postal Address
+        POBox : String;
+        POBoxState : String;
+        POBoxCity : String;
 }

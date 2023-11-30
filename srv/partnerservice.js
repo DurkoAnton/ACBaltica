@@ -10,7 +10,7 @@ class PartnerService extends cds.ApplicationService {
 
         cds.env.features.fetch_csrf = true;
 
-        const { PartnerProfile, Attachement, ItemProduct, RemoteContact,RemoteCustomer } = this.entities;
+        const { PartnerProfile, Attachement, ItemProduct, RemoteContact, RemoteCustomer, RegionCode } = this.entities;
         const { Customer, Opportunity, ServiceRequest, SalesPriceList } = cds.entities('customer');
 
         const remoteC4CAPI = await cds.connect.to('api');
@@ -131,18 +131,21 @@ class PartnerService extends cds.ApplicationService {
         }
 
         this.before('READ', 'Customer', async (req) => {
-            if (req._path.endsWith('ToCustomers')) {
+            const path = req._path;
+            const customersLoading = path.endsWith('ToCustomers');
+            const customersEditing = path.includes('IsActiveEntity=false'); // fetch customer from remote only for reading page not editing
+            if (customersLoading && !customersEditing) {
                 const currentEmail = req._.user.id;
                 const currentPartner = await SELECT.one.from(PartnerProfile).where({ Email: currentEmail }).columns('Code',);
                 const customersFromDB = await SELECT.from(Customer).where({MainContactID : currentPartner.Code});
 
-                const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${currentEmail}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
+                //const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${currentEmail}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
                 try {
-                    const createRequestParameters = {
-                        method: 'GET',
-                        url: path,
-                        headers: { 'content-type': 'application/json' }
-                    }
+                    // const createRequestParameters = {
+                    //     method: 'GET',
+                    //     url: path,
+                    //     headers: { 'content-type': 'application/json' }
+                    // }
 
                     const customers = await remoteC4CAPI.run(SELECT.from(RemoteContact).columns(root=>{
                         root('ContactID'),
@@ -162,8 +165,9 @@ class PartnerService extends cds.ApplicationService {
                         })
                     }).where({Email: currentEmail}));
     
-                    await _createCustomerInstances(customers[0].ContactIsContactPersonFor, customersFromDB);
-                    await deleteCustomerInstances(customers[0].ContactID, customers[0].ContactIsContactPersonFor, customersFromDB, Customer);
+                    const contact = customers[0];
+                    await _createCustomerInstances(contact.ContactIsContactPersonFor, customersFromDB);
+                    await deleteCustomerInstances(contact.ContactID, contact.ContactIsContactPersonFor, customersFromDB, Customer);
                 
                     /*
                     const c4cResponse = await sendRequestToC4C(createRequestParameters);
@@ -178,44 +182,6 @@ class PartnerService extends cds.ApplicationService {
                     });
                 }
             }
-            else if (req._path != 'Customer' && req._path.endsWith(')') && req._.event != 'draftPrepare'){
-                const customerID = req.data.ID;
-                const customerPage = await SELECT.one.from(Customer,customerID).columns(root=>{root('ObjectID'),root('ID')});
-                if (customerPage){
-                     const customerInstance = await remoteC4CAPI.run(SELECT.one.from(RemoteCustomer).columns(root=>{
-                         root('*'),
-                         root.OwnerEmployeeBasicData(owner=>{owner('FormattedName'),owner('Email')}),
-                         root.CorporateAccountTextCollection(text=>text('Text'))
-                     }).where({ObjectID: customerPage.ObjectID}));
-                     const owner = customerInstance.OwnerEmployeeBasicData;
-                     const note = customerInstance.CorporateAccountTextCollection[0];
-                     let customer = {
-                         CustomerFormattedName: customerInstance.Name,
-                         Status_code: customerInstance.LifeCycleStatusCode,
- 
-                         JuridicalAddress_City: customerInstance.City,
-                         JuridicalCountry_code: customerInstance.CountryCode,
-                         JuridicalAddress_Street: customerInstance.Street,
-                         JuridicalAddress_HomeID: customerInstance.HouseNumber,
-                         JuridicalAddress_RoomID: customerInstance.Room,
- 
-                         POBox : customerInstance.POBox,
-                         POBoxCountry_code : customerInstance.POBoxDeviatingCountryCode,
-                         POBoxState : customerInstance.POBoxDeviatingRegionCodeText,
-                         POBoxCity : customerInstance.POBoxDeviatingCity
-                         
-                     }
-                     if (owner != undefined) {
-                         customer.ResponsiblemanagerID = customerInstance.OwnerID;
-                         customer.ResponsibleManager = owner.FormattedName;
-                         customer.ResponsibleManagerEmail = owner.Email;
-                     }
-                     if (note != undefined) {
-                         customer.Note = note.Text;
-                     }
-                     await UPDATE(Customer, customerPage.ID).with(customer);
-                 }
-             }
         });
 
         this.before('NEW', 'Customer', async req =>{
@@ -302,8 +268,8 @@ class PartnerService extends cds.ApplicationService {
 
             const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection('${req.data.ObjectID}')`;
             const body = {
-                BusinessAddressCountryCode: req.data.Country_code,
-                BusinessAddressCity: req.data.City,
+                //BusinessAddressCountryCode: req.data.Country_code,
+                //BusinessAddressCity: req.data.City,
                 FirstName: req.data.FirstName,
                 LastName: req.data.LastName,
                 Mobile: req.data.MobilePhone,
@@ -311,9 +277,9 @@ class PartnerService extends cds.ApplicationService {
                 Email: req.data.Email,
                 StatusCode : req.data.Status_code,
                 // Region
-                BusinessAddressHouseNumber: req.data.HouseNumber,
-                BusinessAddressStreet: req.data.Street,
-                BusinessAddressStreetPostalCode: req.data.PostalCode
+                // BusinessAddressHouseNumber: req.data.HouseNumber,
+                // BusinessAddressStreet: req.data.Street,
+                // BusinessAddressStreetPostalCode: req.data.PostalCode
             }
             try {
                 const createRequestParameters = {
@@ -331,163 +297,164 @@ class PartnerService extends cds.ApplicationService {
             }
 
             // create new Customers in remote
-            req.data.ToCustomers.filter(customer=>customer.UUID == null).forEach(async customerData => {
-                await createNewCustomerInRemote(customerData, Customer, req);
-            });
+            // req.data.ToCustomers.filter(customer=>customer.UUID == null).forEach(async customerData => {
+            //     await createNewCustomerInRemote(customerData, Customer, req);
+            // });
 
+            // changed to external navigation
             // create new Opportunities in remote
-            const newOpports = [];
-            req.data.ToCustomers.forEach(element => {
-                const result = element.ToOpportunities.filter(opportunity => opportunity.UUID === null);
-                newOpports.push(...result);
-            });
-            newOpports.forEach(async item => {
-                let requestBody = {
-                    Name: item.Subject,
-                    ProspectPartyID: item.ProspectPartyID,
-                    LifeCycleStatusCode: item.LifeCycleStatusCode_code,
-                }
-                // add products
-                const products = [];
-                const items = item.Items;
-                for (let itemRow of items) {
-                    const itemProductID = itemRow.ItemProductID;
-                    const itemProduct = await SELECT.one.from(ItemProduct).where({ ID: itemProductID });
-                    if (itemProduct) {
-                        products.push({ ProductID: itemProduct.InternalID })
-                    }
-                }
-                if (products.length > 0) {
-                    requestBody.OpportunityItem = { results: products };
-                }
-                // add attachments
-                if (item.Attachment && item.Attachment.length !== 0) {
-                    const results = [];
-                    createAttachmentBody(item, results);
-                    requestBody.OpportunityAttachmentFolder = { results };
-                }
+            // const newOpports = [];
+            // req.data.ToCustomers.forEach(element => {
+            //     const result = element.ToOpportunities.filter(opportunity => opportunity.UUID === null);
+            //     newOpports.push(...result);
+            // });
+            // newOpports.forEach(async item => {
+            //     let requestBody = {
+            //         Name: item.Subject,
+            //         ProspectPartyID: item.ProspectPartyID,
+            //         LifeCycleStatusCode: item.LifeCycleStatusCode_code,
+            //     }
+            //     // add products
+            //     const products = [];
+            //     const items = item.Items;
+            //     for (let itemRow of items) {
+            //         const itemProductID = itemRow.ItemProductID;
+            //         const itemProduct = await SELECT.one.from(ItemProduct).where({ ID: itemProductID });
+            //         if (itemProduct) {
+            //             products.push({ ProductID: itemProduct.InternalID })
+            //         }
+            //     }
+            //     if (products.length > 0) {
+            //         requestBody.OpportunityItem = { results: products };
+            //     }
+            //     // add attachments
+            //     if (item.Attachment && item.Attachment.length !== 0) {
+            //         const results = [];
+            //         createAttachmentBody(item, results);
+            //         requestBody.OpportunityAttachmentFolder = { results };
+            //     }
 
-                try {
-                    let createRequestParameters = {
-                        method: 'POST',
-                        url: `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection`,
-                        data: requestBody,
-                        headers: {
-                            'content-type': 'application/json'
-                        }
-                    }
-                    const createdOppt = await sendRequestToC4C(createRequestParameters);
-                    if (createdOppt && createdOppt.data && createdOppt.data.d && createdOppt.data.d.results) {
-                        const createdData = createdOppt.data.d.results;
-                        await UPDATE(Opportunity)
-                            .where({ ID: item.ID })
-                            .with({
-                                UUID: createdData.UUID,
-                                ObjectID: createdData.ObjectID,
-                                MainEmployeeResponsiblePartyName: createdData.MainEmployeeResponsiblePartyName,
-                                InternalID: createdData.ID
+            //     try {
+            //         let createRequestParameters = {
+            //             method: 'POST',
+            //             url: `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection`,
+            //             data: requestBody,
+            //             headers: {
+            //                 'content-type': 'application/json'
+            //             }
+            //         }
+            //         const createdOppt = await sendRequestToC4C(createRequestParameters);
+            //         if (createdOppt && createdOppt.data && createdOppt.data.d && createdOppt.data.d.results) {
+            //             const createdData = createdOppt.data.d.results;
+            //             await UPDATE(Opportunity)
+            //                 .where({ ID: item.ID })
+            //                 .with({
+            //                     UUID: createdData.UUID,
+            //                     ObjectID: createdData.ObjectID,
+            //                     MainEmployeeResponsiblePartyName: createdData.MainEmployeeResponsiblePartyName,
+            //                     InternalID: createdData.ID
 
-                            });
+            //                 });
 
-                        if (item.Attachment && item.Attachment.length !== 0) {
-                            createRequestParameters = {
-                                method: 'GET',
-                                url: createdData.OpportunityAttachmentFolder.__deferred.uri,
-                                headers: { 'content-type': 'application/json' }
-                            }
-                            // save ObjectID for the first time
-                            const attachmentResponse = await sendRequestToC4C(createRequestParameters);
-                            const attachmentsInResponse = attachmentResponse.data.d.results;
-                            for (let i = 0; i < attachmentsInResponse.length; i++) {
-                                const attachmentInDB = item.Attachment[i];
-                                const ObjectID = attachmentsInResponse[i].ObjectID;
-                                await UPDATE(Attachement, attachmentInDB.ID).set({ ObjectID: ObjectID });
-                            }
-                        }
-                    }
-                } catch (e) {
-                    console.log(e)
-                }
-            })
-            // create new Service Requests in remote
-            const newTickets = [];
-            req.data.ToCustomers.forEach(element => {
-                const result = element.ToServiceRequests.filter(serviceRequest => serviceRequest.UUID === null);
-                newTickets.push(...result);
-            });
-            newTickets.forEach(async item => {
-                let customer;
-                const customerID = item.Customer_ID;
-                let internalBuyerID;
-                if (customerID) {
-                    customer = await SELECT.from(Customer).where({ ID: customerID });
-                    if (customer[0]) {
-                        internalBuyerID = customer[0].InternalID;
-                    }
-                }
+            //             if (item.Attachment && item.Attachment.length !== 0) {
+            //                 createRequestParameters = {
+            //                     method: 'GET',
+            //                     url: createdData.OpportunityAttachmentFolder.__deferred.uri,
+            //                     headers: { 'content-type': 'application/json' }
+            //                 }
+            //                 // save ObjectID for the first time
+            //                 const attachmentResponse = await sendRequestToC4C(createRequestParameters);
+            //                 const attachmentsInResponse = attachmentResponse.data.d.results;
+            //                 for (let i = 0; i < attachmentsInResponse.length; i++) {
+            //                     const attachmentInDB = item.Attachment[i];
+            //                     const ObjectID = attachmentsInResponse[i].ObjectID;
+            //                     await UPDATE(Attachement, attachmentInDB.ID).set({ ObjectID: ObjectID });
+            //                 }
+            //             }
+            //         }
+            //     } catch (e) {
+            //         console.log(e)
+            //     }
+            // })
+            // // create new Service Requests in remote
+            // const newTickets = [];
+            // req.data.ToCustomers.forEach(element => {
+            //     const result = element.ToServiceRequests.filter(serviceRequest => serviceRequest.UUID === null);
+            //     newTickets.push(...result);
+            // });
+            // newTickets.forEach(async item => {
+            //     let customer;
+            //     const customerID = item.Customer_ID;
+            //     let internalBuyerID;
+            //     if (customerID) {
+            //         customer = await SELECT.from(Customer).where({ ID: customerID });
+            //         if (customer[0]) {
+            //             internalBuyerID = customer[0].InternalID;
+            //         }
+            //     }
 
-                let body = {
-                    Name: item.ProblemDescription,
-                    BuyerPartyID: internalBuyerID,
-                    ServiceRequestUserLifeCycleStatusCode: item.Status_code,
-                    //oppt - document reference?
-                    //category - codes are not matches
-                    //processor - ovs of Employees from Remote
-                }
-                // add problem item
-                let products = [];
-                // if (item.ProblemItem != null) {
-                //     const itemInstance = await SELECT.one.from(Item).where({ ID: item.ProblemItem });
-                //     products.push({ ProductID: itemInstance.ProductInternalID });
-                //     body.ServiceRequestItem = { results: products };
-                // }
-                // add attachments
-                if (item.Attachment && item.Attachment.length !== 0) {
-                    const results = [];
-                    createAttachmentBody(item, results);
-                    body.ServiceRequestAttachmentFolder = { results };
-                }
+            //     let body = {
+            //         Name: item.ProblemDescription,
+            //         BuyerPartyID: internalBuyerID,
+            //         ServiceRequestUserLifeCycleStatusCode: item.Status_code,
+            //         //oppt - document reference?
+            //         //category - codes are not matches
+            //         //processor - ovs of Employees from Remote
+            //     }
+            //     // add problem item
+            //     let products = [];
+            //     // if (item.ProblemItem != null) {
+            //     //     const itemInstance = await SELECT.one.from(Item).where({ ID: item.ProblemItem });
+            //     //     products.push({ ProductID: itemInstance.ProductInternalID });
+            //     //     body.ServiceRequestItem = { results: products };
+            //     // }
+            //     // add attachments
+            //     if (item.Attachment && item.Attachment.length !== 0) {
+            //         const results = [];
+            //         createAttachmentBody(item, results);
+            //         body.ServiceRequestAttachmentFolder = { results };
+            //     }
 
-                await linkSelectedOpportunity(item, Opportunity, body);
+            //     await linkSelectedOpportunity(item, Opportunity, body);
 
-                let createRequestParameters = {
-                    method: 'POST',
-                    url: `/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection`,
-                    data: body,
-                    headers: { 'content-type': 'application/json' }
-                }
-                const c4cResponse = await sendRequestToC4C(createRequestParameters);
-                // Update UUID
-                if (c4cResponse.status == '201' && c4cResponse.data.d.results != undefined) {
-                    const data = c4cResponse.data.d.results;
-                    const objectID = data.ObjectID;
-                    const UUID = data.UUID;
-                    if (objectID && UUID) {
-                        await UPDATE(ServiceRequest, item.ID).with({
-                            UUID: UUID,
-                            ObjectID: objectID,
-                            InternalID: data.ID,
-                            Processor: data.ProcessorPartyName
-                        });
-                    }
-                    if (item.Attachment && item.Attachment.length !== 0) {
-                        createRequestParameters = {
-                            method: 'GET',
-                            url: data.ServiceRequestAttachmentFolder.__deferred.uri,
-                            headers: { 'content-type': 'application/json' }
-                        }
-                        // save ObjectID for the first time
-                        const attachmentResponse = await sendRequestToC4C(createRequestParameters);
-                        const attachmentsInResponse = attachmentResponse.data.d.results;
-                        for (let i = 0; i < attachmentsInResponse.length; i++) {
-                            const attachmentInDB = item.Attachment[i];
-                            const ObjectID = attachmentsInResponse[i].ObjectID;
-                            await UPDATE(Attachement, attachmentInDB.ID).set({ ObjectID: ObjectID });
-                        }
+            //     let createRequestParameters = {
+            //         method: 'POST',
+            //         url: `/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection`,
+            //         data: body,
+            //         headers: { 'content-type': 'application/json' }
+            //     }
+            //     const c4cResponse = await sendRequestToC4C(createRequestParameters);
+            //     // Update UUID
+            //     if (c4cResponse.status == '201' && c4cResponse.data.d.results != undefined) {
+            //         const data = c4cResponse.data.d.results;
+            //         const objectID = data.ObjectID;
+            //         const UUID = data.UUID;
+            //         if (objectID && UUID) {
+            //             await UPDATE(ServiceRequest, item.ID).with({
+            //                 UUID: UUID,
+            //                 ObjectID: objectID,
+            //                 InternalID: data.ID,
+            //                 Processor: data.ProcessorPartyName
+            //             });
+            //         }
+            //         if (item.Attachment && item.Attachment.length !== 0) {
+            //             createRequestParameters = {
+            //                 method: 'GET',
+            //                 url: data.ServiceRequestAttachmentFolder.__deferred.uri,
+            //                 headers: { 'content-type': 'application/json' }
+            //             }
+            //             // save ObjectID for the first time
+            //             const attachmentResponse = await sendRequestToC4C(createRequestParameters);
+            //             const attachmentsInResponse = attachmentResponse.data.d.results;
+            //             for (let i = 0; i < attachmentsInResponse.length; i++) {
+            //                 const attachmentInDB = item.Attachment[i];
+            //                 const ObjectID = attachmentsInResponse[i].ObjectID;
+            //                 await UPDATE(Attachement, attachmentInDB.ID).set({ ObjectID: ObjectID });
+            //             }
 
-                    }
-                }
-            });
+            //         }
+            //     }
+            //});
         });
         
         this.on('updateAllFieldsFromRemote', async (req) => {
@@ -518,11 +485,21 @@ class PartnerService extends cds.ApplicationService {
                     CountryDescription: partnerProfileObj.BusinessAddressCountryCodeText,
                     City: partnerProfileObj.BusinessAddressCity,
                     Status_code: partnerProfileObj.StatusCode,
-                    Region: partnerProfileObj.BusinessAddressStateCodeText,
+                    StatusDescription : partnerProfileObj.StatusCodeText,
+                    Region_code : partnerProfileObj.BusinessAddressStateCode,
+                    RegionDescription: partnerProfileObj.BusinessAddressStateCodeText,
                     HouseNumber: partnerProfileObj.BusinessAddressHouseNumber,
                     Street: partnerProfileObj.BusinessAddressStreet,
                     PostalCode: partnerProfileObj.BusinessAddressStreetPostalCode
                 };
+
+                // new Region value
+                const regionCode = partnerProfileObj.BusinessAddressStateCode;
+                const regionText = partnerProfileObj.BusinessAddressStateCodeText;
+                const regionInst = await SELECT.one.from(RegionCode).where({code : regionCode});
+                if (!regionInst){
+                    await INSERT({code : regionCode, country: partnerProfileObj.BusinessAddressCountryCode, name :regionText}).into(RegionCode)
+                }
 
                 await UPDATE(PartnerProfile).with(partnerObj).where({ ObjectID: partnerProfileObj.ObjectID });
 
@@ -531,13 +508,18 @@ class PartnerService extends cds.ApplicationService {
                     const contact = contacts[i];
                     const account = contact.CorporateAccount;
                     const owner = account.OwnerEmployeeBasicData;
-                    const note = account.CorporateAccountTextCollection.results;
+                    let note;
+                    if (account.CorporateAccountTextCollection.length > 0){
+                        note = account.CorporateAccountTextCollection[0];
+                    }
                     let customer;
                     if (account != undefined) {
                         customer = {
                             CustomerFormattedName: account.BusinessPartnerFormattedName,
                             InternalID: account.AccountID,
                             Status_code: account.LifeCycleStatusCode,
+                            UUID: account.UUID,
+                            ObjectID: account.ObjectID,
 
                             JuridicalAddress_City: account.City,
                             JuridicalCountry_code: account.CountryCode,
@@ -545,15 +527,17 @@ class PartnerService extends cds.ApplicationService {
                             JuridicalAddress_HomeID: account.HouseNumber,
                             JuridicalAddress_RoomID: account.Room,
 
-                            IndividualAddress_City: account.City,
-                            IndividualCountry_code: account.CountryCode,
-                            IndividualAddress_Street: account.Street,
-                            IndividualAddress_HomeID: account.HouseNumber,
-                            IndividualAddress_RoomID: account.Room,
-                            MainContactID : partnerProfileObj.ContactID // added
+                            POBox : account.POBox,
+                            POBoxCountry_code : account.POBoxDeviatingCountryCode,
+                            POBoxState_code : account.POBoxDeviatingRegionCode,
+                            POBoxCity : account.POBoxDeviatingCity,
+
+                            MainContactID : partnerProfileObj.ContactID 
                         }
                         if (owner != undefined) {
                             customer.ResponsibleManager = owner.FormattedName;
+                            customer.ResponsibleManagerID = owner.EmployeeID;
+                            customer.ResponsibleManagerEmail = owner.Email;
                         }
                         if (note != undefined) {
                             customer.Note = note.Text;

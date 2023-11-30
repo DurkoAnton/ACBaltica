@@ -77,6 +77,10 @@ annotate service.Opportunity with @(
             Label : 'Attachments',
             ID    : 'Attachments',
             Target: 'Attachment/@UI.LineItem#Attachments',
+            ![@UI.Hidden] : {$edmJson: {$Eq: [
+                {$Path: 'NotStandartRequest'},
+                false
+            ]}}
         },
     ],
     UI.FieldGroup #GeneralInfo: {
@@ -122,48 +126,16 @@ annotate service.Opportunity with @(
     UI.FieldGroup #Parties    : {
         $Type: 'UI.FieldGroupType',
         Data : [
-            {
-                $Type: 'UI.DataFieldWithIntentBasedNavigation',
-                SemanticObject : 'Customer',
-                Label: 'Customer ID',
-                Action : 'display',
-                Value : Customer_ID,
-                Mapping   : [{
-                    $Type                 : 'Common.SemanticObjectMappingType',
-                    LocalProperty         : Customer_ID,
-                    SemanticObjectProperty: 'ID',
-                } 
-            ],
-           },
-            {
-                $Type: 'UI.DataFieldWithIntentBasedNavigation',
-                SemanticObject : 'Customer',
-                Label: 'Customer ID2',
-                Action : 'display',
-                Value : ProspectPartyID,
-                Mapping   : [
-                    {
-                    $Type                 : 'Common.SemanticObjectMappingType',
-                    LocalProperty         : 'ProspectPartyID',
-                    SemanticObjectProperty: 'InternalID',
-                } ,
-                {
-                    $Type                 : 'Common.SemanticObjectMappingType',
-                    LocalProperty         : 'ID',
-                    SemanticObjectProperty: 'Customer_ID',
-                } 
-            ],
-           },
-        //  {
-        //         $Type: 'UI.DataField',
-        //         Value: ProspectPartyID,
-        //         Label: 'ProspectPartyID',
-        //     },
-        //     {
-        //         $Type: 'UI.DataField',
-        //         Value: Customer_ID,
-        //         Label: 'Customer',
-        //     },
+         {
+                $Type: 'UI.DataField',
+                Value: ProspectPartyID,
+                Label: 'Customer',
+            },
+            // {
+            //     $Type: 'UI.DataField',
+            //     Value: Customer_ID,
+            //     Label: 'Customer',
+            // },
              {
                 $Type: 'UI.DataField',
                 Value: MainEmployeeResponsiblePartyName,
@@ -514,4 +486,32 @@ annotate service.Customer with {
         TextArrangement : #TextLast,
     };
     ID @UI.Hidden:true;
+};
+annotate service.Opportunity with {
+    ProspectPartyID @Common:{
+        SemanticObject : 'Customer',
+        SemanticObjectMapping : [
+            {
+                $Type : 'Common.SemanticObjectMappingType',
+                LocalProperty : 'ProspectPartyID',
+                SemanticObjectProperty : 'InternalID',
+            },
+            {
+                $Type : 'Common.SemanticObjectMappingType',
+                LocalProperty : 'ID',
+                SemanticObjectProperty : 'none',
+            },
+        ],
+        }
+};
+annotate service.Opportunity with {
+    Customer @Common:{SemanticObject : 'Customer',
+       SemanticObjectMapping : [
+            {
+                $Type : 'Common.SemanticObjectMappingType',
+                LocalProperty : 'Customer_ID',
+                SemanticObjectProperty : 'ID',
+            },
+        ],
+    }
 };

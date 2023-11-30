@@ -1,4 +1,6 @@
 using { customer } from '../db/customer-data-model';
+using {interaction as external} from './external/interaction';
+using {ticket as externalSR} from './external/ticket';
 
 service ServiceRequestService @(requires: 'authenticated-user'){
      @Capabilities : {
@@ -10,9 +12,9 @@ service ServiceRequestService @(requires: 'authenticated-user'){
     @cds.odata.bindingparameter.name : '_it'
     @Common.SideEffects : {    
         $Type:'Common.SideEffectsType', 
-        TargetEntities : ['_it/Attachment']        
+        TargetEntities : ['_it','_it/Attachment']        
     }   
-    action updateFromRemote() returns ServiceRequest;
+    action updateFromRemote() /*returns ServiceRequest*/;
   };
   entity Opportunity as projection on customer.Opportunity;
   entity Item as select from customer.Item 
@@ -20,5 +22,11 @@ service ServiceRequestService @(requires: 'authenticated-user'){
   entity Attachement as projection on customer.Attachment;
   entity Customer as projection on customer.Customer;
   entity ServiceRequestStatusCode as projection on customer.ServiceRequestStatusCodes;
+
+  //Remote interaction
+  entity ServiceRequestInteraction as projection on customer.ServiceRequestInteraction;
+  entity RemoteInteraction as projection on external.ServiceRequestInteractionTicketCollection;
+  entity RemoteServiceRequest as projection on externalSR.ServiceRequestCollection;
+
 }
 annotate ServiceRequestService.ServiceRequest with @odata.draft.enabled;

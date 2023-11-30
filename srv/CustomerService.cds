@@ -1,6 +1,8 @@
 using { customer } from '../db/customer-data-model';
 using {api as external} from './external/api';
 using {opportunity as externalOppt} from './external/opportunity';
+using {ticket as externalSR} from './external/ticket';
+using {interaction as externalInteraction} from './external/interaction';
 
 service CustomerService @(requires: 'authenticated-user'){
     @Capabilities : {
@@ -24,6 +26,9 @@ service CustomerService @(requires: 'authenticated-user'){
   entity CategoryCodes as projection on customer.CategoryCodes;
   entity Bank as projection on customer.Bank;
 
+// @Capabilities : {
+//          DeleteRestrictions.Deletable  : false
+//     }
     entity Item as select from customer.Item 
   { *, toItemProduct.InternalID as ProductInternalID, toItemProduct.ProductCategory as ProductCategory, toItemProduct.ProductStatusDescription as ProductStatus };
 
@@ -37,14 +42,13 @@ service CustomerService @(requires: 'authenticated-user'){
   entity SalesPriceList as projection on customer.SalesPriceList;
 
   @cds.redirection.target
-  
   entity Opportunity as projection on customer.Opportunity actions {
     action LoadProducts();
 
     @cds.odata.bindingparameter.name : '_it'
     @Common.SideEffects : {    
         $Type:'Common.SideEffectsType', 
-        TargetEntities : ['_it/Items', '_it/Attachment']        
+        TargetEntities : ['_it','_it/Items', '_it/Attachment']        
     }   
     action updateFromRemote() returns Opportunity;
   };
@@ -53,9 +57,9 @@ service CustomerService @(requires: 'authenticated-user'){
     @cds.odata.bindingparameter.name : '_it'
     @Common.SideEffects : {    
         $Type:'Common.SideEffectsType', 
-        TargetEntities : ['_it/Attachment']        
+        TargetEntities : ['_it','_it/Attachment']        
     }   
-    action updateFromRemote() returns ServiceRequest;
+    action updateFromRemote() /*returns ServiceRequest*/;
   }
   entity Attachement as projection on customer.Attachment;
   entity OpportunityStatusCode as projection on customer.OpportunityStatus;
@@ -66,7 +70,10 @@ service CustomerService @(requires: 'authenticated-user'){
   entity RemoteOwnerEmployee as projection on external.EmployeeBasicDataCollection;
   //Opportunity Remote
   entity RemoteOpportunity as projection on externalOppt.OpportunityCollection;
-
+  //Service Requests Remote
+  entity RemoteServiceRequest as projection on externalSR.ServiceRequestCollection;
+  entity ServiceRequestInteraction as projection on customer.ServiceRequestInteraction;
+  entity RemoteInteraction as projection on externalInteraction.ServiceRequestInteractionTicketCollection;
 }
 annotate CustomerService.Customer with @odata.draft.enabled;
 

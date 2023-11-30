@@ -3,16 +3,20 @@ const jwtDecode = require('jwt-decode');
 const { getObjectsWithDifferentPropertyValue, createAttachmentBody, linkSelectedOpportunity, 
     deleteServiceRequestInstances, createAttachments, deleteAttachments } = require('./libs/utils');
 const { sendRequestToC4C } = require('./libs/ManageAPICalls');
+//const { startsWith, contains } = require('@sap-cloud-sdk/core');
 
 class ServiceRequestService extends cds.ApplicationService {
     async init() {
 
-        const { Customer, ServiceRequest, Attachement, Opportunity, Item } = this.entities;
+        const { Customer, ServiceRequest, Attachement, Opportunity, Item, RemoteInteraction, ServiceRequestInteraction, RemoteServiceRequest } = this.entities;
+
+        const remoteAPI = await cds.connect.to('interaction');
+        const remoteTicketAPI = await cds.connect.to('ticket');
 
         async function _createServiceRequestInstances(serviceRequests) {
             //const items = c4cResponse.data.d.results;
             for (let item of serviceRequests) {
-                const attachmentFolder = item.ServiceRequestAttachmentFolder[0];
+                const attachmentFolder = item.ServiceRequestAttachmentFolder;
                 let serviceRequest = {
                     UUID: item.UUID,
                     ObjectID: item.ObjectID,
@@ -26,66 +30,58 @@ class ServiceRequestService extends cds.ApplicationService {
                     MainContactID: item.BuyerMainContactPartyID,
                     RequestInitialDateTime : item.RequestInitialReceiptdatetimecontent,
                     RequestEndDateTime : item.RequestedFulfillmentPeriodEndDateTime,
+                    CreationDate : new Date(Number(item.CreationDateTime.substring(item.CreationDateTime.indexOf('(')+1,item.CreationDateTime.indexOf(')')))),
+                    LastChangingDate : new Date(Number(item.LastChangeDateTime.substring(item.LastChangeDateTime.indexOf('(')+1,item.LastChangeDateTime.indexOf(')')))),
+                    Attachment :[]
                 }
-                if (item.ResolvedOchnDateTime != ''){ // check for valid date time value
+ 
+                if (item.ResolvedOnDateTime != ''){ // check for valid date time value
                     serviceRequest.ResolutionDateTime = item.ResolvedOnDateTime;
                 }
+                if (item.ServiceIssueCategoryID != ''){
+                    serviceRequest.Category_code = item.ServiceIssueCategoryID.replace('ZA_','');
+                }
                 let attachment;
-                if (attachmentFolder) {
-                    let str = attachmentFolder.Binary;
+                attachmentFolder.forEach(attachmentInst => {
+                    let str = attachmentInst.Binary;
                     let content = Buffer.from(str, 'base64').toString();
                     let buffer = Buffer.from(content, 'utf-8');
                     attachment = {
                         content: buffer,
-                        fileName: attachmentFolder.Name,
-                        url: attachmentFolder.DocumentLink,
+                        fileName: attachmentInst.Name,
+                        url: attachmentInst.DocumentLink,
                         mediaType: 'text/plain'
                     }
-                }
-                // format date
-                var milliSeconds = item.CreationDateTime.substring(item.CreationDateTime.indexOf('(') + 1, item.CreationDateTime.indexOf(')'))
-                var date = new Date(1970, 0, 1, 0, 0, 0, Number(milliSeconds));
-
-                let year = date.getFullYear();
-                let month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed, so add 1 and pad with '0' if necessary
-                let day = String(date.getDate()).padStart(2, '0'); // Pad day with '0' if necessary
-                serviceRequest.CreationDate = `${year}-${month}-${day}`;
-
-                milliSeconds = item.LastChangeDateTime.substring(item.LastChangeDateTime.indexOf('(') + 1, item.LastChangeDateTime.indexOf(')'))
-                date = new Date(1970, 0, 1, 0, 0, 0, Number(milliSeconds));
-                year = date.getFullYear();
-                month = String(date.getMonth() + 1).padStart(2, '0');
-                day = String(date.getDate()).padStart(2, '0');
-
-                serviceRequest.LastChangingDate = `${year}-${month}-${day}`;
-                 // link to Customer
+                    serviceRequest.Attachment.push(attachment)
+                });
+              
                  const customerInst = await SELECT.one.from(Customer).where({InternalID : item.BuyerPartyID});
                  if (customerInst){
                     serviceRequest.Customer_ID = customerInst.ID;
                  }
-                const requestResult = await INSERT(serviceRequest).into(ServiceRequest);
-                if (attachment && requestResult.affectedRows > 0) {
-                    attachment.ServiceRequest_ID = requestResult.results[0].values[14]; // link attachment and SR values[13]-id
-                    await INSERT(attachment).into(Attachement);
-                }
+                await INSERT(serviceRequest).into(ServiceRequest);
+                
             };
         }
 
         this.before('PATCH', ServiceRequest, async req=>{
             if (req.data.CustomerID){ // if Customer was changed
-                const customer = await SELECT.one.from(Customer).columns(root=>root('ResponsibleManager')).where({InternalID : req.data.CustomerID});
+                const customer = await SELECT.one.from(Customer).columns(root=>{root('ResponsibleManager'),root('ResponsibleManagerID')}).where({InternalID : req.data.CustomerID});
                 if (customer){
                     req.data.Processor = customer.ResponsibleManager;
-                    req.data.ProcessorID = req.data.OrderID = req.data.OrderDescription = req.data.ProblemItem = req.data.ProblemItemDescription = '';
+                    req.data.ProcessorID = customer.ResponsibleManagerID;
+                    req.data.OrderID = req.data.OrderDescription = req.data.ProblemItem = req.data.ProblemItemDescription = '';
                 }
             }
-            if (req.data.CustomerID == '') { // if Customer was clered
+            if (req.data.CustomerID == '') { // if Customer was cleared
                 req.data.CustomerFormattedName = req.data.Processor = req.data.ProcessorID = req.data.OrderID = req.data.OrderDescription = req.data.ProblemItem = req.data.ProblemItemDescription = '';
             }
         })
 
         this.before('READ', 'ServiceRequest', async req => {
-            if (req._path == 'ServiceRequest' && req._.event == 'READ') { // read only for general list
+            const path = req._path;
+            const editing = path.includes('IsActiveEntity=false'); // fetch from remote only for reading page not editing
+            if (req._path == 'ServiceRequest' && !editing && req._.event == 'READ') { // read only for general list
                     
                 var email = req._.user.id;
                 var partner = await SELECT.one.from('Partner_PartnerProfile').where({ Email: email });
@@ -109,7 +105,7 @@ class ServiceRequestService extends cds.ApplicationService {
                         // exclude existing rows to create only new
                         const newRequestsToCreate = remoteRequests.filter(newItem => !existingRequests.some(existingItem => existingItem.ObjectID == newItem.ObjectID));
                         await _createServiceRequestInstances(newRequestsToCreate);
-                        await deleteServiceRequestInstances(c4cResponse, existingRequests, ServiceRequest);
+                        await deleteServiceRequestInstances(remoteRequests, existingRequests, ServiceRequest);
                     }
                     catch (error) {
                         req.reject({
@@ -117,7 +113,27 @@ class ServiceRequestService extends cds.ApplicationService {
                         });
                     }
                 }
-            }            
+            }  
+            else if (req._path != 'ServiceRequest'  && req._.event == 'READ') { 
+                const servicePath = path.substring(path.indexOf('ServiceRequest'));
+                const serviceEditing = servicePath.includes('IsActiveEntity=false');
+                if (!serviceEditing){ // only for viewing
+                    const serviceInst = await SELECT.one.from(ServiceRequest, req.data.ID);
+                    if (serviceInst && serviceInst.ObjectID){
+                        const serviceRequest= await remoteTicketAPI.run(SELECT.one.from(RemoteServiceRequest).columns(root=>{
+                            root('ServiceRequestLifeCycleStatusCode'),root('ResolvedOnDateTime')
+                        }).where({ObjectID: serviceInst.ObjectID}));
+                        if (serviceRequest){
+                            let refreshBody = {
+                                Status_code : serviceRequest.ServiceRequestLifeCycleStatusCode
+                            }
+                            if (serviceRequest.ResolvedOnDateTime != ''){
+                                refreshBody.ResolutionDateTime = serviceRequest.ResolvedOnDateTime;
+                            }
+                            await UPDATE(ServiceRequest, req.data.ID).with(refreshBody)                        }
+                    }
+                } 
+            }       
         });
 
         this.before('NEW', 'ServiceRequest', async req => {
@@ -125,7 +141,9 @@ class ServiceRequestService extends cds.ApplicationService {
             const partner = await SELECT.one.from("Partner_PartnerProfile").where({ Email: email });
             if (partner) {
                 req.data.MainContactID = partner.CODE;
-                req.data.Category_code = '1'; //default
+                req.data.Category_code = '2'; //default
+                req.data.RequestInitialDateTime = new Date().toString();
+                req.data.RequestEndDateTime = new Date().toString();
             }
         });
 
@@ -135,7 +153,7 @@ class ServiceRequestService extends cds.ApplicationService {
 
             const obj = await SELECT.one.from(ServiceRequest, serviceRequestID);
 
-            let path = `/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection('${obj.ObjectID}')?$expand=ServiceRequestAttachmentFolder`;
+            let path = `/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection('${obj.ObjectID}')?$expand=ServiceRequestAttachmentFolder,ServiceRequestTextCollection`;
             try {
                 let createRequestParameters = {
                     method: 'GET',
@@ -158,15 +176,18 @@ class ServiceRequestService extends cds.ApplicationService {
                     Status_code: serviceRequestResponse.ServiceRequestLifeCycleStatusCode,
                     LastChangingDate: formattedDate,
                     Processor: serviceRequestResponse.ProcessorPartyName,
-                    RequestProcessingTime: serviceRequestResponse.RequestInProcessdatetimeContent,
-                    OrderID: serviceRequestResponse.SalesOrderID,
-                    ProblemDescription: serviceRequestResponse.Name,
+                    //RequestProcessingTime: serviceRequestResponse.RequestInProcessdatetimeContent,
+                    //OrderID: serviceRequestResponse.SalesOrderID,
+                    Subject: serviceRequestResponse.Name,
                     MainContactID: serviceRequestResponse.BuyerMainContactPartyID,
                     RequestInitialDateTime : serviceRequestResponse.RequestInitialReceiptdatetimecontent,
                     RequestEndDateTime : serviceRequestResponse.RequestedFulfillmentPeriodEndDateTime,
                 }
-                if (serviceRequestResponse.ResolvedOchnDateTime != ''){ // check for valid date time value
+                if (serviceRequestResponse.ResolvedOnDateTime != ''){ // check for valid date time value
                     serviceRequest.ResolutionDateTime = serviceRequestResponse.ResolvedOnDateTime;
+                }
+                if (serviceRequestResponse.ServiceRequestTextCollection[0]){
+                    serviceRequest.ProblemDescription = serviceRequestResponse.ServiceRequestTextCollection[0].Text;
                 }
 
                 await UPDATE(ServiceRequest).with(serviceRequest).where({ ObjectID: serviceRequestResponse.ObjectID });
@@ -177,12 +198,52 @@ class ServiceRequestService extends cds.ApplicationService {
                 createAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement, serviceRequestID, "ServiceRequest");
                 deleteAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement);
 
-                return SELECT(ServiceRequest, serviceRequestID);
+                await DELETE(ServiceRequestInteraction).where({ServiceRequest_ID : serviceRequestID});
+
+                //fetch interactions
+                const interactions = await remoteAPI.run(SELECT.from(RemoteInteraction).columns(root=>{
+                    root('*'),
+                    root.ServiceRequestInteractionInteractions(interaction => {
+                        interaction('*'),
+                        interaction.ServiceRequestInteractionToParty(party => party('*'))
+                    })
+                }).where({ID : obj.InternalID}));
+
+                for(let item of interactions[0].ServiceRequestInteractionInteractions){
+                    let newInteraction = {
+                        InternalID : item.ID,
+                        Sender : item.FromPartyName + '('+item.FromPartyID + ')',
+                        Text : item.Text,
+                        CreationDateTime : item.CreationDateTime,
+                        Subject : item.SubjectName,
+                        ServiceRequest_ID : serviceRequestID
+                    }
+                    const toParty = item.ServiceRequestInteractionToParty[0];
+                    if (toParty){
+                        newInteraction.Recepients = toParty.EmailURI;
+                    }
+                    // delete unexpected tags
+                    let formattedText = newInteraction.Text;
+                    formattedText = formattedText.replaceAll('&nbsp;',' ');
+                    formattedText = formattedText.replace(/(<([^>]+)>)/gi, '');
+                    newInteraction.Text = formattedText;
+
+                    await INSERT(newInteraction).into(ServiceRequestInteraction)
+                }
+                //return SELECT(ServiceRequest, serviceRequestID);
             }
             catch (error) {
                 req.reject({
                     message: error.message
                 });
+            }
+        });
+
+        this.before('DELETE', 'ServiceRequest', async (req) => {
+            const id = req.data.ID;
+            const serviceRequest = await SELECT.one.from(ServiceRequest, id);
+            if(serviceRequest.ObjectID){
+                await remoteTicketAPI.run(DELETE.from(RemoteServiceRequest).where({ObjectID:serviceRequest.ObjectID}));
             }
         });
 
@@ -201,15 +262,17 @@ class ServiceRequestService extends cds.ApplicationService {
                 }
 
                 let body = {
-                    Name: ticket.ProblemDescription,
+                    Name: ticket.Subject,
                     ServiceRequestUserLifeCycleStatusCode: ticket.Status_code,
-                    ServiceIssueCategoryID : 'ZA_' + ticket.Category_code
-                    // dates?
+                    ServiceIssueCategoryID : 'ZA_' + ticket.Category_code,
+                    RequestInitialReceiptdatetimecontent : ticket.RequestInitialDateTime,
+                    RequestedFulfillmentPeriodEndDateTime : ticket.RequestEndDateTime,
+                    ProcessorPartyID : ticket.ProcessorID
                 }
                 if (internalBuyerID)
                     body.BuyerPartyID = internalBuyerID;
                 let products = [];
-                if (ticket.ProblemItem != null) {
+                if (ticket.ProblemItem != null && ticket.ProblemItem != '') {
                     const itemInstance = await SELECT.one.from(Item).where({ ID: ticket.ProblemItem });
                     products.push({ ProductID: itemInstance.ProductInternalID });
                     body.ServiceRequestItem = { results: products };
@@ -221,7 +284,12 @@ class ServiceRequestService extends cds.ApplicationService {
                     createAttachmentBody(ticket, results);
                     body.ServiceRequestAttachmentFolder = { results };
                 }
-
+                // Problem desctiption in Text Collection
+                if (ticket.ProblemDescription != ''){
+                    const results = [];
+                    results.push({Text : ticket.ProblemDescription})
+                    body.ServiceRequestTextCollection = results;
+                }
                 await linkSelectedOpportunity(ticket, Opportunity, body);
 
                 let createRequestParameters = {
@@ -241,7 +309,7 @@ class ServiceRequestService extends cds.ApplicationService {
                             UUID: UUID,
                             ObjectID: objectID,
                             InternalID: data.ID,
-                            Processor: data.ProcessorPartyName
+                           // Processor: data.ProcessorPartyName
                         });
                     }
                     if (ticket.Attachment && ticket.Attachment.length !== 0) {

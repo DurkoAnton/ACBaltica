@@ -31,7 +31,6 @@
                 "Customer-display": {
                     "signature": {
                         "parameters": {
-                            "ID": {}
                         },
                         "additionalParameters": "allowed"
                     },
@@ -309,6 +308,9 @@
                                         },
                                         "DataField::LastChangingDate": {
                                             "width": "auto"
+                                        },
+                                        "DataField::Subject": {
+                                            "width": "auto"
                                         }
                                     }
                                 }
@@ -361,6 +363,12 @@
                                         },
                                         "DataField::toItemProduct::ProductStatus": {
                                             "width": "auto"
+                                        },
+                                        "DataField::Quantity": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::NetPriceAmount": {
+                                            "width": "auto"
                                         }
                                     }
                                 },
@@ -390,13 +398,7 @@
                     "options": {
                         "settings": {
                             "contextPath": "/Customer/ToOpportunities/Items",
-                            "editableHeaderContent":false,
-                            "content": {
-                                "header": {
-                                    "visible": false,
-                                    "anchorBarVisible": false
-                                }
-                            },
+                            "editableHeaderContent": false,
                             "navigation": {},
                             "controlConfiguration": {
                                 "toItemProduct/SalesPriceLists/@com.sap.vocabularies.UI.v1.LineItem#SalesPriceLists": {
@@ -416,6 +418,9 @@
                                         "DataField::PriceListID": {
                                             "width": "auto"
                                         }
+                                    },
+                                    "tableSettings": {
+                                        "type": "ResponsiveTable"
                                     }
                                 }
                             }

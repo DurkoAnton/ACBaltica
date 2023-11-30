@@ -31,11 +31,11 @@ annotate service.Customer with @(
             Label: 'City',
             Value: JuridicalAddress_City
         },
-        {
-            $Type: 'UI.DataField',
-            Label: 'Region',
-            Value: JuridicalAddress_Street
-        },
+        // {
+        //     $Type: 'UI.DataField',
+        //     Label: 'Region',
+        //     Value: JuridicalAddress_Street
+        // },
         {
             $Type: 'UI.DataField',
             Label: 'Street',
@@ -96,12 +96,11 @@ annotate service.Customer with @(
             ID    : 'ServiceRequests',
             Target: 'ToServiceRequests/@UI.LineItem#ServiceRequests',
         },
-
-        {
-            $Type : 'UI.ReferenceFacet',
-            Label : 'Bank Information',
-            Target: 'BankData/@UI.LineItem#Banks'
-        },
+        // {
+        //     $Type : 'UI.ReferenceFacet',
+        //     Label : 'Bank Information',
+        //     Target: 'BankData/@UI.LineItem#Banks'
+        // },
     ],
 
 );
@@ -137,17 +136,17 @@ annotate service.Bank with @(UI.LineItem #Banks: [
     },
 ]);
 
-annotate service.Bank with @(UI.HeaderInfo: {
-    TypeName      : '{i18n>BankRecord}',
-    TypeNamePlural: '{i18n>BankRecords}',
-    Title         : {
-        $Type: 'UI.DataField',
-        Value: BankAccount,
-    },
-});
+// annotate service.Bank with @(UI.HeaderInfo: {
+//     TypeName      : '{i18n>BankRecord}',
+//     TypeNamePlural: '{i18n>BankRecords}',
+//     Title         : {
+//         $Type: 'UI.DataField',
+//         Value: BankAccount,
+//     },
+// });
 annotate service.Item with @(UI.HeaderInfo: {
-    TypeName      : 'Sales Price List',
-    TypeNamePlural: 'Sales Price Lists' 
+    TypeName      : 'Item',
+    TypeNamePlural: 'Items' 
 });
 
 annotate service.Customer with @(UI.HeaderInfo: {
@@ -299,7 +298,7 @@ annotate service.Opportunity with @(
                 $Type: 'UI.DataField',
                 Value: InternalID,
                 Label: 'Internal ID',
-                // ![@UI.Hidden] : {$edmJson : {$Eq : [{$Path : 'InternalID'}, '', true]}}
+                ![@UI.Hidden] : {$edmJson : {$Eq : [{$Path : 'InternalID'}, '']}}
             },
             {
                 $Type: 'UI.DataField',
@@ -391,14 +390,18 @@ annotate service.Item with @(
     }, ],
 );
 
-annotate service.Item with @(UI.HeaderInfo: {
-    TypeName      : 'Sales Price List',
-    TypeNamePlural: '',
-    Title         : {
-        $Type: 'UI.DataField',
-        Value: ProductInternalID,
-    },
-});
+// annotate service.SalesPriceList with @(UI.HeaderInfo: {
+//     TypeName      : 'Sales Price List1',
+//     TypeNamePlural: 'Sales Price List1',
+//     ![@UI.Hidden] : true,
+//     @Capabilities : { 
+//           DeleteRestrictions.Deletable  : false
+//      },
+//     Title         : {
+//         $Type: 'UI.DataField',
+//         Value: ProductInternalID,
+//     },
+// });
 
 annotate service.Item with {
     ProductInternalID @(Common: {
@@ -433,28 +436,24 @@ annotate service.Customer with @(UI.FieldGroup #AddressInformationPostal: {
             Label: 'Postal Box',
             Value: POBox,
             ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
-
         },
         {
             $Type: 'UI.DataField',
             Label: 'Postal Country',
             Value: POBoxCountry_code,
             ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
-
         },
          {
             $Type: 'UI.DataField',
             Label: 'Postal Region',
-            Value: POBoxState,
+            Value: POBoxState_code,
             ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
-
         },
         {
             $Type: 'UI.DataField',
             Label: 'Postal City',
             Value: POBoxCity,
             ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
-
         }
     ]
 });
@@ -557,11 +556,16 @@ annotate service.Customer with @(
 });
 
 annotate service.ServiceRequest with @(UI.LineItem #ServiceRequests: [
-    // {
-    //     $Type: 'UI.DataField',
-    //     Value: InternalID,
-    //     Label: '{i18n>InternalID}',
-    // },
+    {
+        $Type: 'UI.DataField',
+        Value: InternalID,
+        Label: '{i18n>InternalID}',
+    },
+{
+        $Type: 'UI.DataField',
+        Value: Subject,
+        Label: 'Subject',
+    },
     {
         $Type: 'UI.DataField',
         Value: Status_code,
@@ -607,12 +611,46 @@ annotate service.ServiceRequest with @(UI.LineItem #ServiceRequests: [
 annotate service.ServiceRequest with @(UI.HeaderInfo: {
     TypeName      : '{i18n>ServiceRequest}',
     TypeNamePlural: '{i18n>ServiceRequests}',
+    
     Title         : {
         $Type: 'UI.DataField',
-        Label: '{i18n>ProblemDescription}',
-        Value: ProblemDescription,
+        Label: 'Subject',
+        Value: Subject,
     }
 }, );
+
+annotate service.ServiceRequestInteraction with @(UI.LineItem #Interactions: [
+    {
+        $Type: 'UI.DataField',
+        Value: InternalID,
+        Label: 'InternalID',
+    },
+     {
+        $Type: 'UI.DataField',
+        Value: Subject,
+        Label: 'Subject',
+    },
+    {
+        $Type: 'UI.DataField',
+        Value: Text,
+        Label: 'Text',
+    },
+    {
+        $Type: 'UI.DataField',
+        Value: Sender,
+        Label: 'Sender',
+    },
+    {
+        $Type: 'UI.DataField',
+        Value: Recepients,
+        Label: 'Recepients',
+    },
+   {
+        $Type: 'UI.DataField',
+        Value: CreationDateTime,
+        Label: 'CreatedAt',
+    },
+]);
 
 annotate service.Bank with @(
     UI.Facets                     : [{
@@ -662,6 +700,11 @@ annotate service.ServiceRequest with @(
                 Label: 'Internal ID',
                 Value: InternalID,
             },
+             {
+                $Type: 'UI.DataField',
+                Label: 'Subject',
+                Value: Subject,
+            },
             {
                 $Type: 'UI.DataField',
                 Label: 'Status',
@@ -677,11 +720,7 @@ annotate service.ServiceRequest with @(
                 Label: 'Category',
                 Value: Category_code,
             },
-            {
-                $Type: 'UI.DataField',
-                Label: 'Creation Date',
-                Value: CreationDate,
-            },
+            
         ],
     },
      UI.FieldGroup #TimeProcessing      : {
@@ -694,11 +733,6 @@ annotate service.ServiceRequest with @(
             },
             {
                 $Type: 'UI.DataField',
-                Label: 'Last Changing Date',
-                Value: LastChangingDate,
-            },
-            {
-                $Type: 'UI.DataField',
                 Label: 'Request End Date',
                 Value: RequestEndDateTime,
             },
@@ -706,6 +740,16 @@ annotate service.ServiceRequest with @(
                 $Type: 'UI.DataField',
                 Label: 'Resolution Date',
                 Value: ResolutionDateTime,
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'Last Changing Date',
+                Value: LastChangingDate,
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'Creation Date',
+                Value: CreationDate,
             },
             
         ]
@@ -737,11 +781,14 @@ annotate service.ServiceRequest with @(
                 $Type: 'UI.DataField',
                 Label: 'Order ID',
                 Value: OrderID,
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'CustomerID'}, '']}, 1, 3 ]}},
+
             },
             {
                 $Type: 'UI.DataField',
                 Label: 'Problem Items',
                 Value: ProblemItem,
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'OrderID'}, '']}, 1, 3 ]}},
             },
         ]
     },
@@ -769,6 +816,17 @@ annotate service.ServiceRequest with @(
             Label : 'Problem Item',
             ID    : 'ProblemItem',
             Target: '@UI.FieldGroup#ProblemItem',
+             ![@UI.Hidden] : {$edmJson: {$Eq: [
+                {$Path: 'Category_code'},
+                '2'
+             ]}}
+        },
+        {
+            $Type : 'UI.ReferenceFacet',
+            Label : 'Interactions',
+            ID    : 'Interactions',
+            Target: 'Interactions/@UI.LineItem#Interactions',
+            ![@UI.Hidden] : {$edmJson: {$Ne: [{$Path: 'Status_code'},'3']}}
         },
         {
             $Type : 'UI.ReferenceFacet',
@@ -846,7 +904,7 @@ annotate service.ServiceRequest with {
         }
     });
     Category    @(Common: {
-        Text                    : CategoryDescription,
+        Text                    : Category.name,
         TextArrangement         : #TextLast,
         ValueListWithFixedValues: true,
         ValueList               : {
@@ -858,9 +916,8 @@ annotate service.ServiceRequest with {
                     LocalDataProperty: Category_code
                 },
                 {
-                    $Type            : 'Common.ValueListParameterOut',
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'name',
-                    LocalDataProperty: CategoryDescription
                 },
             ]
         }
@@ -980,6 +1037,12 @@ annotate service.ServiceRequest with {
             ]
         }
     });
+    ResolutionDateTime @readonly;
+    Subject @mandatory;
+    Processor @Common:{
+        Text : ProcessorID,
+        TextArrangement : #TextLast
+    }
 };
 
 annotate service.Customer with @(UI.SelectionFields: [
@@ -1161,7 +1224,7 @@ annotate service.Opportunity with {
 
 
 annotate service.Item @(Common: {SideEffects #toItemProductChanged: {
-    SourceProperties: ['ItemProductID'],
+    SourceProperties: ['ItemProductID','toItemProduct/InternalID'],
     TargetEntities  : [
         toItemProduct,
         toItemProduct.SalesPriceLists
@@ -1183,19 +1246,10 @@ annotate service.Opportunity @(Common: {SideEffects #LifeCycleStatusCodeChanged:
     TargetEntities  : [LifeCycleStatusCode]
 }});
 
-// annotate service.Opportunity @(Common: {SideEffects #OpptIDChanged: {
-//     SourceProperties: ['UUID'],
-//     TargetProperties  : ['InternalID']
-// }});
-// annotate service.Customer @(Common: {SideEffects #OpptIDChanged: {
-//     SourceProperties: ['ToOpportunities/UUID'],
-//     TargetProperties  : ['ToOpportunities/InternalID']
-// }});
-
-annotate service.Customer @(Common: {SideEffects #InternalIDChanged: {
-    SourceProperties : ['Status_code'],
-    TargetEntities : [ToOpportunities]
-}});  
+annotate service.ServiceRequest @(Common: {SideEffects #CategoryChanged: {
+    SourceProperties: ['Category_code'],
+    TargetEntities  : [Category]
+}});
 
 annotate service.Item @(Common: {SideEffects #ItemProductChanged: {
     SourceProperties: ['ItemProductID'],

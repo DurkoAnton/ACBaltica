@@ -172,6 +172,9 @@
                                         },
                                         "DataField::ProblemItem": {
                                             "width": "auto"
+                                        },
+                                        "DataField::Subject": {
+                                            "width": "auto"
                                         }
                                     }
                                 }
@@ -200,6 +203,34 @@
                                             "width": "auto"
                                         },
                                         "DataField::content": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CreationDateTime": {
+                                            "width": "auto"
+                                        }
+                                    }
+                                },
+                                "Interactions/@com.sap.vocabularies.UI.v1.LineItem#Interactions": {
+                                    "tableSettings": {
+                                        "type": "ResponsiveTable"
+                                    },
+                                    "columns": {
+                                        "DataField::InternalID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Subject": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Text": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Sender": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Recepients": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CreationDateTime": {
                                             "width": "auto"
                                         }
                                     }

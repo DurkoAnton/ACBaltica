@@ -228,6 +228,12 @@
                         "settings": {
                             "editableHeaderContent": false,
                             "contextPath": "/Opportunity/Items",
+                            "content": {
+                                "header": {
+                                    "visible": false,
+                                    "anchorBarVisible": false
+                                }
+                            },
                             "navigation": {},
                             "controlConfiguration": {
                                 "toItemProduct/SalesPriceLists/@com.sap.vocabularies.UI.v1.LineItem#SalesPriceLists": {

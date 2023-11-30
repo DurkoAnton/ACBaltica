@@ -8,6 +8,11 @@ annotate service.ServiceRequest with @(UI.LineItem: [
     },
     {
         $Type: 'UI.DataField',
+        Value: Subject,
+        Label: 'Subject',
+    },
+    {
+        $Type: 'UI.DataField',
         Value: Status_code,
         Label: '{i18n>Status}',
     },
@@ -72,33 +77,34 @@ annotate service.ServiceRequest with @(
                 $Type: 'UI.DataField',
                 Label: 'Internal ID',
                 Value: InternalID,
+                ![@UI.Hidden] : {$edmJson : {$Eq : [{$Path : 'InternalID'}, '']}}
             },
-            {
+             {
                 $Type: 'UI.DataField',
-                Label: 'Status',
-                Value: Status_code,
-            },
-            {
-                $Type: 'UI.DataField',
-                Label: 'Problem Description',
-                Value: ProblemDescription,
+                Label: 'Subject',
+                Value: Subject,
             },
             {
                 $Type: 'UI.DataField',
                 Label: 'Category',
                 Value: Category_code,
             },
-            // {
-            //     $Type: 'UI.DataField',
-            //     Label: 'Request Processing Time',
-            //     Value: RequestProcessingTime,
-            // },
             {
                 $Type: 'UI.DataField',
-                Label: 'Creation Date',
-                Value: CreationDate,
+                Label: 'Problem Description',
+                Value: ProblemDescription,
+                ![@UI.Hidden] : {$edmJson: {$Eq: [
+                {$Path: 'Category_code'},
+                '1'
+            ]}}
             },
-           
+            {
+                $Type: 'UI.DataField',
+                Label: 'Status',
+                Value: Status_code,
+            },
+            
+            
         ],
     },
      UI.FieldGroup #TimeProcessing      : {
@@ -111,11 +117,6 @@ annotate service.ServiceRequest with @(
             },
             {
                 $Type: 'UI.DataField',
-                Label: 'Last Changing Date',
-                Value: LastChangingDate,
-            },
-            {
-                $Type: 'UI.DataField',
                 Label: 'Request End Date',
                 Value: RequestEndDateTime,
             },
@@ -124,7 +125,16 @@ annotate service.ServiceRequest with @(
                 Label: 'Resolution Date',
                 Value: ResolutionDateTime,
             },
-            
+              {
+                $Type: 'UI.DataField',
+                Label: 'Last Changing Date',
+                Value: LastChangingDate,
+            },
+             {
+                $Type: 'UI.DataField',
+                Label: 'Creation Date',
+                Value: CreationDate,
+            },
         ]
     },
     UI.FieldGroup #Parties      : {
@@ -149,11 +159,13 @@ annotate service.ServiceRequest with @(
                 $Type: 'UI.DataField',
                 Label: 'Order ID',
                 Value: OrderID,
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'CustomerID'}, '']}, 1, 3 ]}},
             },
             {
-                $Type: 'UI.DataField',
+                $Type: 'UI.DataField', 
                 Label: 'Problem Item',
                 Value: ProblemItem,
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'OrderID'}, '']}, 1, 3 ]}},
             },
         ]
     },
@@ -181,6 +193,10 @@ annotate service.ServiceRequest with @(
             Label : 'Problem Item',
             ID    : 'ProblemItem',
             Target: '@UI.FieldGroup#ProblemItem',
+             ![@UI.Hidden] : {$edmJson: {$Eq: [
+                {$Path: 'Category_code'},
+                '2'
+             ]}}
         },
         {
             $Type : 'UI.ReferenceFacet',
@@ -188,6 +204,14 @@ annotate service.ServiceRequest with @(
             ID    : 'Attachments',
             Target: 'Attachment/@UI.LineItem#Attachments',
         },
+        {
+            $Type : 'UI.ReferenceFacet',
+            Label : 'Interactions',
+            ID    : 'Interactions',
+            Target: 'Interactions/@UI.LineItem#Interactions',
+            ![@UI.Hidden] : {$edmJson: {$Ne: [{$Path: 'Status_code'},'3']}}
+        },
+        
     ]
 );
 
@@ -196,10 +220,14 @@ annotate service.ServiceRequest with @(UI.HeaderInfo: {
     TypeNamePlural: '{i18n>ServiceRequests}',
     Title         : {
         $Type: 'UI.DataField',
-        Label: '{i18n>ProblemDescription}',
-        Value: ProblemDescription,
+        Label: 'Subject',
+        Value: Subject,
     }
 }, );
+annotate service.Attachement with @(UI.HeaderInfo: {
+    TypeName      : 'Attachment',
+    TypeNamePlural: 'Attachments',
+});
 
 annotate service.ServiceRequest with @(UI.SelectionFields: [
     InternalID,
@@ -224,7 +252,9 @@ annotate service.ServiceRequest with {
                 ValueListProperty: 'ProblemDescription',
             },
         ],
-    }, )
+    }, );
+    Processor @readonly;
+    ProcessorID @readonly;
 };
 
 annotate service.ServiceRequest with {
@@ -295,7 +325,7 @@ annotate service.ServiceRequest with {
                 },
                 {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
-                    ValueListProperty: 'LifeCycleStatusText'
+                    ValueListProperty: 'LifeCycleStatusCode/name',
                 },
                 // {
                 //     $Type            : 'Common.ValueListParameterDisplayOnly',
@@ -413,6 +443,39 @@ annotate service.Attachement with @(UI.LineItem #Attachments: [
     },
 ]);
 
+annotate service.ServiceRequestInteraction with @(UI.LineItem #Interactions: [
+    {
+        $Type: 'UI.DataField',
+        Value: InternalID,
+        Label: 'InternalID',
+    },
+     {
+        $Type: 'UI.DataField',
+        Value: Subject,
+        Label: 'Subject',
+    },
+    {
+        $Type: 'UI.DataField',
+        Value: Text,
+        Label: 'Text',
+    },
+    {
+        $Type: 'UI.DataField',
+        Value: Sender,
+        Label: 'Sender',
+    },
+    {
+        $Type: 'UI.DataField',
+        Value: Recepients,
+        Label: 'Recepients',
+    },
+   {
+        $Type: 'UI.DataField',
+        Value: CreationDateTime,
+        Label: 'CreatedAt',
+    },
+]);
+
 annotate service.ServiceRequest with @(UI.Identification: [{
     $Type : 'UI.DataFieldForAction',
     Action: 'ServiceRequestService.updateFromRemote',
@@ -430,21 +493,28 @@ annotate service.Attachement @(Common: {SideEffects #content: {
 
 annotate service.ServiceRequest with {
     InternalID @Common.Label: '{i18n>InternalID}';
-    ProblemDescription @Common.Label: '{i18n>ProblemDescription}';
+    ProblemDescription @Common.Label: '{i18n>ProblemDescription}' @mandatory;
     CreationDate @Common.Label : '{i18n>CreationDate}';
     Status @Common.Label : 'Status';
     Category @Common.Label : 'Category';
     Processor @Common:{
         Text : ProcessorID,
         TextArrangement : #TextLast
-    }
+    };
+    ResolutionDateTime @readonly;
+    Subject @mandatory;
+};
+
+annotate service.OpportunityStatus with {
+    name @Common.Label : 'Status';
 };
 
 annotate service.Opportunity with {
     ID @Common:{
         Text: InternalID,
         TextArrangement : #TextOnly,
-    };
+    }; 
+    //LifeCycleStatusCode_name @Common.Label : 'Status';
     LifeCycleStatusText @Common.Label : 'Status';
     ProspectPartyName @Common:{
         Label: 'Customer',
@@ -473,13 +543,14 @@ annotate service.Customer with {
         Label: 'Responsible manager',
         Text: ResponsibleManagerID,
         TextArrangement : #TextLast,
-    };
+    } @readonly;
     ID @UI.Hidden:true;
     Status @Common : { 
         Label : 'Status',
         Text : Status.name,
         TextArrangement : #TextFirst,
     };
+
     // ResponsibleManager @Common :{
     //     Label : 'Res',
     //     Text : Status.name,
@@ -491,3 +562,29 @@ annotate service.ServiceRequest @(Common: {SideEffects #CustomerIDChanged: {
     SourceProperties: ['CustomerID'],
     TargetProperties  : ['CustomerFormattedName','Processor','OrderID','OrderDescription','ProblemItem']
 }}); 
+annotate service.ServiceRequest @(Common: {SideEffects #Statushanged: {
+    SourceProperties: ['Status_code'],
+    TargetEntities  : [Status]
+}}); 
+annotate service.ServiceRequest with {
+    CustomerID @Common:{
+        SemanticObject : 'Customer',
+        SemanticObjectMapping : [
+            {
+                $Type : 'Common.SemanticObjectMappingType',
+                LocalProperty : 'ID',
+                SemanticObjectProperty : 'none',
+            },
+             {
+                $Type : 'Common.SemanticObjectMappingType',
+                LocalProperty : 'InternalID',
+                SemanticObjectProperty : 'none',
+            },
+             {
+                $Type : 'Common.SemanticObjectMappingType',
+                LocalProperty : 'Status_code',
+                SemanticObjectProperty : 'none',
+            },
+        ],
+        }
+};
