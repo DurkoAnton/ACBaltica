@@ -3,23 +3,23 @@ using RequestApprovalService as service from '../../srv/RequestApprovalService';
 annotate service.RequestApproval with @(UI.LineItem: [
     {
         $Type: 'UI.DataField',
-        Label: 'Customer',
+        Label: 'Customer ID',
         Value: Customer.InternalID,
     },
-    // {
-    //     $Type: 'UI.DataField',
-    //     Label: 'Customer',
-    //     Value: currentData_CustomerFormattedName,
-    // },
+    {
+        $Type: 'UI.DataField',
+        Label: 'Customer',
+        Value: currentData_CustomerFormattedName,
+    },
     {
         $Type: 'UI.DataField',
         Label: 'Status',
         Value: Status_code,
     },
      {
-                $Type: 'UI.DataField',
-                Label: 'Responsible manager',
-                Value: currentData_ResponsibleManager,
+        $Type: 'UI.DataField',
+        Label: 'Responsible manager',
+        Value: currentData_ResponsibleManager,
     },
      {
         $Type: 'UI.DataField',
@@ -57,6 +57,7 @@ annotate service.RequestApproval with @(
                 },
 
             ],
+            ![@UI.Hidden] : {$edmJson : {$Eq : [{$Path : 'CustomerID'},'']}}
         },
         {
             $Type : 'UI.CollectionFacet',
@@ -76,7 +77,8 @@ annotate service.RequestApproval with @(
                     ID    : 'NewJurAddressData',
                     Target: '@UI.FieldGroup#NewJurAddressData',
                 },
-            ]
+            ],
+            ![@UI.Hidden] : {$edmJson : {$Eq : [{$Path : 'CustomerID'},'']}}
         },
         {
             $Type : 'UI.CollectionFacet',
@@ -95,7 +97,8 @@ annotate service.RequestApproval with @(
                     ID    : 'NewPostalAddressData',
                     Target: '@UI.FieldGroup#NewPostalAddressData',
                 },
-            ]
+            ],
+            ![@UI.Hidden] : {$edmJson : {$Eq : [{$Path : 'CustomerID'},'']}}
         },
 
 
@@ -181,8 +184,8 @@ annotate service.RequestApproval with @(
             },
             {
                 $Type: 'UI.DataField',
-                Label: 'Postal Region',
-                Value: currentData_POBoxState,
+                Label: 'Postal Code',
+                Value: currentData_POBoxPostalCode,
                 ![@Common.FieldControl] : #ReadOnly,
             },
             {
@@ -245,8 +248,8 @@ annotate service.RequestApproval with @(
             },
             {
                 $Type: 'UI.DataField',
-                Label: 'Postal Region',
-                Value: newData_POBoxState,
+                Label: 'Postal Code',
+                Value: newData_POBoxPostalCode,
                 ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'Status_code'}, '1' ]}, 3, 1 ]}},
             },
             {
@@ -332,12 +335,12 @@ annotate service.RequestApproval with {
                 {
                     $Type            : 'Common.ValueListParameterInOut',
                     ValueListProperty: 'ID',
-                    LocalDataProperty: CustomerID
+                    LocalDataProperty: 'CustomerID',
                 },
                 {
                     $Type            : 'Common.ValueListParameterOut',
                     ValueListProperty: 'CustomerFormattedName',
-                    LocalDataProperty: currentData_CustomerFormattedName
+                    LocalDataProperty: currentData_CustomerFormattedName,![@UI.Hidden]:true,
                 },
                 {
                     $Type            : 'Common.ValueListParameterOut',
@@ -391,8 +394,8 @@ annotate service.RequestApproval with {
                 },
                 {
                     $Type            : 'Common.ValueListParameterOut',
-                    ValueListProperty: 'POBoxState_code',
-                    LocalDataProperty: currentData_POBoxState
+                    ValueListProperty: 'POBoxPostalCode',
+                    LocalDataProperty: currentData_POBoxPostalCode
                 },
                 {
                     $Type            : 'Common.ValueListParameterOut',
@@ -434,7 +437,7 @@ annotate service.RequestApproval with {
                 {
                     $Type            : 'Common.ValueListParameterOut',
                     ValueListProperty: 'JuridicalAddress_Street',
-                    LocalDataProperty: newData_JuridicalStreet
+                    LocalDataProperty: newData_JuridicalStreet,
                 },
                 {
                     $Type            : 'Common.ValueListParameterOut',
@@ -463,8 +466,8 @@ annotate service.RequestApproval with {
                 },
                 {
                     $Type            : 'Common.ValueListParameterOut',
-                    ValueListProperty: 'POBoxState_code',
-                    LocalDataProperty: newData_POBoxState
+                    ValueListProperty: 'POBoxPostalCode',
+                    LocalDataProperty: newData_POBoxPostalCode
                 },
                 {
                     $Type            : 'Common.ValueListParameterOut',
@@ -540,7 +543,7 @@ annotate service.RequestApproval with {
         }
     });
     currentPOBoxCountry@(Common: {
-        Text                    : newPOBoxCountry.name,
+        Text                    : currentPOBoxCountry.name,
         TextArrangement         : #TextLast,
         ValueListWithFixedValues: true,
     }); 
@@ -550,13 +553,27 @@ annotate service.RequestApproval with {
         ValueListWithFixedValues: true,
     }); 
 };
+annotate service.Customer with {
+    ID @UI.Hidden;
+    ObjectID @UI.Hidden;
+    JuridicalCountry @(Common: {
+        Text                    : JuridicalCountry.name,
+        TextArrangement         : #TextFirst,
+    }); 
+    Status @(Common: {
+        Text                    : Status.name,
+        TextArrangement         : #TextFirst,
+    }); 
+  POBox @UI.Hidden;
+    POBoxPostalCode @UI.Hidden;
+    POBoxCity @UI.Hidden;
+    POBoxCountry @UI.Hidden;
+};
 
-// annotate service.Customer with {
-//   InternalID @Common:{
-//     Text : CustomerFormattedName,
-//     TextArrangement : #TextFirst
-//   }
+// annotate service.RequestApproval with {
+//     CustomerID @UI.Hidden;
 // };
+
 
 // annotate service.ServiceRequest @(Common: {SideEffects #CustomerChanged: {
 //     SourceProperties: ['CustomerID'],
@@ -573,11 +590,6 @@ annotate service.RequestApproval with @(UI.Identification: [
         Label : 'Send Approval Request',
         ![@UI.Hidden] : {$edmJson : {$Ne : [{$Path : 'Status_code'},'1']}}
     },
-    {
-        $Type: 'UI.DataFieldForAction',
-        Action: 'RequestApprovalService.approve',
-        Label: 'approve'
-    }
 ]);
 
 annotate service.RequestApproval with @(UI.HeaderInfo: {
@@ -590,7 +602,7 @@ annotate service.RequestApproval with @(UI.HeaderInfo: {
 });
 
 annotate service.RequestApproval with @(UI.SelectionFields: [CustomerID, ]);
-
+annotate service.Customer with @(UI.SelectionFields: [ID, ]);
 annotate service.RequestApproval with {
     CustomerID @Common.Label: '{i18n>CustomerID}';
     newData { 
@@ -612,6 +624,11 @@ annotate service.RequestApproval with {
                 LocalProperty : 'Status_code',
                 SemanticObjectProperty : 'none',
             },
+            //  {
+            //     $Type : 'Common.SemanticObjectMappingType',
+            //     LocalProperty : 'Customer/CustomerFormattedName',
+            //     SemanticObjectProperty : 'none',
+            // },
         ], 
     }
 };

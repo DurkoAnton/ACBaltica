@@ -36,21 +36,21 @@ annotate service.Opportunity with @(UI.LineItem: [
         Label: 'Changed At',
         Value: LastChangeDateTime,
     },
-    {
-        $Type: 'UI.DataField',
-        Label: 'Changed By',
-        Value: LastChangedBy,
-    },
+    // {
+    //     $Type: 'UI.DataField',
+    //     Label: 'Changed By',
+    //     Value: LastChangedBy,
+    // },
     {
         $Type: 'UI.DataField',
         Label: 'Created At',
         Value: CreationDateTime,
     },
-    {
-        $Type: 'UI.DataField',
-        Label: 'Created By',
-        Value: CreatedBy,
-    },
+    // {
+    //     $Type: 'UI.DataField',
+    //     Label: 'Created By',
+    //     Value: CreatedBy,
+    // },
 ], );
 
 annotate service.Opportunity with @(
@@ -61,11 +61,25 @@ annotate service.Opportunity with @(
             ID    : 'GeneralInfo',
             Target: '@UI.FieldGroup#GeneralInfo',
         },
-        {
-            $Type : 'UI.ReferenceFacet',
+       {
+            $Type : 'UI.CollectionFacet',
             Label : 'Parties',
-            ID    : 'Parties',
-            Target: '@UI.FieldGroup#Parties',
+            ID    : 'PartiesNew',
+            Facets: [
+                {
+                    $Type : 'UI.ReferenceFacet',
+                    Label : 'Parties',
+                    ID    : 'Parties',
+                    Target: '@UI.FieldGroup#Parties',
+                },
+                {
+                    $Type : 'UI.ReferenceFacet',
+                    Label : 'Owners Communication',
+                    ID    : 'Owners',
+                    Target: '@UI.FieldGroup#Owners',
+                    ![@UI.Hidden] : {$edmJson: {$Eq: [{$Path: 'InternalID'}, '']}}
+                }
+            ]
         },
         {
             $Type : 'UI.ReferenceFacet',
@@ -90,26 +104,31 @@ annotate service.Opportunity with @(
                 $Type: 'UI.DataField',
                 Value: InternalID,
                 Label: 'Internal ID',
+                ![@UI.Hidden] : {$edmJson: {$Eq: [{$Path: 'InternalID'}, '']}}
             },
             {
                 $Type: 'UI.DataField',
                 Value: Subject,
                 Label: 'Subject',
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
             },
             {
                 $Type: 'UI.DataField',
                 Value: LifeCycleStatusCode_code,
                 Label: 'Status',
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
             },
             {
                 $Type: 'UI.DataField',
                 Label: 'Not Standart Request',
                 Value: NotStandartRequest,
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
             },
             {
                 $Type: 'UI.DataField',
                 Label: 'Customer Comment',
                 Value: CustomerComment,
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
             },
             {
                 $Type: 'UI.DataField',
@@ -123,23 +142,42 @@ annotate service.Opportunity with @(
             },
         ],
     },
-    UI.FieldGroup #Parties    : {
+     UI.FieldGroup #Parties    : {
         $Type: 'UI.FieldGroupType',
         Data : [
-         {
+            {
                 $Type: 'UI.DataField',
                 Value: ProspectPartyID,
                 Label: 'Customer',
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
             },
-            // {
-            //     $Type: 'UI.DataField',
-            //     Value: Customer_ID,
-            //     Label: 'Customer',
-            // },
-             {
+            {
                 $Type: 'UI.DataField',
                 Value: MainEmployeeResponsiblePartyName,
                 Label: 'Employee Responsible',
+            },
+        ]
+    },
+    UI.FieldGroup #Owners    : {
+        $Type: 'UI.FieldGroupType',
+        Data : [
+            {
+                $Type: 'UI.DataField',
+                Value: ResponsibleEmail,
+                Label: 'Email',
+                //![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
+            },
+             {
+                $Type: 'UI.DataField',
+                Value: ResponsiblePhone,
+                Label: 'Phone',
+                //![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
+            },
+             {
+                $Type: 'UI.DataField',
+                Value: ResponsibleMobilePhone,
+                Label: 'Mobile',
+                //![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
             },
         ]
     }
@@ -189,6 +227,19 @@ annotate service.Opportunity with {
                     ValueListProperty: 'ID',
                     LocalDataProperty: Customer_ID
                 },
+                {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'Status_code',
+                },
+                {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'ResponsibleManager'
+                },
+                {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'Note'
+                },
+                
             ]
         }
     });
@@ -203,6 +254,7 @@ annotate service.Attachement with @(UI.LineItem #Attachments: [
         $Type: 'UI.DataField',
         Value: content,
         Label: 'Content',
+        ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
     },
     {
         $Type: 'UI.DataField',
@@ -217,7 +269,6 @@ annotate service.Attachement with @(UI.LineItem #Attachments: [
 
 annotate service.Item with {
     ItemProductID @(Common: {
-        ValueListWithFixedValues: false,
         Text                    : toItemProduct.InternalID,
         TextArrangement         : #TextOnly,
         ValueList               : {
@@ -236,6 +287,10 @@ annotate service.Item with {
                 {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'InternalID',
+                },
+                  {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'Description',
                 },
                 {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
@@ -259,46 +314,51 @@ annotate service.ItemProduct with {
         Text           : ProductStatusDescription,
         TextArrangement: #TextFirst,
     });
+    ID @UI.Hidden;
 };
-
+annotate service.SalesPriceList with @(UI.HeaderInfo: {
+    TypeName      : 'Sales Price List',
+    TypeNamePlural: 'Sales Price Lists',
+    Title         : {
+        $Type: 'UI.DataField',
+        Value: ProductInternalID,
+    },
+});
 annotate service.Item with @(
     UI.LineItem #Items: [
         {
             $Type: 'UI.DataField',
             Label: 'Product',
             Value: ItemProductID,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
+        },
+        
+        {
+            $Type: 'UI.DataField',
+            Label: 'Description',
+            Value: toItemProduct.Description,
         },
         {
             $Type: 'UI.DataField',
-            Label: 'Quantity',
-            Value: Quantity,
+            Label: 'Product Category',
+            Value: toItemProduct.ProductCategory,
+        },
+        {
+            $Type: 'UI.DataField',
+            Label: 'Product Status',
+            Value: toItemProduct.ProductStatus,
         },
          {
             $Type: 'UI.DataField',
             Label: 'Price',
             Value: NetPriceAmount,
         },
-        //  {
-        //     $Type: 'UI.DataField',
-        //     Label: 'oppt',
-        //     Value: toOpportunity_ID,
-        // },
-        {
+         {
             $Type: 'UI.DataField',
-            Label: 'Internal ID',
-            Value: toItemProduct.InternalID,
+            Label: 'Quantity',
+            Value: Quantity,
+            ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
         },
-        // {
-        //     $Type: 'UI.DataField',
-        //     Label: 'Product Category',
-        //     Value: toItemProduct.ProductCategory,
-        // },
-        // {
-        //     $Type: 'UI.DataField',
-        //     Label: 'Product Status',
-        //     Value: toItemProduct.ProductStatus,
-        // },
-        
         
         {
             $Type: 'UI.DataField',
@@ -313,16 +373,24 @@ annotate service.Item with @(
     }],
 );
 
-annotate service.Item with @(
-    UI.HeaderInfo : {
-        TypeName : 'Sales Price List',
-        TypeNamePlural : '',
-        Title : {
-            $Type : 'UI.DataField',
-            Value : ProductInternalID,
-        },
-    }
-);
+annotate service.Item with @(UI.HeaderInfo: {
+    TypeName      : 'Item',
+    TypeNamePlural: 'Items',
+    Title : {
+        $Type : 'UI.DataField',
+        Value : ' ',
+    } 
+});
+
+// annotate service.SalesPriceList with @(UI.HeaderInfo: {
+//     TypeName      : 'Sales Price List',
+//     TypeNamePlural: 'Sales Price List',
+//     Title         : {
+//         $Type: 'UI.DataField',
+//         Value: 'new',
+//     },
+// });
+
 
 annotate service.Item with {
     ProductInternalID @(Common: {
@@ -351,6 +419,16 @@ annotate service.SalesPriceList with @(UI.LineItem #SalesPriceLists: [
         $Type: 'UI.DataField',
         Value: PriceUnitContent,
         Label: 'Price Unit',
+    },
+    {
+        $Type: 'UI.DataField',
+        Value: ValidFrom,
+        Label: 'Valid From',
+    },
+    {
+        $Type: 'UI.DataField',
+        Value: ValidTo,
+        Label: 'Valid To',
     },
 ], );
 
@@ -393,43 +471,21 @@ annotate service.Opportunity with @(UI.Identification: [
         Action: 'OpportunityService.updateFromRemote',
         Label : 'Refresh'
     },
-    {
-        $Type : 'UI.DataFieldForAction',
-        Action: 'OpportunityService.LoadProducts',
-        Label : 'Load Products'
-    },
+   
 ]);
 
-annotate service.Item @(Common: {SideEffects #ItemProductChanged: {
-    SourceProperties: ['ItemProductID'],
-    TargetProperties  : ['NetPriceAmount', 'NetPriceCurrency_code'],
-    TargetEntities :[toItemProduct, toItemProduct.SalesPriceLists]
-}});
-
-annotate service.Item @(Common: {SideEffects #ItemProduct1Changed: {
-    SourceEntities: [toItemProduct],
-    TargetEntities :[toItemProduct.SalesPriceLists]
-}});
-
-annotate service.Opportunity @(Common: {SideEffects #ItemChanged: {
-    SourceProperties: ['Items/ItemProductID'],
-    TargetProperties  : ['Items/NetPriceCurrency/code'],
-    TargetEntities :[Items.toItemProduct,Items.toItemProduct.SalesPriceLists] 
-}});
-
-annotate service.Item @(Common: {SideEffects #ItemProductIDChanged: {
-    SourceProperties: ['ItemProductID'],
+annotate service.Item @(Common: {SideEffects #toItemProductChanged: {
+    SourceProperties: ['ItemProductID','toItemProduct/InternalID'],
     TargetEntities  : [
         toItemProduct,
         toItemProduct.SalesPriceLists
     ]
 }});
-// annotate service.ItemProduct @(Common: {SideEffects #InternalIDChanged: {
-//     SourceProperties: ['InternalID'],
-//     TargetEntities  : [
-//         SalesPriceLists
-//     ]
-// }});
+annotate service.Item @(Common: {SideEffects #ItemProductChanged: {
+    SourceProperties: ['ItemProductID'],
+    TargetProperties  : ['NetPriceAmount', 'NetPriceCurrency_code'],
+    TargetEntities :[toItemProduct, toItemProduct.SalesPriceLists]
+}});
 annotate service.Attachement @(Common: {SideEffects #content: {
     SourceProperties: ['content'],
     TargetProperties  : ['mediaType']
@@ -486,16 +542,20 @@ annotate service.Customer with {
         TextArrangement : #TextLast,
     };
     ID @UI.Hidden:true;
+    Status            @(Common: {
+    Text                    : Status.name,
+    TextArrangement         : #TextFirst,
+    });
 };
 annotate service.Opportunity with {
     ProspectPartyID @Common:{
         SemanticObject : 'Customer',
         SemanticObjectMapping : [
-            {
-                $Type : 'Common.SemanticObjectMappingType',
-                LocalProperty : 'ProspectPartyID',
-                SemanticObjectProperty : 'InternalID',
-            },
+            // {
+            //     $Type : 'Common.SemanticObjectMappingType',
+            //     LocalProperty : 'ProspectPartyID',
+            //     SemanticObjectProperty : 'InternalID',
+            // },
             {
                 $Type : 'Common.SemanticObjectMappingType',
                 LocalProperty : 'ID',
@@ -504,14 +564,14 @@ annotate service.Opportunity with {
         ],
         }
 };
-annotate service.Opportunity with {
-    Customer @Common:{SemanticObject : 'Customer',
-       SemanticObjectMapping : [
-            {
-                $Type : 'Common.SemanticObjectMappingType',
-                LocalProperty : 'Customer_ID',
-                SemanticObjectProperty : 'ID',
-            },
-        ],
-    }
-};
+// annotate service.Opportunity with {
+//     Customer @Common:{SemanticObject : 'Customer',
+//        SemanticObjectMapping : [
+//             {
+//                 $Type : 'Common.SemanticObjectMappingType',
+//                 LocalProperty : 'Customer_ID',
+//                 SemanticObjectProperty : 'ID',
+//             },
+//         ],
+//     }
+// };

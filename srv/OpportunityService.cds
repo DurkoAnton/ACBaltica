@@ -13,10 +13,15 @@ service OpportunityService @(requires: 'authenticated-user'){
     @cds.odata.bindingparameter.name : '_it'
     @Common.SideEffects : {    
         $Type:'Common.SideEffectsType', 
-        TargetEntities : ['_it/Items', '_it/Attachment']        
+        TargetEntities : ['_it','_it/Items', '_it/Attachment']        
     }   
     action updateFromRemote() returns Opportunity;
   };
+  //  @Capabilities : {
+  //     InsertRestrictions.Insertable : {$edmJson: {$Eq: [{$Path: 'toOpportunity/HasActiveEntity'},false]}},
+  //     UpdateRestrictions.Updatable : {$edmJson: {$Eq: [{$Path: 'toOpportunity/HasActiveEntity'},false]}},
+  //     DeleteRestrictions.Deletable  : {$edmJson: {$Eq: [{$Path: 'toOpportunity/HasActiveEntity'},false]}},
+  // } 
   entity Item as select from customer.Item 
   { *, toItemProduct.InternalID as ProductInternalID, toItemProduct.ProductCategory as ProductCategory, toItemProduct.ProductStatusDescription as ProductStatus };
   entity SalesPriceList as projection on customer.SalesPriceList;

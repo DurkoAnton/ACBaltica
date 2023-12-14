@@ -4,7 +4,7 @@ async function loadProductsAndPricesListsFromC4C(ItemProduct, SalesPriceList, re
     try {
         await DELETE.from(ItemProduct);
         // load products from C4C to HANA 
-        let path = `sap/c4c/odata/v1/c4codataapi/ProductCollection`;
+        let path = `sap/c4c/odata/v1/c4codataapi/ProductCollection?$filter=ProductCategoryID eq 'GLYCOLS' or ProductCategoryID eq 'RESINS' or ProductCategoryID eq 'PLASTICS' or ProductCategoryID eq 'CAOUTCHOUCS' or ProductCategoryID eq 'POLYESTERS'`;
         let createRequestParameters = {
             method: 'GET',
             url: path,
@@ -15,16 +15,17 @@ async function loadProductsAndPricesListsFromC4C(ItemProduct, SalesPriceList, re
         let c4cResponse = await sendRequestToC4C(createRequestParameters);
         if (c4cResponse.status == '200' && c4cResponse.data.d.results != undefined) {
             const data = c4cResponse.data.d.results;
-            data.forEach(async (item) => {
+            for(let item of data){
                 let product = {
                     InternalID: item.ProductID,
                     ProductCategory: item.ProductCategoryID,
                     ProductStatus: item.Status,
                     ProductStatusDescription: item.StatusText,
-                    UnitMeasure: item.BaseUOMText
+                    UnitMeasure: item.BaseUOMText,
+                    Description : item.Description
                 };
                 await INSERT(product).into(ItemProduct);
-            });
+            };
         }
 
         // load price lists and connect them to material
@@ -40,21 +41,25 @@ async function loadProductsAndPricesListsFromC4C(ItemProduct, SalesPriceList, re
         c4cResponse = await sendRequestToC4C(createRequestParameters);
         if (c4cResponse.status == '200' && c4cResponse.data.d.results != undefined) {
             const data = c4cResponse.data.d.results;
-            data.forEach(async (priceList) => {
-                priceList.InternalPriceDiscountListItems.forEach(async (priceListItem) => {
-                    const product = {
+            for (let priceList of data){
+                for (let priceListItem of priceList.InternalPriceDiscountListItems) {
+                    let product = {
                         PriceListID: priceListItem.PriceDiscountListID,
                         Amount: priceListItem.Amount,
                         AmountCurrencyCode_code: priceListItem.AmountCurrencyCode,
-                        PriceUnitContent: priceListItem.PriceUnitContent,
-                        PriceUnitCode: priceListItem.PriceUnitCode,
                         ItemProductID: priceListItem.ProductID,
                         IsBasePriceList : priceList.IsBasePriceList,
-                        ReleaseStatusCode : priceList.ReleaseStatusCode
+                        ReleaseStatusCode : priceList.ReleaseStatusCode,
+                        ValidFrom : new Date(Number(priceList.ValidityStartDate.substring(priceList.ValidityStartDate.indexOf('(')+1,priceList.ValidityStartDate.indexOf(')')))),
+                        ValidTo : new Date(Number(priceList.ValidityEndDate.substring(priceList.ValidityEndDate.indexOf('(')+1,priceList.ValidityEndDate.indexOf(')')))),
                     };
+                    if (priceListItem.PriceUnitContent && priceListItem.PriceUnitContent != ''){
+                        let priceUnit = priceListItem.PriceUnitContent.substring(0,priceListItem.PriceUnitContent.indexOf('.')+2)
+                        product.PriceUnitContent = priceUnit;
+                    } 
                     await INSERT(product).into(SalesPriceList);
-                });
-            });
+                }
+            }
         }
     }
     catch (error) {

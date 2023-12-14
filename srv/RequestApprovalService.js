@@ -40,6 +40,9 @@ class RequestApprovalService extends cds.ApplicationService {
             if (requestApproval) {
                 const customer = await SELECT.one.from(Customer).where({ ID: requestApproval.CustomerID });
                 if (customer) {
+                    // if(!customer.ResponsibleManagerEmail || !customer.ResponsibleManager) {
+                    //     req.reject(400, "Customer does not have Responsible Manager or Responsible Manager Email")
+                    // }
                     let oldCountryDescription;
                     let newCountryDescription;
                     let oldPOBoxCountryDescription;
@@ -91,7 +94,8 @@ class RequestApprovalService extends cds.ApplicationService {
                         // Postal address
                         POBox: requestApproval.currentData_POBox,
                         POBoxCountry: oldPOBoxCountryDescription,
-                        POBoxState: requestApproval.currentData_POBoxState,
+                        //POBoxState: requestApproval.currentData_POBoxState,
+                        POBoxPostalCode: requestApproval.currentData_POBoxPostalCode,
                         POBoxCity: requestApproval.currentData_POBoxCity,
                     }
                     const newData = {
@@ -107,7 +111,8 @@ class RequestApprovalService extends cds.ApplicationService {
                         // Postal address
                         POBox: requestApproval.newData_POBox,
                         POBoxCountry: newPOBoxCountryDescription,
-                        POBoxState: requestApproval.newData_POBoxState,
+                        //POBoxState: requestApproval.newData_POBoxState,
+                        POBoxPostalCode: requestApproval.newData_POBoxPostalCode,
                         POBoxCity: requestApproval.newData_POBoxCity,
                     }
                     let body = {
@@ -122,7 +127,8 @@ class RequestApprovalService extends cds.ApplicationService {
                         // Postal address
                         POBox: requestApproval.newData_POBox,
                         POBoxCountry: newPOBoxCountryDescription,
-                        POBoxState: requestApproval.newData_POBoxState,
+                        //POBoxState: requestApproval.newData_POBoxState,
+                        POBoxPostalCode: requestApproval.newData_POBoxPostalCode,
                         POBoxCity: requestApproval.newData_POBoxCity,
                     }
                     //delete null properties from body
@@ -138,7 +144,7 @@ class RequestApprovalService extends cds.ApplicationService {
                         objectID: customer.ObjectID,
                         requestID : requestApprovalID,
                         internalID: customer.InternalID,
-                        createdAt: today.toLocaleDateString() + ' ' + today.toLocaleTimeString(),
+                        createdAt: today.toLocaleDateString(),
                         createdBy: mail,
                         old: oldData,
                         new: newData,
@@ -151,7 +157,7 @@ class RequestApprovalService extends cds.ApplicationService {
                     req.info("Request for approval has been sent!")
 
                     // set status to "Sent to Approval"
-                    await UPDATE(RequestApproval).set({ Status_code: "2"})
+                    await UPDATE(RequestApproval).set({ Status_code: "2"}).where({ ID: requestApprovalID });
                     return SELECT(RequestApproval).where({ ID: requestApprovalID });
                 }
             }
@@ -162,7 +168,7 @@ class RequestApprovalService extends cds.ApplicationService {
             const requestApprovalID = req.params[0].ID;
 
             // set status to "Approved"
-            await UPDATE(RequestApproval).set({ Status_code: "3" });
+            await UPDATE(RequestApproval).set({ Status_code: "3" }).where({ ID: requestApprovalID });
 
             // update Customer in c4c
             const approvalRecord = await SELECT.one.from(RequestApproval).where({ ID: requestApprovalID });
@@ -171,7 +177,6 @@ class RequestApprovalService extends cds.ApplicationService {
                 var body = {
                     Name: approvalRecord.newData_CustomerFormattedName,
                     LifeCycleStatusCode: approvalRecord.newStatusCode_code,
-                    OwnerID: approvalRecord.newData_ResponsibleManagerID,
                     CountryCode: approvalRecord.newCountry_code,
                     City: approvalRecord.newData_JuridicalCity,
                     Street: approvalRecord.newData_JuridicalStreet,
@@ -179,8 +184,9 @@ class RequestApprovalService extends cds.ApplicationService {
                     Room: approvalRecord.newData_JuridicalRoomID,
                     // Postal Address
                     POBox: approvalRecord.newData_POBox,
-                    POBoxDeviatingCountryCode: approvalRecord.newData_POBoxCountry_code,
+                    POBoxDeviatingCountryCode: approvalRecord.newPOBoxCountry_code,
                     //POBoxState: approvalRecord.newData_POBoxState,// code ?
+                    POBoxPostalCode: approvalRecord.newData_POBoxPostalCode,
                     POBoxDeviatingCity: approvalRecord.newData_POBoxCity,
                 }
                 //delete null properties from body
@@ -203,7 +209,7 @@ class RequestApprovalService extends cds.ApplicationService {
                 //update Note through text collection
                 path = `/sap/c4c/odata/v1/c4codataapi/CorporateAccountCollection('${approvalRecord.CustomerObjectID}')/CorporateAccountTextCollection`;
                 const noteBody = {
-                    Text : 'approvalRecord.newData_Note12'
+                    Text : approvalRecord.newData_Note
                 }
                 createInC4CParameters = {
                     method: 'POST',
@@ -226,7 +232,8 @@ class RequestApprovalService extends cds.ApplicationService {
                     // Postal Address
                     POBox: body.POBox,
                     POBoxCountry_code: body.POBoxDeviatingCountryCode,
-                    POBoxState: body.POBoxState,
+                    //POBoxState: body.POBoxState,
+                    POBoxPostalCode: body.POBoxPostalCode,
                     POBoxCity: body.POBoxDeviatingCity,
                 })
             }
@@ -237,7 +244,7 @@ class RequestApprovalService extends cds.ApplicationService {
             const requestApprovalID = req.params[0].ID;
 
             // set status to "Rejected"
-            await UPDATE(RequestApproval).set({ Status_code: "4" })
+            await UPDATE(RequestApproval).set({ Status_code: "4" }).where({ ID: requestApprovalID })
             return SELECT(RequestApproval).where({ ID: requestApprovalID });
         });
 

@@ -144,7 +144,8 @@
                             "controlConfiguration": {
                                 "@com.sap.vocabularies.UI.v1.LineItem": {
                                     "tableSettings": {
-                                        "type": "ResponsiveTable"
+                                        "type": "ResponsiveTable",
+                                        "selectAll": true
                                     },
                                     "columns": {
                                         "DataField::ProspectPartyName": {
@@ -211,6 +212,36 @@
                                     "columns": {
                                         "DataField::toItemProduct::UnitMeasure": {
                                             "width": "auto"
+                                        },
+                                        "DataField::ItemProductID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Quantity": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::NetPriceAmount": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::toItemProduct::InternalID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::toItemProduct::Description": {
+                                            "width": "auto"
+                                        }
+                                    },
+                                    "tableSettings": {
+                                        "type": "ResponsiveTable",
+                                        "selectionMode": "Auto",
+                                        "selectAll": true
+                                    }
+                                },
+                                "Attachment/@com.sap.vocabularies.UI.v1.LineItem#Attachments": {
+                                    "columns": {
+                                        "DataField::content": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CreationDateTime": {
+                                            "width": "auto"
                                         }
                                     }
                                 }
@@ -226,15 +257,9 @@
                     "name": "sap.fe.templates.ObjectPage",
                     "options": {
                         "settings": {
-                            "editableHeaderContent": false,
                             "contextPath": "/Opportunity/Items",
-                            "content": {
-                                "header": {
-                                    "visible": false,
-                                    "anchorBarVisible": false
-                                }
-                            },
                             "navigation": {},
+                            "initialLoad": "Enabled",
                             "controlConfiguration": {
                                 "toItemProduct/SalesPriceLists/@com.sap.vocabularies.UI.v1.LineItem#SalesPriceLists": {
                                     "columns": {
@@ -252,10 +277,24 @@
                                         },
                                         "DataField::PriceListID": {
                                             "width": "auto"
+                                        },
+                                        "DataField::ValidFrom": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::ValidTo": {
+                                            "width": "auto"
+                                        }
+                                    },
+                                    "tableSettings": {
+                                        "type": "ResponsiveTable",
+                                        "quickVariantSelection": {
+                                            "hideTableTitle": true
                                         }
                                     }
                                 }
-                            }
+                            },
+                            "variantManagement": "None",
+                            "editableHeaderContent": false
                         }
                     },
                     "controlAggregation": "midColumnPages",

@@ -26,45 +26,48 @@ class OpportunityService extends cds.ApplicationService {
                     LifeCycleStatusText: item.LifeCycleStatusText,
                     MainEmployeeResponsiblePartyID: item.MainEmployeeResponsiblePartyID,
                     MainEmployeeResponsiblePartyName: item.MainEmployeeResponsiblePartyName,
-                    //CreationDateTime: item.CreationDateTime,
                     CreatedBy: item.CreatedBy,
-                    //LastChangeDateTime: item.LastChangeDateTime,
                     LastChangedBy: item.LastChangedBy,
                     MainContactID: item.PrimaryContactPartyID,
                     CustomerComment : item.CustomerComment_SDK,
-                    NotStandartRequest : item.NotStandartRequest_SDK
+                    NotStandartRequest : item.NotStandartRequest_SDK,
+                    ResponsibleEmail : item.OwnerEmail_SDK,
+	                ResponsibleMobilePhone : item.OwnerMobilePhone_SDK,
+	                ResponsiblePhone : item.OwnerPhone_SDK,
+                    CreationDateTime : new Date(Number(item.CreationDateTime.substring(item.CreationDateTime.indexOf('(')+1,item.CreationDateTime.indexOf(')')))),
+                    LastChangeDateTime : new Date(Number(item.LastChangeDateTime.substring(item.LastChangeDateTime.indexOf('(')+1,item.LastChangeDateTime.indexOf(')')))),
+                    Attachment : [],
+                    Items : []
                 }
-                const attachmentFolder = item.OpportunityAttachmentFolder[0];
+                const attachmentFolder = item.OpportunityAttachmentFolder;
                 let attachment;
-                if (attachmentFolder) {
-                    let str = attachmentFolder.Binary;
+                attachmentFolder.forEach(attachmentInst => {
+                    let str = attachmentInst.Binary;
                     let content = Buffer.from(str, 'base64').toString();
                     let buffer = Buffer.from(content, 'utf-8');
                     attachment = {
                         content: buffer,
-                        fileName: attachmentFolder.Name,
-                        url: attachmentFolder.DocumentLink,
-                        mediaType: 'text/plain'
+                        fileName: attachmentInst.Name,
+                        url: attachmentInst.DocumentLink,
+                        mediaType: 'text/plain',
+                        ObjectID : attachmentInst.ObjectID
+                    }
+                    opportunity.Attachment.push(attachment)
+                });
+                const itemsInst = item.OpportunityItem;
+                for (let product of itemsInst) {
+                    const itemProduct = await SELECT.one.from(ItemProduct).where({ InternalID: product.ProductID }).columns('ID')
+                    if (itemProduct) {
+                        let itemInst = { ItemProductID: itemProduct.ID }
+                        opportunity.Items.push(itemInst)
                     }
                 }
                 // link to Customer
-                const customerInst = await SELECT.one.from(Customer).where({InternalID : item.ProspectPartyID});
+                const customerInst = await SELECT.one.from(Customer).where({InternalID : item.ProspectPartyID}).columns('ID');
                 if (customerInst){
                     opportunity.Customer_ID = customerInst.ID;
                 }
-                const insertResult = await INSERT(opportunity).into(Opportunity);
-                if (insertResult.affectedRows > 0) {
-                    const opportunityID = insertResult.results[0].values[14];
-                    if (attachment){
-                        attachment.Opportunity_ID = opportunityID; // link attachment and SR values[14]-id
-                        await INSERT(attachment).into(Attachement);
-                    }
-                    // add items
-                    if (item.OpportunityItem.length > 0) {
-                        const items = await createItemsBody(item.OpportunityItem, ItemProduct, opportunityID);
-                        await INSERT(items).into(Item);
-                    }
-                }
+                await INSERT(opportunity).into(Opportunity);
             });
         }
 
@@ -76,18 +79,19 @@ class OpportunityService extends cds.ApplicationService {
                     data = [req];
                 }
                 for(let item of data) {
-                    
                     if (item.toItemProduct){
-                        //item.Quantity = 2;
                         const itemProductID = item.toItemProduct.InternalID;
                         const priceLists = await SELECT.from(SalesPriceList).where({ItemProductID : itemProductID});
                         const baseList = priceLists.filter(price => price.IsBasePriceList && price.ReleaseStatusCode == '3');
-                        let netPrice = 0;
+                        let netPrice = 0.0;
                         let netPriceCurrency;
                         baseList.forEach(price =>{
-                            netPrice += price.Amount;
+                            netPrice = netPrice + Number(price.Amount);
                             netPriceCurrency = price.AmountCurrencyCode_code;
                         })
+                        if (!netPriceCurrency){
+                            netPriceCurrency = 'USD';
+                        }
                         item.NetPriceCurrency_code = netPriceCurrency;
                         item.NetPriceAmount = netPrice;
                     }
@@ -145,7 +149,6 @@ class OpportunityService extends cds.ApplicationService {
             }
             else if(path.startsWith('Opportunity') && path.endsWith(')') && req.event == 'READ'){
                 //update status from remote when 
-                //const opptPath = path.substring(path.indexOf('ToOpportunities'));
                 const opptEditing = path.includes('IsActiveEntity=false');
                 if (!opptEditing){ // only for viewing
                     const opptInst = await SELECT.one.from(Opportunity, req.data.ID);
@@ -243,6 +246,9 @@ class OpportunityService extends cds.ApplicationService {
                                 ObjectID: createdData.ObjectID,
                                 //MainEmployeeResponsiblePartyName: createdData.MainEmployeeResponsiblePartyName,
                                 InternalID: createdData.ID,
+                                ResponsibleEmail : createdData.OwnerEmail_SDK,
+	                            ResponsibleMobilePhone : createdData.OwnerMobilePhone_SDK,
+	                            ResponsiblePhone : createdData.OwnerPhone_SDK,
                             });
 
                         if (opportunity.Attachment && opportunity.Attachment.length !== 0) {
@@ -284,14 +290,15 @@ class OpportunityService extends cds.ApplicationService {
                 const c4cResponse = await sendRequestToC4C(createRequestParameters);
                 const opportunityResponse = c4cResponse.data.d.results;
 
-                const LastChangeDateTime = opportunityResponse.LastChangeDateTime;
-                const timestamp = opportunityResponse.LastChangeDateTime.substring(LastChangeDateTime.indexOf('(') + 1, LastChangeDateTime.indexOf(')'));
-                const date = new Date(Number(timestamp));
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed, so add 1 and pad with '0' if necessary
-                const day = String(date.getDate()).padStart(2, '0'); // Pad day with '0' if necessary
-                const formattedDate = `${year}-${month}-${day}`;
+                // const LastChangeDateTime = opportunityResponse.LastChangeDateTime;
+                // const timestamp = opportunityResponse.LastChangeDateTime.substring(LastChangeDateTime.indexOf('(') + 1, LastChangeDateTime.indexOf(')'));
+                // const date = new Date(Number(timestamp));
+                // const year = date.getFullYear();
+                // const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed, so add 1 and pad with '0' if necessary
+                // const day = String(date.getDate()).padStart(2, '0'); // Pad day with '0' if necessary
+                // const formattedDate = `${year}-${month}-${day}`;
 
+                const changeDateTime = opportunityResponse.LastChangeDateTime;
                 let opportunity = {
                     InternalID: opportunityResponse.ID,
                     ProspectPartyID: opportunityResponse.ProspectPartyID,
@@ -301,11 +308,14 @@ class OpportunityService extends cds.ApplicationService {
                     MainEmployeeResponsiblePartyID: opportunityResponse.MainEmployeeResponsiblePartyID,
                     MainEmployeeResponsiblePartyName: opportunityResponse.MainEmployeeResponsiblePartyName,
                     CreatedBy: opportunityResponse.CreatedBy,
-                    LastChangeDateTime: formattedDate,
+                    LastChangeDateTime: new Date(Number(changeDateTime.substring(changeDateTime.indexOf('(')+1,changeDateTime.indexOf(')')))),
                     LastChangedBy: opportunityResponse.LastChangedBy,
                     MainContactID: opportunityResponse.PrimaryContactPartyID,
                     CustomerComment : opportunityResponse.CustomerComment_SDK,
-                    NotStandartRequest : opportunityResponse.NotStandartRequest_SDK
+                    NotStandartRequest : opportunityResponse.NotStandartRequest_SDK,
+                    ResponsibleEmail : opportunityResponse.OwnerEmail_SDK,
+	                ResponsibleMobilePhone : opportunityResponse.OwnerMobilePhone_SDK,
+	                ResponsiblePhone : opportunityResponse.OwnerPhone_SDK,
                 }
                 // link to new Customer if it was changed
                 if (opportunityResponse.ProspectPartyID){
@@ -322,18 +332,24 @@ class OpportunityService extends cds.ApplicationService {
                 createAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement, opportunityID, "Opportunity");
                 deleteAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement);
 
-                //update Items
-                // const itemsFromRemote = opportunityResponse.OpportunityItem;
-                // const existingItems = await SELECT.from(Item).where({toOpportunity_ID : opportunityID});
-
-                // deleteItems(itemsFromRemote, existingItems, Item);
-
-                // const itemsToCreate = itemsFromRemote.filter(obj1 => !existingItems.some(obj2 => obj2.ObjectID === obj1.ObjectID) /*&& obj1.ObjectID != null*/);
-                // const itemBodies = await createItemsBody(itemsToCreate, ItemProduct, opportunityID)
-
-                //await INSERT(itemBodies).into(Item)
+                // update items
+                const opptItems = opportunityResponse.OpportunityItem;
+                if (opptItems) {
+                    const existingItems = await SELECT.from(Item).where({ toOpportunity_ID: opportunityID });
+                    const newRows = opptItems.filter(item => !existingItems.some(itemExists => itemExists.ProductInternalID == item.ProductID));
+                    if (newRows) {
+                        const items = await createItemsBody(newRows, ItemProduct, opportunityID);
+                        if (items.length != 0) {
+                            await INSERT(items).into(Item);
+                        }
+                    }
+                    const exceedRows = existingItems.filter(obj1 => !opptItems.some(obj2 => obj2.ProductID == obj1.ProductInternalID));
+                    for(let row of exceedRows){
+                        await DELETE.from(Item).where({ID : row.ID});
+                    }
+                }
                 
-                return SELECT(Opportunity, opportunityID);
+                //return SELECT(Opportunity, opportunityID);
             }
             catch (error) {
                 req.reject({

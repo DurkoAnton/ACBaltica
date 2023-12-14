@@ -27,6 +27,7 @@ class PartnerService extends cds.ApplicationService {
                     const account = item.CorporateAccount;
                     const owner = account.OwnerEmployeeBasicData;
                     const note = account.CorporateAccountTextCollection.results;
+                    const sales = account.CorporateAccountSalesData[0];
                     if (account != undefined) {
                         customer = {
                             CustomerFormattedName: account.BusinessPartnerFormattedName,
@@ -55,10 +56,68 @@ class PartnerService extends cds.ApplicationService {
                         if (note != undefined) {
                             customer.Note = note.Text;
                         }
+                        if (sales != undefined){
+                            customer.SalesOrganisation = sales.SalesOrganisationName + '(' + sales.SalesOrganisationID + ')';
+                        }
                         await INSERT(customer).into(Customer);
                     }
                 }
             });
+        }
+        
+        async function _updateCustomerInstances(corporateAccounts, customersFromDB){
+            for (let obj1 of customersFromDB) {
+                // Find the matching object in customersFromDB
+                const obj2 = corporateAccounts.find(obj2 => obj1.UUID === obj2.CorporateAccount.UUID);
+              
+                // If a match is found, update the object in the database
+                if (obj2.CorporateAccount) {
+                    const account = obj2.CorporateAccount;
+                    const owner = account.OwnerEmployeeBasicData;
+                    let note;
+                    if (account.CorporateAccountTextCollection.length > 0){
+                        const notes = account.CorporateAccountTextCollection;
+                        // find the object with the latest UpdatedOn value
+                        let latestNote = notes.reduce((latest, current) => {
+                            return new Date(latest.UpdatedOn) > new Date(current.UpdatedOn) ? latest : current;
+                        });
+                        note = latestNote;
+                    }
+                    const sales = account.CorporateAccountSalesData[0];
+                    const customer = {
+                        CustomerFormattedName: account.BusinessPartnerFormattedName,
+                        InternalID: account.AccountID,
+                        Status_code: account.LifeCycleStatusCode,
+                        UUID: account.UUID,
+                        ObjectID: account.ObjectID,
+                        MainContactID: obj2.ContactID,
+
+                        JuridicalAddress_City: account.City,
+                        JuridicalCountry_code: account.CountryCode,
+                        JuridicalAddress_Street: account.Street,
+                        JuridicalAddress_HomeID: account.HouseNumber,
+                        JuridicalAddress_RoomID: account.Room,
+
+                        POBox : account.POBox,
+                        POBoxCountry_code : account.POBoxDeviatingCountryCode,
+                        POBoxState_code : account.POBoxDeviatingRegionCode,
+                        POBoxCity : account.POBoxDeviatingCity,
+                    }
+
+                    if (owner != undefined) {
+                        customer.ResponsibleManager = owner.FormattedName;
+                        customer.ResponsibleManagerID = owner.EmployeeID;
+                        customer.ResponsibleManagerEmail = owner.Email;
+                    }
+                    if (sales != undefined){
+                        customer.SalesOrganisation = sales.SalesOrganisationName + '(' + sales.SalesOrganisationID + ')';
+                    }
+                    if (note != undefined) {
+                        customer.Note = note.Text;
+                    }
+                    await UPDATE(Customer).with(customer).where({ UUID: obj1.UUID });
+                }
+              }
         }
 
         async function _getDataFromAPI(request, dest, currentUserEmail) {
@@ -139,13 +198,7 @@ class PartnerService extends cds.ApplicationService {
                 const currentPartner = await SELECT.one.from(PartnerProfile).where({ Email: currentEmail }).columns('Code',);
                 const customersFromDB = await SELECT.from(Customer).where({MainContactID : currentPartner.Code});
 
-                //const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${currentEmail}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
                 try {
-                    // const createRequestParameters = {
-                    //     method: 'GET',
-                    //     url: path,
-                    //     headers: { 'content-type': 'application/json' }
-                    // }
 
                     const customers = await remoteC4CAPI.run(SELECT.from(RemoteContact).columns(root=>{
                         root('ContactID'),
@@ -160,21 +213,17 @@ class PartnerService extends cds.ApplicationService {
                                 account('City'),account('CountryCode'),account('Street'),account('HouseNumber'),account('Room'),
                                 account('POBox'),account('POBoxDeviatingCountryCode'),account('POBoxDeviatingRegionCodeText'),account('POBoxDeviatingCity'),
                                 account.OwnerEmployeeBasicData(owner=>{owner('FormattedName'),owner('Email'),owner('EmployeeID')}),
-                                account.CorporateAccountTextCollection(text=>text('Text'))
+                                account.CorporateAccountTextCollection(text=>{text('Text'),text('UpdatedOn')}),
+                                account.CorporateAccountSalesData(sales => sales('*'))
                             })
                         })
                     }).where({Email: currentEmail}));
     
                     const contact = customers[0];
-                    await _createCustomerInstances(contact.ContactIsContactPersonFor, customersFromDB);
-                    await deleteCustomerInstances(contact.ContactID, contact.ContactIsContactPersonFor, customersFromDB, Customer);
-                
-                    /*
-                    const c4cResponse = await sendRequestToC4C(createRequestParameters);
-                    const result = c4cResponse.data.d.results[0];
-                    await _createCustomerInstances(c4cResponse, customersFromDB, currentPartner.Code); // 
-                    await deleteCustomerInstances(result.ContactID,result.ContactIsContactPersonFor, customersFromDB, Customer);
-                    */
+                    if (contact) {
+                        await _createCustomerInstances(contact.ContactIsContactPersonFor, customersFromDB);
+                        await deleteCustomerInstances(contact.ContactID, contact.ContactIsContactPersonFor, customersFromDB, Customer);
+                    }
                 }
                 catch (error) {
                     req.reject({
@@ -268,18 +317,19 @@ class PartnerService extends cds.ApplicationService {
 
             const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection('${req.data.ObjectID}')`;
             const body = {
-                //BusinessAddressCountryCode: req.data.Country_code,
-                //BusinessAddressCity: req.data.City,
+                BusinessAddressCountryCode: req.data.Country_code,
+                BusinessAddressCity: req.data.City,
                 FirstName: req.data.FirstName,
                 LastName: req.data.LastName,
                 Mobile: req.data.MobilePhone,
                 Phone: req.data.Phone,
-                Email: req.data.Email,
+                //Email: req.data.Email,
                 StatusCode : req.data.Status_code,
                 // Region
-                // BusinessAddressHouseNumber: req.data.HouseNumber,
-                // BusinessAddressStreet: req.data.Street,
-                // BusinessAddressStreetPostalCode: req.data.PostalCode
+                BusinessAddressStateCode : req.data.Region_code,
+                BusinessAddressHouseNumber: req.data.HouseNumber,
+                BusinessAddressStreet: req.data.Street,
+                BusinessAddressStreetPostalCode: req.data.PostalCode
             }
             try {
                 const createRequestParameters = {
@@ -459,7 +509,7 @@ class PartnerService extends cds.ApplicationService {
         
         this.on('updateAllFieldsFromRemote', async (req) => {
             const email = req._.user.id;
-            const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${email}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection`;
+            const path = `/sap/c4c/odata/v1/c4codataapi/ContactCollection?$filter=Email eq '${email}'&$expand=ContactIsContactPersonFor,ContactIsContactPersonFor/CorporateAccount,ContactIsContactPersonFor/CorporateAccount/OwnerEmployeeBasicData,ContactIsContactPersonFor/CorporateAccount/CorporateAccountTextCollection,ContactIsContactPersonFor/CorporateAccount/CorporateAccountSalesData`;
 
             try {
                 const createRequestParameters = {
@@ -493,14 +543,6 @@ class PartnerService extends cds.ApplicationService {
                     PostalCode: partnerProfileObj.BusinessAddressStreetPostalCode
                 };
 
-                // new Region value
-                const regionCode = partnerProfileObj.BusinessAddressStateCode;
-                const regionText = partnerProfileObj.BusinessAddressStateCodeText;
-                const regionInst = await SELECT.one.from(RegionCode).where({code : regionCode});
-                if (!regionInst){
-                    await INSERT({code : regionCode, country: partnerProfileObj.BusinessAddressCountryCode, name :regionText}).into(RegionCode)
-                }
-
                 await UPDATE(PartnerProfile).with(partnerObj).where({ ObjectID: partnerProfileObj.ObjectID });
 
                 const contacts = partnerProfileObj.ContactIsContactPersonFor;
@@ -508,9 +550,15 @@ class PartnerService extends cds.ApplicationService {
                     const contact = contacts[i];
                     const account = contact.CorporateAccount;
                     const owner = account.OwnerEmployeeBasicData;
+                    const sales = account.CorporateAccountSalesData[0];
                     let note;
                     if (account.CorporateAccountTextCollection.length > 0){
-                        note = account.CorporateAccountTextCollection[0];
+                        const notes = account.CorporateAccountTextCollection;
+                        // find the object with the latest UpdatedOn value
+                        let latestNote = notes.reduce((latest, current) => {
+                            return new Date(latest.UpdatedOn) > new Date(current.UpdatedOn) ? latest : current;
+                        });
+                        note = latestNote;
                     }
                     let customer;
                     if (account != undefined) {
@@ -542,13 +590,16 @@ class PartnerService extends cds.ApplicationService {
                         if (note != undefined) {
                             customer.Note = note.Text;
                         }
+                        if (sales != undefined){
+                            customer.SalesOrganisation = sales.SalesOrganisationName + '(' + sales.SalesOrganisationID + ')';
+                        }
 
                         const cust = await SELECT.one.from(Customer).where({ ObjectID: account.ObjectID });
 
                         if (cust)
                             await UPDATE(Customer).with(customer).where({ ObjectID: account.ObjectID })
-                        else
-                            await INSERT(customer).into(Customer);
+                        // else
+                        //     await INSERT(customer).into(Customer);
                     }
                 }
                 return this.read(PartnerProfile).where({Email : email});
@@ -561,181 +612,181 @@ class PartnerService extends cds.ApplicationService {
 
         });
 
-        this.on('updateFromRemote', async (req) => { // update serviceRequests or Opportunities from remote
-            const pathString = req._path;
-            const toServiceRequestsString = "ToServiceRequests(ID=";
-            const serviceRequestsStart = pathString.indexOf(toServiceRequestsString);
-            const toOpportunitiesString = "ToOpportunities(ID=";
-            const opportunitiesStart = pathString.indexOf(toOpportunitiesString);
+        // this.on('updateFromRemote', async (req) => { // update serviceRequests or Opportunities from remote
+        //     const pathString = req._path;
+        //     const toServiceRequestsString = "ToServiceRequests(ID=";
+        //     const serviceRequestsStart = pathString.indexOf(toServiceRequestsString);
+        //     const toOpportunitiesString = "ToOpportunities(ID=";
+        //     const opportunitiesStart = pathString.indexOf(toOpportunitiesString);
 
 
-            if (serviceRequestsStart !== -1) {
-            const startIndex = serviceRequestsStart + toServiceRequestsString.length
-                const serviceRequestID = pathString.substring(startIndex, startIndex + 36);
+        //     if (serviceRequestsStart !== -1) {
+        //     const startIndex = serviceRequestsStart + toServiceRequestsString.length
+        //         const serviceRequestID = pathString.substring(startIndex, startIndex + 36);
 
-                const obj = await SELECT.one.from(ServiceRequest, serviceRequestID);
+        //         const obj = await SELECT.one.from(ServiceRequest, serviceRequestID);
 
-                let path = `/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection('${obj.ObjectID}')?$expand=ServiceRequestAttachmentFolder`;
-                try {
-                    let createRequestParameters = {
-                        method: 'GET',
-                        url: path,
-                        headers: { 'content-type': 'application/json' }
-                    }
-                    const c4cResponse = await sendRequestToC4C(createRequestParameters);
-                    const serviceRequestResponse = c4cResponse.data.d.results;
+        //         let path = `/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection('${obj.ObjectID}')?$expand=ServiceRequestAttachmentFolder`;
+        //         try {
+        //             let createRequestParameters = {
+        //                 method: 'GET',
+        //                 url: path,
+        //                 headers: { 'content-type': 'application/json' }
+        //             }
+        //             const c4cResponse = await sendRequestToC4C(createRequestParameters);
+        //             const serviceRequestResponse = c4cResponse.data.d.results;
 
-                    const LastChangeDateTime = serviceRequestResponse.LastChangeDateTime;
-                    const timestamp = serviceRequestResponse.LastChangeDateTime.substring(LastChangeDateTime.indexOf('(') + 1, LastChangeDateTime.indexOf(')'));
-                    const date = new Date(Number(timestamp));
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed, so add 1 and pad with '0' if necessary
-                    const day = String(date.getDate()).padStart(2, '0'); // Pad day with '0' if necessary
-                    const formattedDate = `${year}-${month}-${day}`;
+        //             const LastChangeDateTime = serviceRequestResponse.LastChangeDateTime;
+        //             const timestamp = serviceRequestResponse.LastChangeDateTime.substring(LastChangeDateTime.indexOf('(') + 1, LastChangeDateTime.indexOf(')'));
+        //             const date = new Date(Number(timestamp));
+        //             const year = date.getFullYear();
+        //             const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed, so add 1 and pad with '0' if necessary
+        //             const day = String(date.getDate()).padStart(2, '0'); // Pad day with '0' if necessary
+        //             const formattedDate = `${year}-${month}-${day}`;
 
-                    const serviceRequest = {
-                        CustomerID: serviceRequestResponse.BuyerPartyID,
-                        Status_code: serviceRequestResponse.ServiceRequestLifeCycleStatusCode,
-                        LastChangingDate: formattedDate,
-                        Processor: serviceRequestResponse.ProcessorPartyName,
-                        RequestProcessingTime: serviceRequestResponse.RequestInProcessdatetimeContent,
-                        OrderID: serviceRequestResponse.SalesOrderID,
-                        ProblemDescription: serviceRequestResponse.Name,
-                        MainContactID: serviceRequestResponse.BuyerMainContactPartyID,
-                    }
+        //             const serviceRequest = {
+        //                 CustomerID: serviceRequestResponse.BuyerPartyID,
+        //                 Status_code: serviceRequestResponse.ServiceRequestLifeCycleStatusCode,
+        //                 LastChangingDate: formattedDate,
+        //                 Processor: serviceRequestResponse.ProcessorPartyName,
+        //                 RequestProcessingTime: serviceRequestResponse.RequestInProcessdatetimeContent,
+        //                 OrderID: serviceRequestResponse.SalesOrderID,
+        //                 ProblemDescription: serviceRequestResponse.Name,
+        //                 MainContactID: serviceRequestResponse.BuyerMainContactPartyID,
+        //             }
 
-                    await UPDATE(ServiceRequest).with(serviceRequest).where({ ObjectID: serviceRequestResponse.ObjectID });
+        //             await UPDATE(ServiceRequest).with(serviceRequest).where({ ObjectID: serviceRequestResponse.ObjectID });
 
-                    if (serviceRequestResponse.ServiceRequestAttachmentFolder.length) {
-                        serviceRequestResponse.ServiceRequestAttachmentFolder.forEach(async attachmentResponse => {
-                            if (attachmentResponse) {
-                                const str = attachmentResponse.Binary;
-                                const content = Buffer.from(str, 'base64').toString();
-                                const buffer = Buffer.from(content, 'utf-8');
-                                const attachment = {
-                                    content: buffer,
-                                    fileName: attachmentResponse.Name,
-                                    url: attachmentResponse.DocumentLink,
-                                    mediaType: attachmentResponse.MimeType
-                                }
-                                const attachmentInDB = await SELECT.one.from(Attachement).where({ ObjectID: attachmentResponse.ObjectID });
-                                if (attachmentInDB)
-                                    await UPDATE(Attachement, attachmentInDB.ID).with(attachment);
-                                else {
-                                    attachment.ObjectID = attachmentResponse.ObjectID;
-                                    attachment.ServiceRequest_ID = serviceRequestID;
-                                    await INSERT.into(Attachement).entries(attachment);
-                                }
-                            }
-                        });
-                    }
-                    // if no ObjectID is in remote attachments, need to delete
-                    const attachmentsInDB = await SELECT(Attachement).where({ ServiceRequest_ID: serviceRequestID });
+        //             if (serviceRequestResponse.ServiceRequestAttachmentFolder.length) {
+        //                 serviceRequestResponse.ServiceRequestAttachmentFolder.forEach(async attachmentResponse => {
+        //                     if (attachmentResponse) {
+        //                         const str = attachmentResponse.Binary;
+        //                         const content = Buffer.from(str, 'base64').toString();
+        //                         const buffer = Buffer.from(content, 'utf-8');
+        //                         const attachment = {
+        //                             content: buffer,
+        //                             fileName: attachmentResponse.Name,
+        //                             url: attachmentResponse.DocumentLink,
+        //                             mediaType: attachmentResponse.MimeType
+        //                         }
+        //                         const attachmentInDB = await SELECT.one.from(Attachement).where({ ObjectID: attachmentResponse.ObjectID });
+        //                         if (attachmentInDB)
+        //                             await UPDATE(Attachement, attachmentInDB.ID).with(attachment);
+        //                         else {
+        //                             attachment.ObjectID = attachmentResponse.ObjectID;
+        //                             attachment.ServiceRequest_ID = serviceRequestID;
+        //                             await INSERT.into(Attachement).entries(attachment);
+        //                         }
+        //                     }
+        //                 });
+        //             }
+        //             // if no ObjectID is in remote attachments, need to delete
+        //             const attachmentsInDB = await SELECT(Attachement).where({ ServiceRequest_ID: serviceRequestID });
 
-                    // if (attachmentsInDB.length) {
-                    //     const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
-                    //         serviceRequestResponse.ServiceRequestAttachmentFolder, "ObjectID", "ObjectID");
-                    //     const attachmentObjectIDsToBeDeleted = attachmentsToBeDeleted.map(item => item.ObjectID);
-                    //     if (attachmentObjectIDsToBeDeleted.length)
-                    //         await DELETE.from(Attachement).where({ ObjectID: attachmentObjectIDsToBeDeleted });
-                    // }
+        //             // if (attachmentsInDB.length) {
+        //             //     const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
+        //             //         serviceRequestResponse.ServiceRequestAttachmentFolder, "ObjectID", "ObjectID");
+        //             //     const attachmentObjectIDsToBeDeleted = attachmentsToBeDeleted.map(item => item.ObjectID);
+        //             //     if (attachmentObjectIDsToBeDeleted.length)
+        //             //         await DELETE.from(Attachement).where({ ObjectID: attachmentObjectIDsToBeDeleted });
+        //             // }
 
-                    return SELECT(ServiceRequest, serviceRequestID);
-                }
-                catch (error) {
-                    req.reject({
-                        message: error.message
-                    });
-                }
+        //             return SELECT(ServiceRequest, serviceRequestID);
+        //         }
+        //         catch (error) {
+        //             req.reject({
+        //                 message: error.message
+        //             });
+        //         }
 
-            }
-            if (opportunitiesStart !== -1) {
-                const startIndex = opportunitiesStart + toOpportunitiesString.length;
-                const opportunityID = pathString.substring(startIndex, startIndex + 36);
+        //     }
+        //     if (opportunitiesStart !== -1) {
+        //         const startIndex = opportunitiesStart + toOpportunitiesString.length;
+        //         const opportunityID = pathString.substring(startIndex, startIndex + 36);
 
-                const obj = await SELECT.one.from(Opportunity, opportunityID);
+        //         const obj = await SELECT.one.from(Opportunity, opportunityID);
 
-                let path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection('${obj.ObjectID}')?$expand=OpportunityAttachmentFolder`;
-                try {
-                    let createRequestParameters = {
-                        method: 'GET',
-                        url: path,
-                        headers: { 'content-type': 'application/json' }
-                    }
-                    const c4cResponse = await sendRequestToC4C(createRequestParameters);
-                    const opportunityResponse = c4cResponse.data.d.results;
+        //         let path = `/sap/c4c/odata/v1/c4codataapi/OpportunityCollection('${obj.ObjectID}')?$expand=OpportunityAttachmentFolder`;
+        //         try {
+        //             let createRequestParameters = {
+        //                 method: 'GET',
+        //                 url: path,
+        //                 headers: { 'content-type': 'application/json' }
+        //             }
+        //             const c4cResponse = await sendRequestToC4C(createRequestParameters);
+        //             const opportunityResponse = c4cResponse.data.d.results;
 
-                    const LastChangeDateTime = opportunityResponse.LastChangeDateTime;
-                    const timestamp = opportunityResponse.LastChangeDateTime.substring(LastChangeDateTime.indexOf('(') + 1, LastChangeDateTime.indexOf(')'));
-                    const date = new Date(Number(timestamp));
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed, so add 1 and pad with '0' if necessary
-                    const day = String(date.getDate()).padStart(2, '0'); // Pad day with '0' if necessary
-                    const formattedDate = `${year}-${month}-${day}`;
+        //             const LastChangeDateTime = opportunityResponse.LastChangeDateTime;
+        //             const timestamp = opportunityResponse.LastChangeDateTime.substring(LastChangeDateTime.indexOf('(') + 1, LastChangeDateTime.indexOf(')'));
+        //             const date = new Date(Number(timestamp));
+        //             const year = date.getFullYear();
+        //             const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed, so add 1 and pad with '0' if necessary
+        //             const day = String(date.getDate()).padStart(2, '0'); // Pad day with '0' if necessary
+        //             const formattedDate = `${year}-${month}-${day}`;
 
-                    const opportunity = {
-                        InternalID: opportunityResponse.ID,
-                        ProspectPartyID: opportunityResponse.ProspectPartyID,
-                        ProspectPartyName: opportunityResponse.ProspectPartyName,
-                        Subject: opportunityResponse.Name,
-                        LifeCycleStatusCode_code: opportunityResponse.LifeCycleStatusCode,
-                        MainEmployeeResponsiblePartyID: opportunityResponse.MainEmployeeResponsiblePartyID,
-                        MainEmployeeResponsiblePartyName: opportunityResponse.MainEmployeeResponsiblePartyName,
-                        CreatedBy: opportunityResponse.CreatedBy,
-                        LastChangeDateTime: formattedDate,
-                        LastChangedBy: opportunityResponse.LastChangedBy,
-                        MainContactID: opportunityResponse.PrimaryContactPartyID,
-                    }
+        //             const opportunity = {
+        //                 InternalID: opportunityResponse.ID,
+        //                 ProspectPartyID: opportunityResponse.ProspectPartyID,
+        //                 ProspectPartyName: opportunityResponse.ProspectPartyName,
+        //                 Subject: opportunityResponse.Name,
+        //                 LifeCycleStatusCode_code: opportunityResponse.LifeCycleStatusCode,
+        //                 MainEmployeeResponsiblePartyID: opportunityResponse.MainEmployeeResponsiblePartyID,
+        //                 MainEmployeeResponsiblePartyName: opportunityResponse.MainEmployeeResponsiblePartyName,
+        //                 CreatedBy: opportunityResponse.CreatedBy,
+        //                 LastChangeDateTime: formattedDate,
+        //                 LastChangedBy: opportunityResponse.LastChangedBy,
+        //                 MainContactID: opportunityResponse.PrimaryContactPartyID,
+        //             }
 
-                    await UPDATE(Opportunity).with(opportunity).where({ ObjectID: opportunityResponse.ObjectID });
+        //             await UPDATE(Opportunity).with(opportunity).where({ ObjectID: opportunityResponse.ObjectID });
 
-                    if (opportunityResponse.OpportunityAttachmentFolder.length) {
-                        opportunityResponse.OpportunityAttachmentFolder.forEach(async attachmentResponse => {
-                            if (attachmentResponse) {
-                                const str = attachmentResponse.Binary;
-                                const content = Buffer.from(str, 'base64').toString();
-                                const buffer = Buffer.from(content, 'utf-8');
-                                const attachment = {
-                                    content: buffer,
-                                    fileName: attachmentResponse.Name,
-                                    url: attachmentResponse.DocumentLink,
-                                    mediaType: attachmentResponse.MimeType
-                                }
-                                const attachmentInDB = await SELECT.one.from(Attachement).where({ ObjectID: attachmentResponse.ObjectID });
-                                if (attachmentInDB)
-                                    await UPDATE(Attachement, attachmentInDB.ID).with(attachment);
-                                else {
-                                    attachment.ObjectID = attachmentResponse.ObjectID;
-                                    attachment.Opportunity_ID = opportunityID;
-                                    await INSERT.into(Attachement).entries(attachment);
-                                }
-                            }
-                        });
-                    }
-                    // if no ObjectID is in remote attachments, need to delete
-                    const attachmentsInDB = await SELECT(Attachement).where({ Opportunity_ID: opportunityID });
+        //             if (opportunityResponse.OpportunityAttachmentFolder.length) {
+        //                 opportunityResponse.OpportunityAttachmentFolder.forEach(async attachmentResponse => {
+        //                     if (attachmentResponse) {
+        //                         const str = attachmentResponse.Binary;
+        //                         const content = Buffer.from(str, 'base64').toString();
+        //                         const buffer = Buffer.from(content, 'utf-8');
+        //                         const attachment = {
+        //                             content: buffer,
+        //                             fileName: attachmentResponse.Name,
+        //                             url: attachmentResponse.DocumentLink,
+        //                             mediaType: attachmentResponse.MimeType
+        //                         }
+        //                         const attachmentInDB = await SELECT.one.from(Attachement).where({ ObjectID: attachmentResponse.ObjectID });
+        //                         if (attachmentInDB)
+        //                             await UPDATE(Attachement, attachmentInDB.ID).with(attachment);
+        //                         else {
+        //                             attachment.ObjectID = attachmentResponse.ObjectID;
+        //                             attachment.Opportunity_ID = opportunityID;
+        //                             await INSERT.into(Attachement).entries(attachment);
+        //                         }
+        //                     }
+        //                 });
+        //             }
+        //             // if no ObjectID is in remote attachments, need to delete
+        //             const attachmentsInDB = await SELECT(Attachement).where({ Opportunity_ID: opportunityID });
 
-                    if (attachmentsInDB.length) {
-                        const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
-                            opportunityResponse.OpportunityAttachmentFolder, "ObjectID", "ObjectID");
-                        const attachmentObjectIDsToBeDeleted = attachmentsToBeDeleted.map(item => item.ObjectID);
-                        if (attachmentObjectIDsToBeDeleted.length)
-                            await DELETE.from(Attachement).where({ ObjectID: attachmentObjectIDsToBeDeleted });
-                    }
+        //             if (attachmentsInDB.length) {
+        //                 const attachmentsToBeDeleted = getObjectsWithDifferentPropertyValue(attachmentsInDB,
+        //                     opportunityResponse.OpportunityAttachmentFolder, "ObjectID", "ObjectID");
+        //                 const attachmentObjectIDsToBeDeleted = attachmentsToBeDeleted.map(item => item.ObjectID);
+        //                 if (attachmentObjectIDsToBeDeleted.length)
+        //                     await DELETE.from(Attachement).where({ ObjectID: attachmentObjectIDsToBeDeleted });
+        //             }
 
-                    return SELECT(Opportunity, opportunityID);
-                }
-                catch (error) {
-                    req.reject({
-                        message: error.message
-                    });
-                }
-            }
-        });
+        //             return SELECT(Opportunity, opportunityID);
+        //         }
+        //         catch (error) {
+        //             req.reject({
+        //                 message: error.message
+        //             });
+        //         }
+        //     }
+        // });
 
-        this.on('LoadProducts', async (req) => {
-            await loadProductsAndPricesListsFromC4C(ItemProduct, SalesPriceList, req);
-        })
+        // this.on('LoadProducts', async (req) => {
+        //     await loadProductsAndPricesListsFromC4C(ItemProduct, SalesPriceList, req);
+        // })
 
         return super.init();
     }

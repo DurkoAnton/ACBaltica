@@ -131,7 +131,12 @@
                             "controlConfiguration": {
                                 "@com.sap.vocabularies.UI.v1.LineItem": {
                                     "tableSettings": {
-                                        "type": "ResponsiveTable"
+                                        "type": "ResponsiveTable",
+                                        "selectAll": true,
+                                        "quickVariantSelection": {
+                                            "showCounts": false,
+                                            "hideTableTitle": true
+                                        }
                                     },
                                     "columns": {
                                         "DataField::InternalID": {

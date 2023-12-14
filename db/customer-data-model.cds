@@ -10,26 +10,28 @@ entity Customer  : cuid {
 	UUID : UUID;
 	ObjectID : String;
 	CustomerFormattedName : String @Common.Label : '{i18n>Customerformattedname}';
-	Status : StatusCode;
+	Status : StatusCode @Common.Label : '{i18n>Status}';
 	ResponsibleManager : String @Common.Label : '{i18n>ResponsibleManager}';
 	ResponsibleManagerID : String;
 	ResponsibleManagerEmail : String; // for approval process
 	JuridicalAddress : Address;
-	JuridicalCountry : Country;
-	IndividualCountry : Country;
-	IndividualAddress : Address;
+	JuridicalCountry : Country @Common.Label : '{i18n>Country}';
+	//IndividualCountry : Country;
+	//IndividualAddress : Address;
 	BankData : Composition of many Bank on BankData.Customer = $self;
 	Note : String;
-	InternalID: String @readonly;
+	InternalID: String @readonly default '';
 	ToOpportunities: Composition of many Opportunity on ToOpportunities.Customer = $self;
 	ToServiceRequests : Composition of many ServiceRequest on ToServiceRequests.Customer = $self;
 	MainContactID : String;
+	SalesOrganisation : String @readonly; 
 
 	// Postal Address
-	POBox : String;
-	POBoxCountry : Country;
-	POBoxState : Association to RegionCode;
-	POBoxCity : String;
+	POBox : String @Common.Label : '{i18n>POBox}';
+	POBoxCountry : Country @Common.Label : '{i18n>POBoxCountry}';
+	POBoxState : Association to RegionCode @Common.Label : '{i18n>POBoxState}';
+	POBoxPostalCode : String @Common.Label : '{i18n>POBoxPostalCode}';
+	POBoxCity : String @Common.Label : '{i18n>POBoxCity}';
 }
 
 entity Bank : cuid {
@@ -43,10 +45,10 @@ entity Bank : cuid {
 type Address {
 	Country : Country;
 	Region : Association to RegionCode;
-	City : String;
-	Street : String;
-	HomeID : String;
-	RoomID : String;
+	City : String @Common.Label : '{i18n>City}';
+	Street : String @Common.Label : '{i18n>Street}';
+	HomeID : String @Common.Label : '{i18n>HomeID}';
+	RoomID : String @Common.Label : '{i18n>RoomID}';
 }
 type Region : sap.common.CodeList{
 	country: String(2);
@@ -77,7 +79,7 @@ entity Opportunity : cuid{
 	LifeCycleStatusCode: Association to OpportunityStatus;
 	LifeCycleStatusText: String;
 	MainEmployeeResponsiblePartyID: String @readonly;
-	MainEmployeeResponsiblePartyName: String @readonly;
+	MainEmployeeResponsiblePartyName: String @readonly default '';
 	CreationDateTime: DateTime @cds.on.insert : $now;
 	CreatedBy: String;
 	LastChangeDateTime: DateTime @cds.on.insert : $now  @cds.on.update : $now;
@@ -87,12 +89,17 @@ entity Opportunity : cuid{
 	Attachment : Composition of many Attachment on Attachment.Opportunity = $self;
 	NotStandartRequest : Boolean default false;
 	MainContactID : String;
-	CustomerComment : String default '';
+	CustomerComment : String default '' @UI.MultiLineText;
+
+	//Owner communication
+	ResponsibleEmail : String @readonly;
+	ResponsiblePhone : String @readonly;
+	ResponsibleMobilePhone : String @readonly;
 }
 entity Item : cuid {
 	OpportunityID : String;
 	toOpportunity : Association to Opportunity;
-	ItemProductID : String; // id cap
+	ItemProductID : String default ''; // id cap
 	Quantity : Integer default 1;
 	NetPriceAmount : Decimal @Measures.ISOCurrency : NetPriceCurrency_code @readonly;
 	NetPriceCurrency : Currency @readonly;
@@ -106,6 +113,7 @@ entity ItemProduct : cuid {
 	ProductStatus : String @readonly @Common.Label : '{i18n>ProductStatus}';
 	ProductStatusDescription : String @readonly @Common.Label : '{i18n>ProductStatus}';
 	UnitMeasure : String @readonly @Common.Label : '{i18n>UnitMeasure}'; // measure list?
+	Description : String @readonly @Common.Label : 'Description';
 	OpportunityID : String @readonly;
 	toItem : Association to Item;
 	SalesPriceLists : Composition of many SalesPriceList on SalesPriceLists.ItemProductID = $self.InternalID;
@@ -121,6 +129,8 @@ entity SalesPriceList : cuid {
 	PriceUnitCode : String @readonly; //unit code list
 	IsBasePriceList : Boolean;
 	ReleaseStatusCode : String(1);
+	ValidFrom : DateTime @readonly;
+	ValidTo : DateTime @readonly;
 }
 entity OpportunityStatus : sap.common.CodeList { 
     key code : String(2);
@@ -141,7 +151,7 @@ entity ServiceRequest : cuid {
 	RequestProcessingTime : String;
 	OrderID : String default '';
 	OrderDescription : String;
-	ProblemDescription : String;
+	ProblemDescription : String  @UI.MultiLineText;
 	Attachment : Composition of many Attachment on Attachment.ServiceRequest = $self;
 	Customer : Association to Customer;
 	Category : Association to CategoryCodes; 
@@ -164,7 +174,7 @@ entity ServiceRequestInteraction : cuid{
 	InternalID : String @readonly;
 	Sender : String @readonly;
 	Recepients : String @readonly;
-	Text : String @UI.MultiLineText @readonly;
+	Text : String @readonly;
 	CreationDateTime : DateTime @readonly;
 	Subject : String @readonly;
 	ServiceRequest : Association to ServiceRequest @readonly;
@@ -182,7 +192,7 @@ entity CategoryCodes : sap.common.CodeList{
 entity Attachment : cuid {
 	ObjectID : String;
 	@Core.MediaType   : mediaType content : LargeBinary @Core.ContentDisposition.Filename: fileName;
-	@Core.IsMediaType : true mediaType : String;
+	@Core.IsMediaType : true mediaType : String @readonly;
 	fileName  : String;
 	url       : String;
 	ServiceRequest : Association to ServiceRequest;

@@ -30,8 +30,7 @@
             "inbounds": {
                 "Customer-display": {
                     "signature": {
-                        "parameters": {
-                        },
+                        "parameters": {},
                         "additionalParameters": "allowed"
                     },
                     "semanticObject": "Customer",
@@ -186,6 +185,9 @@
                                         },
                                         "DataField::InternalID": {
                                             "width": "auto"
+                                        },
+                                        "DataField::SalesOrganisation": {
+                                            "width": "auto"
                                         }
                                     },
                                     "tableSettings": {
@@ -328,7 +330,47 @@
                         "settings": {
                             "editableHeaderContent": false,
                             "contextPath": "/Customer/ToServiceRequests",
-                            "navigation": {}
+                            "navigation": {},
+                            "controlConfiguration": {
+                                "Interactions/@com.sap.vocabularies.UI.v1.LineItem#Interactions": {
+                                    "columns": {
+                                        "DataField::InternalID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Subject": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Text": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Sender": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::Recepients": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CreationDateTime": {
+                                            "width": "auto"
+                                        }
+                                    },
+                                    "tableSettings": {
+                                        "type": "ResponsiveTable"
+                                    }
+                                },
+                                "Attachment/@com.sap.vocabularies.UI.v1.LineItem#Attachments": {
+                                    "columns": {
+                                        "DataField::content": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::mediaType": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::CreationDateTime": {
+                                            "width": "auto"
+                                        }
+                                    }
+                                }
+                            }
                         }
                     },
                     "controlAggregation": "midColumnPages",
@@ -382,7 +424,13 @@
                                         },
                                         "DataField::mediaType": {
                                             "width": "auto"
+                                        },
+                                        "DataField::CreationDateTime": {
+                                            "width": "auto"
                                         }
+                                    },
+                                    "tableSettings": {
+                                        "type": "ResponsiveTable"
                                     }
                                 }
                             }
@@ -416,6 +464,12 @@
                                             "width": "auto"
                                         },
                                         "DataField::PriceListID": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::ValidFrom": {
+                                            "width": "auto"
+                                        },
+                                        "DataField::ValidTo": {
                                             "width": "auto"
                                         }
                                     },

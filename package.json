@@ -138,15 +138,11 @@
     }
   },
   "sapux": [
-    "app/btp_portal",
     "app/partner_porta",
     "app/customer",
-    "app/opportunities",
     "app/partner_page",
     "app/service_requests",
     "app/opportunities_portal",
-    "app/request-approval",
-    "app/partner_account",
-    "app/parner_personal_page"
+    "app/request-approval"
   ]
 }

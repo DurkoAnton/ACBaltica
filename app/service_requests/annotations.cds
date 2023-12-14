@@ -36,27 +36,26 @@ annotate service.ServiceRequest with @(UI.LineItem: [
         Value: Processor,
         Label: '{i18n>Processor}',
     },
+    // {
+    //     $Type: 'UI.DataField',
+    //     Value: OrderID,
+    //     Label: 'Order',
+    // },
+    // {
+    //     $Type: 'UI.DataField',
+    //     Value: ProblemItem,
+    //     Label: 'Problem Item',
+    // },
     {
         $Type: 'UI.DataField',
-        Value: OrderID,
-        Label: 'Order',
+        Label: 'Request Date',
+        Value: RequestInitialDateTime,
     },
     {
         $Type: 'UI.DataField',
-        Value: ProblemItem,
-        Label: 'Problem Item',
+        Label: 'Request End Date',
+        Value: RequestEndDateTime,
     },
-    {
-                $Type: 'UI.DataField',
-            Label: 'Request Date',
-            Value: RequestInitialDateTime,
-        },
-        {
-            $Type: 'UI.DataField',
-            Label: 'Request End Date',
-            Value: RequestEndDateTime,
-        },
-   
     {
         $Type: 'UI.DataField',
         Value: CreationDate,
@@ -83,28 +82,27 @@ annotate service.ServiceRequest with @(
                 $Type: 'UI.DataField',
                 Label: 'Subject',
                 Value: Subject,
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
             },
             {
                 $Type: 'UI.DataField',
                 Label: 'Category',
                 Value: Category_code,
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
             },
             {
                 $Type: 'UI.DataField',
                 Label: 'Problem Description',
                 Value: ProblemDescription,
-                ![@UI.Hidden] : {$edmJson: {$Eq: [
-                {$Path: 'Category_code'},
-                '1'
-            ]}}
+                //![@UI.Hidden] : {$edmJson: {$Eq: [ {$Path: 'Category_code'}, '1' ] } },
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
             },
             {
                 $Type: 'UI.DataField',
                 Label: 'Status',
                 Value: Status_code,
-            },
-            
-            
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
+            },           
         ],
     },
      UI.FieldGroup #TimeProcessing      : {
@@ -114,16 +112,22 @@ annotate service.ServiceRequest with @(
                 $Type: 'UI.DataField',
                 Label: 'Request Date',
                 Value: RequestInitialDateTime,
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
             },
             {
                 $Type: 'UI.DataField',
                 Label: 'Request End Date',
                 Value: RequestEndDateTime,
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
             },
             {
                 $Type: 'UI.DataField',
                 Label: 'Resolution Date',
                 Value: ResolutionDateTime,
+                ![@UI.Hidden] : {$edmJson: {$Ne: [
+                {$Path: 'Status_code'},
+                '3'
+             ]}}
             },
               {
                 $Type: 'UI.DataField',
@@ -144,6 +148,7 @@ annotate service.ServiceRequest with @(
                 $Type: 'UI.DataField',
                 Label: 'Customer',
                 Value: CustomerID,
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
             },
             {
                 $Type: 'UI.DataField',
@@ -159,13 +164,23 @@ annotate service.ServiceRequest with @(
                 $Type: 'UI.DataField',
                 Label: 'Order ID',
                 Value: OrderID,
-                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'CustomerID'}, '']}, 1, 3 ]}},
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { 
+                    $And : [
+                        { $Ne : [ { $Path : 'CustomerID'}, '']},
+                        { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}
+                        ]
+                        }, 3, 1 ] } },
             },
             {
                 $Type: 'UI.DataField', 
                 Label: 'Problem Item',
                 Value: ProblemItem,
-                ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'OrderID'}, '']}, 1, 3 ]}},
+                ![@Common.FieldControl] : { $edmJson : {$If : [ { 
+                    $And : [
+                        { $Ne : [ { $Path : 'OrderID'}, '']},
+                        { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}
+                        ]
+                        }, 3, 1 ] } },
             },
         ]
     },
@@ -209,12 +224,15 @@ annotate service.ServiceRequest with @(
             Label : 'Interactions',
             ID    : 'Interactions',
             Target: 'Interactions/@UI.LineItem#Interactions',
-            ![@UI.Hidden] : {$edmJson: {$Ne: [{$Path: 'Status_code'},'3']}}
+            //![@UI.Hidden] : {$edmJson: {$Ne: [{$Path: 'Status_code'},'3']}}
         },
         
     ]
 );
-
+annotate service.ServiceRequestInteraction with @(UI.HeaderInfo: {
+    TypeName      : 'Interaction',
+    TypeNamePlural: 'Interactions' 
+});
 annotate service.ServiceRequest with @(UI.HeaderInfo: {
     TypeName      : '{i18n>ServiceRequest}',
     TypeNamePlural: '{i18n>ServiceRequests}',
@@ -352,14 +370,14 @@ annotate service.ServiceRequest with {
         ValueList      : {
             CollectionPath: 'Item',
             Parameters    : [
-                {
+                    {
                     $Type            : 'Common.ValueListParameterOut',
                     ValueListProperty: 'ID',
                     LocalDataProperty: ProblemItem
                 },
                 {
                     $Type            : 'Common.ValueListParameterOut',
-                    ValueListProperty: 'ProductCategory',
+                    ValueListProperty: 'ProductDescription',
                     LocalDataProperty: ProblemItemDescription
                 },
                 {
@@ -367,19 +385,14 @@ annotate service.ServiceRequest with {
                     ValueListProperty: 'toOpportunity_ID',
                     LocalDataProperty: OrderID // filter by selected Order
                 },
-                // {
-                //     $Type            : 'Common.ValueListParameterIn',
-                //     ValueListProperty: 'toOpportunity/ProspectPartyID',
-                //     LocalDataProperty: Customer_ID // filter by selected Customer
-                // },
-                // {
-                //     $Type            : 'Common.ValueListParameterDisplayOnly',
-                //     ValueListProperty: 'ProductInternalID'
-                // },
-                // {
-                //     $Type            : 'Common.ValueListParameterDisplayOnly',
-                //     ValueListProperty: 'ProductCategory'
-                // },
+                {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'ProductInternalID'
+                },
+                {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'ProductCategory'
+                },
                 {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'ProductStatus'
@@ -407,7 +420,7 @@ annotate service.ServiceRequest with {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'Status_code',
                 },
-              {
+                {
                     $Type            : 'Common.ValueListParameterDisplayOnly',
                     ValueListProperty: 'ResponsibleManager',
                 },
@@ -421,6 +434,10 @@ annotate service.ServiceRequest with {
                     ValueListProperty: 'ID',
                     LocalDataProperty: Customer_ID
                 },
+                {
+                    $Type            : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty: 'Note'
+                },
             ]
         }
     });
@@ -431,6 +448,7 @@ annotate service.Attachement with @(UI.LineItem #Attachments: [
         $Type: 'UI.DataField',
         Value: content,
         Label: 'Content',
+        ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
     },
     {
         $Type: 'UI.DataField',
@@ -453,21 +471,25 @@ annotate service.ServiceRequestInteraction with @(UI.LineItem #Interactions: [
         $Type: 'UI.DataField',
         Value: Subject,
         Label: 'Subject',
+        ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
     },
     {
         $Type: 'UI.DataField',
         Value: Text,
         Label: 'Text',
+        ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
     },
     {
         $Type: 'UI.DataField',
         Value: Sender,
         Label: 'Sender',
+        ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
     },
     {
         $Type: 'UI.DataField',
         Value: Recepients,
-        Label: 'Recepients',
+        Label: 'Recepient',
+        ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
     },
    {
         $Type: 'UI.DataField',
@@ -493,7 +515,7 @@ annotate service.Attachement @(Common: {SideEffects #content: {
 
 annotate service.ServiceRequest with {
     InternalID @Common.Label: '{i18n>InternalID}';
-    ProblemDescription @Common.Label: '{i18n>ProblemDescription}' @mandatory;
+    ProblemDescription @Common.Label: '{i18n>ProblemDescription}';
     CreationDate @Common.Label : '{i18n>CreationDate}';
     Status @Common.Label : 'Status';
     Category @Common.Label : 'Category';
@@ -588,3 +610,12 @@ annotate service.ServiceRequest with {
         ],
         }
 };
+
+annotate service.ServiceRequestInteraction with @(
+    UI.PresentationVariant #Interactions : {
+        $Type : 'UI.PresentationVariantType',
+        Visualizations : [
+            '@UI.LineItem#Interactions',
+        ],
+    }
+);

@@ -12,9 +12,9 @@ entity partnerProfile : cuid, managed {
         Phone       : String;
         MobilePhone : String;
         Email       : String;
-        AccountID       : String @readonly;
+        AccountID       : String;
         AccountUUID     : String;
-        AccountFormattedName    : String @readonly;
+        AccountFormattedName    : String;
         Country     : Country;
         CountryDescription : String;
         City        : String;

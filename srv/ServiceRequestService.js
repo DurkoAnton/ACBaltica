@@ -26,7 +26,7 @@ class ServiceRequestService extends cds.ApplicationService {
                     Status_code: item.ServiceRequestLifeCycleStatusCode,
                     Processor: item.ProcessorPartyName,
                     OrderID: item.SalesOrderID,
-                    ProblemDescription: item.Name,
+                    Subject: item.Name,
                     MainContactID: item.BuyerMainContactPartyID,
                     RequestInitialDateTime : item.RequestInitialReceiptdatetimecontent,
                     RequestEndDateTime : item.RequestedFulfillmentPeriodEndDateTime,
@@ -41,6 +41,22 @@ class ServiceRequestService extends cds.ApplicationService {
                 if (item.ServiceIssueCategoryID != ''){
                     serviceRequest.Category_code = item.ServiceIssueCategoryID.replace('ZA_','');
                 }
+                const docReference = item.ServiceRequestBusinessTransactionDocumentReference;
+                if (docReference.length > 0) {
+                    const opptReference = docReference.filter(i=>i.TypeCode == "72" && i.RoleCode == "1");
+                    if (opptReference[0]){
+                        const refOppot =  await SELECT.one.from(Opportunity).where({InternalID : opptReference[0].ID}).columns('ID', 'Subject');
+                        if (refOppot) {
+                            serviceRequest.OrderID = refOppot.ID;
+                            serviceRequest.OrderDescription = refOppot.Subject;
+                            serviceRequest.ProblemItemDescription = item.ProductDescription;
+                        }
+                    }
+                }
+                const text = item.ServiceRequestTextCollection[0];
+                if (text){
+                    serviceRequest.ProblemDescription = text.Text;
+                }
                 let attachment;
                 attachmentFolder.forEach(attachmentInst => {
                     let str = attachmentInst.Binary;
@@ -50,7 +66,8 @@ class ServiceRequestService extends cds.ApplicationService {
                         content: buffer,
                         fileName: attachmentInst.Name,
                         url: attachmentInst.DocumentLink,
-                        mediaType: 'text/plain'
+                        mediaType: 'text/plain',
+                        ObjectID : attachmentInst.ObjectID
                     }
                     serviceRequest.Attachment.push(attachment)
                 });
@@ -91,7 +108,7 @@ class ServiceRequestService extends cds.ApplicationService {
             
                 if (partner) {
                     const existingRequests = await SELECT.from(ServiceRequest).where({MainContactID : partner.CODE});
-                    const path = `/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection?$filter=BuyerMainContactPartyID eq '${partner.CODE}'&$expand=ServiceRequestAttachmentFolder`;
+                    const path = `/sap/c4c/odata/v1/c4codataapi/ServiceRequestCollection?$filter=BuyerMainContactPartyID eq '${partner.CODE}'&$expand=ServiceRequestAttachmentFolder,ServiceRequestBusinessTransactionDocumentReference,ServiceRequestTextCollection`;
                     try {
                         const createRequestParameters = {
                             method: 'get',
@@ -143,7 +160,9 @@ class ServiceRequestService extends cds.ApplicationService {
                 req.data.MainContactID = partner.CODE;
                 req.data.Category_code = '2'; //default
                 req.data.RequestInitialDateTime = new Date().toString();
-                req.data.RequestEndDateTime = new Date().toString();
+                const today = new Date();
+                today.setDate(today.getDate()+1);
+                req.data.RequestEndDateTime = today.toString()
             }
         });
 
@@ -162,32 +181,39 @@ class ServiceRequestService extends cds.ApplicationService {
                 }
                 const c4cResponse = await sendRequestToC4C(createRequestParameters);
                 const serviceRequestResponse = c4cResponse.data.d.results;
-
-                const LastChangeDateTime = serviceRequestResponse.LastChangeDateTime;
-                const timestamp = serviceRequestResponse.LastChangeDateTime.substring(LastChangeDateTime.indexOf('(') + 1, LastChangeDateTime.indexOf(')'));
-                const date = new Date(Number(timestamp));
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed, so add 1 and pad with '0' if necessary
-                const day = String(date.getDate()).padStart(2, '0'); // Pad day with '0' if necessary
-                const formattedDate = `${year}-${month}-${day}`;
-
+                
                 let serviceRequest = {
                     CustomerID: serviceRequestResponse.BuyerPartyID,
                     Status_code: serviceRequestResponse.ServiceRequestLifeCycleStatusCode,
-                    LastChangingDate: formattedDate,
+                    LastChangingDate: new Date(Number(
+                        serviceRequestResponse.LastChangeDateTime.substring(serviceRequestResponse.LastChangeDateTime.indexOf('(')+1,serviceRequestResponse.LastChangeDateTime.indexOf(')')))),
                     Processor: serviceRequestResponse.ProcessorPartyName,
-                    //RequestProcessingTime: serviceRequestResponse.RequestInProcessdatetimeContent,
-                    //OrderID: serviceRequestResponse.SalesOrderID,
+                    ProcessorID : serviceRequestResponse.ProcessorPartyID,
                     Subject: serviceRequestResponse.Name,
                     MainContactID: serviceRequestResponse.BuyerMainContactPartyID,
                     RequestInitialDateTime : serviceRequestResponse.RequestInitialReceiptdatetimecontent,
                     RequestEndDateTime : serviceRequestResponse.RequestedFulfillmentPeriodEndDateTime,
+                    ProblemItemDescription : serviceRequestResponse.ProductDescription
                 }
                 if (serviceRequestResponse.ResolvedOnDateTime != ''){ // check for valid date time value
                     serviceRequest.ResolutionDateTime = serviceRequestResponse.ResolvedOnDateTime;
                 }
                 if (serviceRequestResponse.ServiceRequestTextCollection[0]){
                     serviceRequest.ProblemDescription = serviceRequestResponse.ServiceRequestTextCollection[0].Text;
+                }
+                if (serviceRequestResponse.ServiceIssueCategoryID != ''){
+                    serviceRequest.Category_code = serviceRequestResponse.ServiceIssueCategoryID.replace('ZA_','');
+                    const docReference = serviceRequestResponse.ServiceRequestBusinessTransactionDocumentReference;
+                    if (serviceRequest.Category_code == '1' && docReference.length > 0) {
+                        const opptReference = docReference.filter(i=>i.TypeCode == "72" && i.RoleCode == "1");
+                        if (opptReference[0]){
+                            const refOppot =  await SELECT.one.from(Opportunity).where({InternalID : opptReference[0].ID}).columns('ID', 'Subject');
+                            if (refOppot) {
+                                serviceRequest.OrderID = refOppot.ID;
+                                serviceRequest.OrderDescription = refOppot.Subject;
+                            }
+                        }
+                    }
                 }
 
                 await UPDATE(ServiceRequest).with(serviceRequest).where({ ObjectID: serviceRequestResponse.ObjectID });
@@ -212,7 +238,7 @@ class ServiceRequestService extends cds.ApplicationService {
                 for(let item of interactions[0].ServiceRequestInteractionInteractions){
                     let newInteraction = {
                         InternalID : item.ID,
-                        Sender : item.FromPartyName + '('+item.FromPartyID + ')',
+                        Sender : item.FromPartyName,
                         Text : item.Text,
                         CreationDateTime : item.CreationDateTime,
                         Subject : item.SubjectName,
@@ -264,10 +290,16 @@ class ServiceRequestService extends cds.ApplicationService {
                 let body = {
                     Name: ticket.Subject,
                     ServiceRequestUserLifeCycleStatusCode: ticket.Status_code,
-                    ServiceIssueCategoryID : 'ZA_' + ticket.Category_code,
+                    //ServiceIssueCategoryID : 'ZA_' + ticket.Category_code,
                     RequestInitialReceiptdatetimecontent : ticket.RequestInitialDateTime,
                     RequestedFulfillmentPeriodEndDateTime : ticket.RequestEndDateTime,
-                    ProcessorPartyID : ticket.ProcessorID
+                    //BuyerMainContactPartyID : customer[0].MainContactID
+                }
+                if (ticket.Category_code && ticket.Category_code != ''){
+                    body.ServiceIssueCategoryID = 'ZA_' + ticket.Category_code;
+                }
+                if (ticket.ProcessorID){
+                    body.ProcessorPartyID = ticket.ProcessorID;
                 }
                 if (internalBuyerID)
                     body.BuyerPartyID = internalBuyerID;
@@ -285,7 +317,7 @@ class ServiceRequestService extends cds.ApplicationService {
                     body.ServiceRequestAttachmentFolder = { results };
                 }
                 // Problem desctiption in Text Collection
-                if (ticket.ProblemDescription != ''){
+                if (ticket.ProblemDescription && ticket.ProblemDescription != ''){
                     const results = [];
                     results.push({Text : ticket.ProblemDescription})
                     body.ServiceRequestTextCollection = results;

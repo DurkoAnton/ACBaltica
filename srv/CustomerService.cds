@@ -8,7 +8,7 @@ service CustomerService @(requires: 'authenticated-user'){
     @Capabilities : {
          InsertRestrictions.Insertable : true,
          UpdateRestrictions.Updatable  : true,
-         DeleteRestrictions.Deletable  : true
+         DeleteRestrictions.Deletable  : false
     }
 
   entity Customer as projection on customer.Customer actions { 
@@ -17,7 +17,7 @@ service CustomerService @(requires: 'authenticated-user'){
     @cds.odata.bindingparameter.name : '_it'
     @Common.SideEffects : {    
         $Type:'Common.SideEffectsType', 
-        TargetEntities : ['_it/ToOpportunities', '_it/ToServiceRequests']        
+        TargetEntities : ['_it','_it/ToOpportunities', '_it/ToServiceRequests']        
     } 
     action updateAllFieldsFromRemote() returns Customer;
     };
@@ -25,10 +25,7 @@ service CustomerService @(requires: 'authenticated-user'){
   entity ServiceRequestStatusCode as projection on customer.ServiceRequestStatusCodes;
   entity CategoryCodes as projection on customer.CategoryCodes;
   entity Bank as projection on customer.Bank;
-
-// @Capabilities : {
-//          DeleteRestrictions.Deletable  : false
-//     }
+  
     entity Item as select from customer.Item 
   { *, toItemProduct.InternalID as ProductInternalID, toItemProduct.ProductCategory as ProductCategory, toItemProduct.ProductStatusDescription as ProductStatus };
 
@@ -72,6 +69,10 @@ service CustomerService @(requires: 'authenticated-user'){
   entity RemoteOpportunity as projection on externalOppt.OpportunityCollection;
   //Service Requests Remote
   entity RemoteServiceRequest as projection on externalSR.ServiceRequestCollection;
+  @Capabilities : {
+         DeleteRestrictions.Deletable  : false,
+         InsertRestrictions.Insertable  : false,
+  }
   entity ServiceRequestInteraction as projection on customer.ServiceRequestInteraction;
   entity RemoteInteraction as projection on externalInteraction.ServiceRequestInteractionTicketCollection;
 }

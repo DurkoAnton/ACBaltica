@@ -5,8 +5,8 @@ using  customer from './customer-data-model';
 namespace approval;
 
 entity RequestApproval : cuid {
-    CustomerID : UUID;
-    CustomerObjectID : String;
+    CustomerID : String default '' @mandatory;
+    CustomerObjectID : String default '';
     Customer : Association to one customer.Customer on Customer.ID = $self.CustomerID;
     MainContactID : String;
 	CreationDateTime: Timestamp @cds.on.insert : $now @Common.Label : '{i18n>CreationDateTime}';
@@ -42,5 +42,6 @@ type CustomerDataSet {
         // Postal Address
         POBox : String;
         POBoxState : String;
+        POBoxPostalCode : String;
         POBoxCity : String;
 }

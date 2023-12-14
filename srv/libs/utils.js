@@ -42,7 +42,8 @@ async function createItemsBody(items, itemProductTable, opportunityID) {
         if (itemProduct) {
             let itemInst = {
                 toOpportunity_ID: opportunityID,
-                ItemProductID: itemProduct.ID
+                ItemProductID: itemProduct.ID,
+                Quantity : Number(item.Quantity)
             }
             results.push(itemInst)
         }
@@ -64,10 +65,38 @@ async function linkSelectedOpportunity(serviceRequest, opportunityEntity, body) 
 
 async function createNewCustomerInRemote(customerData, customerEntity, req) {
     if (customerData.UUID == null) {
+        const email = req.CurrentEmail;
+        let contactID;
+        const currentPartner = await SELECT.one.from('PARTNER_PARTNERPROFILE').where({ Email: email }).columns('CODE');
+        if (currentPartner) {
+            contactID = currentPartner.CODE;
+        }
         let body = {
             Name: customerData.CustomerFormattedName,
-            RoleCode: 'CRM000'
+            LifeCycleStatusCode : customerData.Status_code,
+            RoleCode: 'CRM000',
+            CountryCode : customerData.JuridicalCountry_code,
+            City : customerData.JuridicalAddress_City,
+            Street: customerData.JuridicalAddress_Street,
+            HouseNumber : customerData.JuridicalAddress_HomeID,
+            Room : customerData.JuridicalAddress_RoomID,
+            POBox : customerData.POBox,
+            POBoxDeviatingCountryCode : customerData.POBoxCountry_code,
+            POBoxDeviatingCity : customerData.POBoxCity,
+            POBoxPostalCode : customerData.POBoxPostalCode,
+            CorporateAccountHasContactPerson : {
+                results : [{ContactID : contactID,MainIndicator: true}]
+            }
         };
+        if (customerData.Note){
+            body.CorporateAccountTextCollection = {results : [{Text : customerData.Note}]}
+        }
+        //delete null properties from body
+        for (let property in body) {
+            if (!body[property]) {
+                delete body[property];
+            }
+        }
         let path = `/sap/c4c/odata/v1/c4codataapi/CorporateAccountCollection`;
 
         const createInC4CParameters = {
@@ -83,32 +112,16 @@ async function createNewCustomerInRemote(customerData, customerEntity, req) {
                 // first creation -> save object id
                 const objectID = c4cResponse.data.d.results.ObjectID;
                 const UUID = c4cResponse.data.d.results.UUID;
-                const internalID = c4cResponse.data.d.results.AccountID;
+                var internalID = c4cResponse.data.d.results.AccountID;
 
                 await UPDATE(customerEntity, customerData.ID).with({ UUID: UUID, ObjectID: objectID, InternalID: internalID});
-                //link new customer and current contact
-                const email = req._.user.id;
-                path += '(\'' + objectID + '\')/CorporateAccountHasContactPerson';
-                let contactID;
-                const currentPartner = await SELECT.one.from('PARTNER_PARTNERPROFILE').where({ Email: email });
-                if (currentPartner) {
-                    contactID = currentPartner.CODE;
-                }
-                const linkBody = {
-                    ContactID: contactID,
-                    MainIndicator: true
-                };
-                let linkToContactC4CParameters = {
-                    method: 'POST',
-                    url: path,
-                    data: linkBody,
-                };
-                await sendRequestToC4C(linkToContactC4CParameters);
             }
         }
         catch (error) {
             console.log(error.message);
         }
+
+        return internalID;
     }
 }
 
@@ -128,6 +141,8 @@ async function deleteCustomerInstances(partnerId, corporateAccounts, customersFr
 
 async function deleteOpportunityInstances(opportunitiesFromRemote, opportunitiesFromDB, Opportunity) {
     //const opportunitiesFromRemote = c4cResponse.data.d.results;
+
+    const a = opportunitiesFromDB.filter(obj1 => !opportunitiesFromRemote.some(obj2 => obj2.InternalID == obj1.InternalID));
 
     const opportunitiesToBeDeleted = opportunitiesFromDB.filter(obj1 => !opportunitiesFromRemote.some(obj2 => obj2.UUID === obj1.UUID) && obj1.UUID != null);
     if (opportunitiesToBeDeleted.length) {
@@ -149,7 +164,7 @@ async function deleteServiceRequestInstances(serviceRequestsFromRemote, serviceR
 async function createAttachments(attachmentsFromRemote, attachmentsFromDB, AttachementEntity, parentObjectID, type) {
     const newAttachmentsToCreate = attachmentsFromRemote.filter(newItem => !attachmentsFromDB
         .some(existingItem => existingItem.ObjectID == newItem.ObjectID));
-    newAttachmentsToCreate.forEach(async (attachmentResponse) => {
+    for (let attachmentResponse of newAttachmentsToCreate){
         if (attachmentResponse) {
             const str = attachmentResponse.Binary;
             const content = Buffer.from(str, 'base64').toString();
@@ -172,9 +187,9 @@ async function createAttachments(attachmentsFromRemote, attachmentsFromDB, Attac
                     break;
             }
                 
-            await INSERT.into(AttachementEntity).entries(attachment);
+            await INSERT(attachment).into(AttachementEntity);
         }
-    });
+    }
 }
 
 async function deleteAttachments(attachmentsFromRemote, attachmentsFromDB, AttachmentEntity) {
