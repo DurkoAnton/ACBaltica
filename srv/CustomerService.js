@@ -1,7 +1,7 @@
 const cds = require('@sap/cds')
 //const { fetchNext } = require('hdb/lib/protocol/request');
 const { getObjectsWithDifferentPropertyValue, createAttachmentBody, linkSelectedOpportunity, 
-    createNewCustomerInRemote, createItemsBody, deleteCustomerInstances, deleteOpportunityInstances, 
+    createNewCustomerInRemote, createItems, deleteCustomerInstances, deleteOpportunityInstances, 
     deleteServiceRequestInstances, createAttachments, deleteAttachments } = require('./libs/utils');
 const { sendRequestToC4C } = require('./libs/ManageAPICalls');
 const { loadProductsAndPricesListsFromC4C } = require('./libs/dataLoading');
@@ -369,6 +369,7 @@ class CustomerService extends cds.ApplicationService {
                         }
                         item.NetPriceCurrency_code = netPriceCurrency;
                         item.NetPriceAmount = netPrice;
+                        item.TotalPrice = item.Quantity ? netPrice * item.Quantity : netPrice;
                     }
                  }
             }
@@ -438,6 +439,12 @@ class CustomerService extends cds.ApplicationService {
         this.before('CANCEL', 'Opportunity', async (req) => {
             const id = req.data.ID;
             const opportunity = await SELECT.one.from(Opportunity, id);
+
+            const serviceRequests = await SELECT.from(ServiceRequest).where({OrderID:id});
+            if(serviceRequests.length > 0){
+                req.reject(400,'Subsequent object exists');
+            }
+
             if(opportunity?.ObjectID){
                 await remoteOpptAPI.run(DELETE.from(RemoteOpportunity).where({ObjectID:opportunity.ObjectID}));
             }
@@ -459,7 +466,6 @@ class CustomerService extends cds.ApplicationService {
             
            const customerData = req;
            const internalID = await createNewCustomerInRemote(customerData, Customer, req);
-
             //create new Opportunities in remote
             const newOpports = req.ToOpportunities.filter(n => n.UUID == null)
             for(let item of newOpports) {
@@ -516,21 +522,6 @@ class CustomerService extends cds.ApplicationService {
 	                            ResponsiblePhone : createdData.OwnerPhone_SDK,
                             });
 
-                        if (item.Attachment && item.Attachment.length !== 0) {
-                            createRequestParameters = {
-                                method: 'GET',
-                                url: createdData.OpportunityAttachmentFolder.__deferred.uri,
-                                headers: { 'content-type': 'application/json' }
-                            }
-                            // save ObjectID for the first time
-                            const attachmentResponse = await sendRequestToC4C(createRequestParameters);
-                            const attachmentsInResponse = attachmentResponse.data.d.results;
-                            for (let i = 0; i < attachmentsInResponse.length; i++) {
-                                const attachmentInDB = item.Attachment[i];
-                                const ObjectID = attachmentsInResponse[i].ObjectID;
-                                await UPDATE(Attachement, attachmentInDB.ID).set({ ObjectID: ObjectID });
-                            }
-                        }
                     }
                 } catch (e) {
                     console.log(e)
@@ -611,21 +602,6 @@ class CustomerService extends cds.ApplicationService {
                             ObjectID: objectID,
                             InternalID: data.ID,
                         });
-                    }
-                    if (item.Attachment && item.Attachment.length !== 0) {
-                        createRequestParameters = {
-                            method: 'GET',
-                            url: data.ServiceRequestAttachmentFolder.__deferred.uri,
-                            headers: { 'content-type': 'application/json' }
-                        }
-                        // save ObjectID for the first time
-                        const attachmentResponse = await sendRequestToC4C(createRequestParameters);
-                        const attachmentsInResponse = attachmentResponse.data.d.results;
-                        for (let i = 0; i < attachmentsInResponse.length; i++) {
-                            const attachmentInDB = item.Attachment[i];
-                            const ObjectID = attachmentsInResponse[i].ObjectID;
-                            await UPDATE(Attachement, attachmentInDB.ID).set({ ObjectID: ObjectID });
-                        }
                     }
                 }
             }
@@ -892,11 +868,10 @@ class CustomerService extends cds.ApplicationService {
                     await UPDATE(ServiceRequest).with(serviceRequest).where({ ObjectID: serviceRequestResponse.ObjectID });
 
                     const attachmentsFromRemote = serviceRequestResponse.ServiceRequestAttachmentFolder;
-                    const existingAttachmentsFromDB = await SELECT.from(Attachement).where({ServiceRequest_ID:serviceRequestID});
                     
-                    createAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement, serviceRequestID, "ServiceRequest");
-                    deleteAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement);
+                    await DELETE.from(Attachement).where({ServiceRequest_ID: serviceRequestID});
 
+                    await createAttachments(attachmentsFromRemote, Attachement, serviceRequestID, "ServiceRequest");
 
                     //return SELECT(ServiceRequest, serviceRequestID);
                 }
@@ -944,30 +919,18 @@ class CustomerService extends cds.ApplicationService {
 
                         await UPDATE(Opportunity).with(opportunity).where({ ObjectID: opportunityResponse.ObjectID });
 
-                        // update items
                         const opptItems = opportunityResponse.OpportunityItem;
-                        if (opptItems) {
+                        
+                        await DELETE.from(Item).where({toOpportunity_ID: opportunityID})
+                        
+                        await createItems(opptItems, Item, ItemProduct, opportunityID);
 
-                            const existingItems = await SELECT.from(Item).where({ toOpportunity_ID: opportunityID });
-                            
-                            const newRows = opptItems.filter(item => !existingItems.some(itemExists => itemExists.ProductInternalID == item.ProductID));
-                            if (newRows) {
-                                const items = await createItemsBody(newRows, ItemProduct, opportunityID);
-                                if (items.length != 0) {
-                                    await INSERT(items).into(Item);
-                                }
-                            }
-                            const exceedRows = existingItems.filter(obj1 => !opptItems.some(obj2 => obj2.ProductID == obj1.ProductInternalID));
-                            for(let row of exceedRows){
-                                await DELETE.from(Item).where({ID : row.ID});
-                            }
-                        }
 
                         const attachmentsFromRemote = opportunityResponse.OpportunityAttachmentFolder;
-                        const existingAttachmentsFromDB = await SELECT.from(Attachement).where({Opportunity_ID:opportunityID});
                         
-                        createAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement, opportunityID, "Opportunity");
-                        deleteAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement);
+                        await DELETE.from(Attachement).where({Opportunity_ID: opportunityID});
+
+                        await createAttachments(attachmentsFromRemote, Attachement, opportunityID, "Opportunity");
 
                         // return SELECT(Opportunity, opportunityID);
                     }

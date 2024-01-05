@@ -10,7 +10,7 @@ entity RequestApproval : cuid {
     Customer : Association to one customer.Customer on Customer.ID = $self.CustomerID;
     MainContactID : String;
 	CreationDateTime: Timestamp @cds.on.insert : $now @Common.Label : '{i18n>CreationDateTime}';
-    Status : RequestApprovalStatusCode @readonly;
+    Status : RequestApprovalStatusCode;
     
     currentData : CustomerDataSet;
     currentPOBoxCountry : Country;

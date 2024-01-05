@@ -35,6 +35,13 @@ async function deleteItems(itemsFromRemote, itemsFromDB, ItemsEntity) {
     }
 }
 
+async function createItems(opptItems, itemEntity, itemProductEntity, opportunityID) {    
+    const items = await createItemsBody(opptItems, itemProductEntity, opportunityID);
+    if (items.length != 0) {
+        await INSERT(items).into(itemEntity);
+    }
+}
+
 async function createItemsBody(items, itemProductTable, opportunityID) {
     let results = [];
     for (let item of items) {
@@ -161,10 +168,8 @@ async function deleteServiceRequestInstances(serviceRequestsFromRemote, serviceR
     }
 }
 
-async function createAttachments(attachmentsFromRemote, attachmentsFromDB, AttachementEntity, parentObjectID, type) {
-    const newAttachmentsToCreate = attachmentsFromRemote.filter(newItem => !attachmentsFromDB
-        .some(existingItem => existingItem.ObjectID == newItem.ObjectID));
-    for (let attachmentResponse of newAttachmentsToCreate){
+async function createAttachments(attachmentsFromRemote, AttachementEntity, parentObjectID, type) {
+    for (let attachmentResponse of attachmentsFromRemote){
         if (attachmentResponse) {
             const str = attachmentResponse.Binary;
             const content = Buffer.from(str, 'base64').toString();
@@ -203,4 +208,4 @@ async function deleteAttachments(attachmentsFromRemote, attachmentsFromDB, Attac
 
 module.exports = { getObjectsWithDifferentPropertyValue, createAttachmentBody, linkSelectedOpportunity, createNewCustomerInRemote,
      createItemsBody, deleteCustomerInstances, deleteOpportunityInstances, deleteServiceRequestInstances, createAttachments, deleteAttachments,
-     deleteItems };
+     deleteItems, createItems };

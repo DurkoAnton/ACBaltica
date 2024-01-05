@@ -359,6 +359,11 @@ annotate service.Item with @(
             Value: Quantity,
             ![@Common.FieldControl] : { $edmJson : {$If : [ { $Eq : [ { $Path : 'HasActiveEntity'}, false ]}, 3, 1 ]}},
         },
+        {
+            $Type: 'UI.DataField',
+            Label: 'Total Price',
+            Value: TotalPrice,
+        },
         
         {
             $Type: 'UI.DataField',
@@ -483,7 +488,7 @@ annotate service.Item @(Common: {SideEffects #toItemProductChanged: {
 }});
 annotate service.Item @(Common: {SideEffects #ItemProductChanged: {
     SourceProperties: ['ItemProductID'],
-    TargetProperties  : ['NetPriceAmount', 'NetPriceCurrency_code'],
+    TargetProperties  : ['NetPriceAmount', 'NetPriceCurrency_code', 'TotalPrice'],
     TargetEntities :[toItemProduct, toItemProduct.SalesPriceLists]
 }});
 annotate service.Attachement @(Common: {SideEffects #content: {
@@ -551,16 +556,21 @@ annotate service.Opportunity with {
     ProspectPartyID @Common:{
         SemanticObject : 'Customer',
         SemanticObjectMapping : [
-            // {
-            //     $Type : 'Common.SemanticObjectMappingType',
-            //     LocalProperty : 'ProspectPartyID',
-            //     SemanticObjectProperty : 'InternalID',
-            // },
+            {
+                $Type : 'Common.SemanticObjectMappingType',
+                LocalProperty : 'ProspectPartyID',
+                SemanticObjectProperty : 'InternalID',
+            },
             {
                 $Type : 'Common.SemanticObjectMappingType',
                 LocalProperty : 'ID',
                 SemanticObjectProperty : 'none',
             },
+            //  {
+            //     $Type : 'Common.SemanticObjectMappingType',
+            //     LocalProperty : 'ProspectPartyName',
+            //     SemanticObjectProperty : 'CustomerFormattedName',
+            // },
         ],
         }
 };
@@ -575,3 +585,5 @@ annotate service.Opportunity with {
 //         ],
 //     }
 // };
+
+annotate service.Opportunity with @( UI.UpdateHidden: true);

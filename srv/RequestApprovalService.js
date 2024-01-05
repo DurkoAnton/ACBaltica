@@ -40,13 +40,10 @@ class RequestApprovalService extends cds.ApplicationService {
             if (requestApproval) {
                 const customer = await SELECT.one.from(Customer).where({ ID: requestApproval.CustomerID });
                 if (customer) {
-                    // if(!customer.ResponsibleManagerEmail || !customer.ResponsibleManager) {
-                    //     req.reject(400, "Customer does not have Responsible Manager or Responsible Manager Email")
-                    // }
-                    let oldCountryDescription;
-                    let newCountryDescription;
-                    let oldPOBoxCountryDescription;
-                    let newPOBoxCountryDescription;
+                    let oldCountryDescription = '';
+                    let newCountryDescription = '';
+                    let oldPOBoxCountryDescription = '';
+                    let newPOBoxCountryDescription = '';
                     // get country descriptions
                     if (requestApproval.currentCountry_code) {
                         const oldCountryInst = await SELECT.one.from('SAP_COMMON_COUNTRIES').where({ code: requestApproval.currentCountry_code });
@@ -157,8 +154,8 @@ class RequestApprovalService extends cds.ApplicationService {
                     req.info("Request for approval has been sent!")
 
                     // set status to "Sent to Approval"
-                    await UPDATE(RequestApproval).set({ Status_code: "2"}).where({ ID: requestApprovalID });
-                    return SELECT(RequestApproval).where({ ID: requestApprovalID });
+                    await UPDATE(RequestApproval,requestApprovalID).set({ Status_code: "2"});
+                    //return SELECT(RequestApproval).where({ ID: requestApprovalID });
                 }
             }
         });

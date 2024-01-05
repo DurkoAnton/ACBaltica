@@ -411,6 +411,9 @@
                                         },
                                         "DataField::NetPriceAmount": {
                                             "width": "auto"
+                                        },
+                                        "DataField::TotalPrice": {
+                                            "width": "auto"
                                         }
                                     }
                                 },

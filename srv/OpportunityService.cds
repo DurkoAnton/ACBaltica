@@ -17,11 +17,6 @@ service OpportunityService @(requires: 'authenticated-user'){
     }   
     action updateFromRemote() returns Opportunity;
   };
-  //  @Capabilities : {
-  //     InsertRestrictions.Insertable : {$edmJson: {$Eq: [{$Path: 'toOpportunity/HasActiveEntity'},false]}},
-  //     UpdateRestrictions.Updatable : {$edmJson: {$Eq: [{$Path: 'toOpportunity/HasActiveEntity'},false]}},
-  //     DeleteRestrictions.Deletable  : {$edmJson: {$Eq: [{$Path: 'toOpportunity/HasActiveEntity'},false]}},
-  // } 
   entity Item as select from customer.Item 
   { *, toItemProduct.InternalID as ProductInternalID, toItemProduct.ProductCategory as ProductCategory, toItemProduct.ProductStatusDescription as ProductStatus };
   entity SalesPriceList as projection on customer.SalesPriceList;
@@ -29,7 +24,7 @@ service OpportunityService @(requires: 'authenticated-user'){
   entity Attachement as projection on customer.Attachment;
   entity OpportunityStatusCode as projection on customer.OpportunityStatus;
   entity Customer as projection on customer.Customer;
-
+  entity ServiceRequest as projection on customer.ServiceRequest
   entity RemoteOpportunity as projection on externalOppt.OpportunityCollection;
 }
 

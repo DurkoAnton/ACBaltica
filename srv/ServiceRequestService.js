@@ -1,7 +1,6 @@
 const cds = require('@sap/cds')
-const jwtDecode = require('jwt-decode');
-const { getObjectsWithDifferentPropertyValue, createAttachmentBody, linkSelectedOpportunity, 
-    deleteServiceRequestInstances, createAttachments, deleteAttachments } = require('./libs/utils');
+const { createAttachmentBody, linkSelectedOpportunity, 
+    deleteServiceRequestInstances, createAttachments} = require('./libs/utils');
 const { sendRequestToC4C } = require('./libs/ManageAPICalls');
 //const { startsWith, contains } = require('@sap-cloud-sdk/core');
 
@@ -219,10 +218,10 @@ class ServiceRequestService extends cds.ApplicationService {
                 await UPDATE(ServiceRequest).with(serviceRequest).where({ ObjectID: serviceRequestResponse.ObjectID });
 
                 const attachmentsFromRemote = serviceRequestResponse.ServiceRequestAttachmentFolder;
-                const existingAttachmentsFromDB = await SELECT.from(Attachement).where({ServiceRequest_ID:serviceRequestID});
+
+                await DELETE.from(Attachement).where({ServiceRequest_ID: serviceRequestID});
                 
-                createAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement, serviceRequestID, "ServiceRequest");
-                deleteAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement);
+                await createAttachments(attachmentsFromRemote, Attachement, serviceRequestID, "ServiceRequest");
 
                 await DELETE(ServiceRequestInteraction).where({ServiceRequest_ID : serviceRequestID});
 
@@ -290,10 +289,8 @@ class ServiceRequestService extends cds.ApplicationService {
                 let body = {
                     Name: ticket.Subject,
                     ServiceRequestUserLifeCycleStatusCode: ticket.Status_code,
-                    //ServiceIssueCategoryID : 'ZA_' + ticket.Category_code,
                     RequestInitialReceiptdatetimecontent : ticket.RequestInitialDateTime,
                     RequestedFulfillmentPeriodEndDateTime : ticket.RequestEndDateTime,
-                    //BuyerMainContactPartyID : customer[0].MainContactID
                 }
                 if (ticket.Category_code && ticket.Category_code != ''){
                     body.ServiceIssueCategoryID = 'ZA_' + ticket.Category_code;
@@ -341,29 +338,11 @@ class ServiceRequestService extends cds.ApplicationService {
                             UUID: UUID,
                             ObjectID: objectID,
                             InternalID: data.ID,
-                           // Processor: data.ProcessorPartyName
                         });
-                    }
-                    if (ticket.Attachment && ticket.Attachment.length !== 0) {
-                        createRequestParameters = {
-                            method: 'GET',
-                            url: data.ServiceRequestAttachmentFolder.__deferred.uri,
-                            headers: { 'content-type': 'application/json' }
-                        }
-                        // save ObjectID for the first time
-                        const attachmentResponse = await sendRequestToC4C(createRequestParameters);
-                        const attachmentsInResponse = attachmentResponse.data.d.results;
-                        for (let i = 0; i < attachmentsInResponse.length; i++) {
-                            const attachmentInDB = ticket.Attachment[i];
-                            const ObjectID = attachmentsInResponse[i].ObjectID;
-                            await UPDATE(Attachement, attachmentInDB.ID).set({ ObjectID: ObjectID });
-                        }
-
                     }
                 }
             }
         })
-
         return super.init();
     }
 }

@@ -315,6 +315,7 @@ annotate service.RequestApproval with @(
                 $Type: 'UI.DataField',
                 Label: 'Status',
                 Value: Status_code,
+                ![@Common.FieldControl] : #ReadOnly,
             },
             {
                 $Type: 'UI.DataField',

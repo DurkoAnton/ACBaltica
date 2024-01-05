@@ -32,39 +32,6 @@
 				"volume_mounts": []
 			}
 		],
-		"destination": [
-			{
-				"label": "destination",
-				"provider": null,
-				"plan": "lite",
-				"name": "BTPdemoPortal-destination-service",
-				"tags": [
-					"destination",
-					"conn",
-					"connsvc"
-				],
-				"instance_guid": "4b55a2cf-46a0-4f5d-bce8-1db858796cf2",
-				"instance_name": "BTPdemoPortal-destination-service",
-				"binding_guid": "3990f437-d688-44f9-b1fe-0f0e7b8d8ed0",
-				"binding_name": null,
-				"credentials": {
-					"tenantmode": "dedicated",
-					"clientid": "sb-clone4b55a2cf46a04f5dbce81db858796cf2!b22412|destination-xsappname!b2",
-					"credential-type": "binding-secret",
-					"xsappname": "clone4b55a2cf46a04f5dbce81db858796cf2!b22412|destination-xsappname!b2",
-					"clientsecret": "3990f437-d688-44f9-b1fe-0f0e7b8d8ed0$nhpxpc5mrmlYLNVUjCqMmGIGdA7j1XbSJnzaqO-zCWk=",
-					"uri": "https://destination-configuration.cfapps.eu20.hana.ondemand.com",
-					"url": "https://btp-demo-hij0smff.authentication.eu20.hana.ondemand.com",
-					"uaadomain": "authentication.eu20.hana.ondemand.com",
-					"instanceid": "4b55a2cf-46a0-4f5d-bce8-1db858796cf2",
-					"verificationkey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArwUZV8ktr530R8zSVh5M\ns2Zz3LT/0mpXmM0M3Gz3eYZO4TEiW5alDHwRehwZZoGSchaZqzyw/N6S5qYwMKcV\n7i4EQ/zbjvU/eI/Hcwn961qqWVo/pCvF6zPG+JKSoIWVdQaUh4UC50bHeS/7FB5o\n+5xIjpGhsemujz2jrqQklHi+QqzCAj3K17qBifMVlZkZKC0tUd29SRfhZ8s2uzsV\nS+BzumlZoSe7fCe5n2cWA67gTzja7RigOZRoduk7jyvNH0ilc4HB7bzYfLy12dDT\nEdWmjC3lw8xEK7rkPXMQANTcGLFeUbbE+ghnrt1M6abpt3aVtuz7QZf7FU2QqqxB\nawIDAQAB\n-----END PUBLIC KEY-----",
-					"identityzone": "btp-demo-hij0smff",
-					"tenantid": "3d8e6c5c-8ad3-428f-b1ef-f222f9c2d3f2"
-				},
-				"syslog_drain_url": null,
-				"volume_mounts": []
-			}
-		],
 		"xsuaa": [
 			{
 				"label": "xsuaa",
@@ -76,7 +43,7 @@
 				],
 				"instance_guid": "7cd806f1-a4f7-416e-88a6-ebf892acb8f4",
 				"instance_name": "BTPdemoPortal-auth",
-				"binding_guid": "0aa1b440-7882-4103-82be-a32c0a69457e",
+				"binding_guid": "d6808e0c-119c-45fb-a5a5-66a05f4c01b5",
 				"binding_name": null,
 				"credentials": {
 					"tenantmode": "dedicated",
@@ -95,6 +62,39 @@
 					"identityzoneid": "3d8e6c5c-8ad3-428f-b1ef-f222f9c2d3f2",
 					"tenantid": "3d8e6c5c-8ad3-428f-b1ef-f222f9c2d3f2",
 					"zoneid": "3d8e6c5c-8ad3-428f-b1ef-f222f9c2d3f2"
+				},
+				"syslog_drain_url": null,
+				"volume_mounts": []
+			}
+		],
+		"destination": [
+			{
+				"label": "destination",
+				"provider": null,
+				"plan": "lite",
+				"name": "BTPdemoPortal-destination-service",
+				"tags": [
+					"destination",
+					"conn",
+					"connsvc"
+				],
+				"instance_guid": "4b55a2cf-46a0-4f5d-bce8-1db858796cf2",
+				"instance_name": "BTPdemoPortal-destination-service",
+				"binding_guid": "d8e7dfe4-78e4-4e10-b25d-7db5519ef5bd",
+				"binding_name": null,
+				"credentials": {
+					"tenantmode": "dedicated",
+					"clientid": "sb-clone4b55a2cf46a04f5dbce81db858796cf2!b22412|destination-xsappname!b2",
+					"credential-type": "binding-secret",
+					"xsappname": "clone4b55a2cf46a04f5dbce81db858796cf2!b22412|destination-xsappname!b2",
+					"clientsecret": "d8e7dfe4-78e4-4e10-b25d-7db5519ef5bd$Tx4WB8WdabT4DHeccU4cmPZ331FMUWqWCpKCYX44hBQ=",
+					"uri": "https://destination-configuration.cfapps.eu20.hana.ondemand.com",
+					"url": "https://btp-demo-hij0smff.authentication.eu20.hana.ondemand.com",
+					"uaadomain": "authentication.eu20.hana.ondemand.com",
+					"instanceid": "4b55a2cf-46a0-4f5d-bce8-1db858796cf2",
+					"verificationkey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArwUZV8ktr530R8zSVh5M\ns2Zz3LT/0mpXmM0M3Gz3eYZO4TEiW5alDHwRehwZZoGSchaZqzyw/N6S5qYwMKcV\n7i4EQ/zbjvU/eI/Hcwn961qqWVo/pCvF6zPG+JKSoIWVdQaUh4UC50bHeS/7FB5o\n+5xIjpGhsemujz2jrqQklHi+QqzCAj3K17qBifMVlZkZKC0tUd29SRfhZ8s2uzsV\nS+BzumlZoSe7fCe5n2cWA67gTzja7RigOZRoduk7jyvNH0ilc4HB7bzYfLy12dDT\nEdWmjC3lw8xEK7rkPXMQANTcGLFeUbbE+ghnrt1M6abpt3aVtuz7QZf7FU2QqqxB\nawIDAQAB\n-----END PUBLIC KEY-----",
+					"identityzone": "btp-demo-hij0smff",
+					"tenantid": "3d8e6c5c-8ad3-428f-b1ef-f222f9c2d3f2"
 				},
 				"syslog_drain_url": null,
 				"volume_mounts": []

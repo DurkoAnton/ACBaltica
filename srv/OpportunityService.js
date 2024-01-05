@@ -1,15 +1,14 @@
 const cds = require('@sap/cds')
-//const jwt_decode = require('jwt-decode');
-//const { status } = require('express/lib/response');
-const { createAttachmentBody, createItemsBody, deleteOpportunityInstances, createAttachments, deleteAttachments, deleteItems } = require('./libs/utils');
+const { createAttachmentBody, createItems, deleteOpportunityInstances, createAttachments, deleteAttachments, deleteItems } = require('./libs/utils');
 const { sendRequestToC4C } = require('./libs/ManageAPICalls');
 const { loadProductsAndPricesListsFromC4C } = require('./libs/dataLoading');
+const { requestOpenIDConfiguration } = require('@sap/xssec/lib/requests');
 
 class OpportunityService extends cds.ApplicationService {
     async init() {
 
         const { Customer } = cds.entities('customer')
-        const { Opportunity, Attachement, Item, ItemProduct, SalesPriceList, RemoteOpportunity } = this.entities;
+        const { Opportunity, Attachement, Item, ItemProduct, SalesPriceList, RemoteOpportunity, ServiceRequest } = this.entities;
         
         const remoteOpptAPI = await cds.connect.to('opportunity');
 
@@ -94,6 +93,7 @@ class OpportunityService extends cds.ApplicationService {
                         }
                         item.NetPriceCurrency_code = netPriceCurrency;
                         item.NetPriceAmount = netPrice;
+                        item.TotalPrice = item.Quantity ? netPrice * item.Quantity : netPrice;
                     }
                  }
             }
@@ -181,6 +181,13 @@ class OpportunityService extends cds.ApplicationService {
         this.before('DELETE', 'Opportunity', async (req) => {
             const id = req.data.ID;
             const opportunity = await SELECT.one.from(Opportunity, id);
+
+            //check connection between opportunity and service request (field: orderID), if exists - reject deletion
+            const serviceRequests = await SELECT.from(ServiceRequest).where({OrderID:id});
+            if(serviceRequests.length > 0){
+                req.reject(400,'Subsequent object exists');
+            }
+
             if(opportunity.ObjectID){
                 await remoteOpptAPI.run(DELETE.from(RemoteOpportunity).where({ObjectID:opportunity.ObjectID}));
             }
@@ -239,7 +246,7 @@ class OpportunityService extends cds.ApplicationService {
                     const createdOppt = await sendRequestToC4C(createRequestParameters);
                     if (createdOppt && createdOppt.data && createdOppt.data.d && createdOppt.data.d.results) {
                         const createdData = createdOppt.data.d.results;
-                        const result = await UPDATE(Opportunity)
+                        await UPDATE(Opportunity)
                             .where({ ID: opportunity.ID })
                             .with({
                                 UUID: createdData.UUID,
@@ -250,22 +257,6 @@ class OpportunityService extends cds.ApplicationService {
 	                            ResponsibleMobilePhone : createdData.OwnerMobilePhone_SDK,
 	                            ResponsiblePhone : createdData.OwnerPhone_SDK,
                             });
-
-                        if (opportunity.Attachment && opportunity.Attachment.length !== 0) {
-                            createRequestParameters = {
-                                method: 'GET',
-                                url: createdData.OpportunityAttachmentFolder.__deferred.uri,
-                                headers: { 'content-type': 'application/json' }
-                            }
-                            // save ObjectID for the first time
-                            const attachmentResponse = await sendRequestToC4C(createRequestParameters);
-                            const attachmentsInResponse = attachmentResponse.data.d.results;
-                            for (let i = 0; i < attachmentsInResponse.length; i++) {
-                                const attachmentInDB = opportunity.Attachment[i];
-                                const ObjectID = attachmentsInResponse[i].ObjectID;
-                                await UPDATE(Attachement, attachmentInDB.ID).set({ ObjectID: ObjectID });
-                            }
-                        }
                     }
                 } catch (e) {
                     console.log(e)
@@ -289,14 +280,6 @@ class OpportunityService extends cds.ApplicationService {
                 }
                 const c4cResponse = await sendRequestToC4C(createRequestParameters);
                 const opportunityResponse = c4cResponse.data.d.results;
-
-                // const LastChangeDateTime = opportunityResponse.LastChangeDateTime;
-                // const timestamp = opportunityResponse.LastChangeDateTime.substring(LastChangeDateTime.indexOf('(') + 1, LastChangeDateTime.indexOf(')'));
-                // const date = new Date(Number(timestamp));
-                // const year = date.getFullYear();
-                // const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed, so add 1 and pad with '0' if necessary
-                // const day = String(date.getDate()).padStart(2, '0'); // Pad day with '0' if necessary
-                // const formattedDate = `${year}-${month}-${day}`;
 
                 const changeDateTime = opportunityResponse.LastChangeDateTime;
                 let opportunity = {
@@ -327,27 +310,17 @@ class OpportunityService extends cds.ApplicationService {
                 await UPDATE(Opportunity).with(opportunity).where({ ObjectID: opportunityResponse.ObjectID });
               
                 const attachmentsFromRemote = opportunityResponse.OpportunityAttachmentFolder;
-                const existingAttachmentsFromDB = await SELECT.from(Attachement).where({Opportunity_ID:opportunityID});
                 
-                createAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement, opportunityID, "Opportunity");
-                deleteAttachments(attachmentsFromRemote, existingAttachmentsFromDB, Attachement);
+                await DELETE.from(Attachement).where({Opportunity_ID: opportunityID});
 
-                // update items
+                await createAttachments(attachmentsFromRemote, Attachement, opportunityID, "Opportunity");
+
+                
                 const opptItems = opportunityResponse.OpportunityItem;
-                if (opptItems) {
-                    const existingItems = await SELECT.from(Item).where({ toOpportunity_ID: opportunityID });
-                    const newRows = opptItems.filter(item => !existingItems.some(itemExists => itemExists.ProductInternalID == item.ProductID));
-                    if (newRows) {
-                        const items = await createItemsBody(newRows, ItemProduct, opportunityID);
-                        if (items.length != 0) {
-                            await INSERT(items).into(Item);
-                        }
-                    }
-                    const exceedRows = existingItems.filter(obj1 => !opptItems.some(obj2 => obj2.ProductID == obj1.ProductInternalID));
-                    for(let row of exceedRows){
-                        await DELETE.from(Item).where({ID : row.ID});
-                    }
-                }
+
+                await DELETE.from(Item).where({toOpportunity_ID: opportunityID})
+                
+                await createItems(opptItems, Item, ItemProduct, opportunityID);
                 
                 //return SELECT(Opportunity, opportunityID);
             }

@@ -619,3 +619,5 @@ annotate service.ServiceRequestInteraction with @(
         ],
     }
 );
+
+annotate service.ServiceRequest with @( UI.UpdateHidden: true);

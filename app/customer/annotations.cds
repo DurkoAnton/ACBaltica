@@ -451,9 +451,14 @@ annotate service.Item with @(
         },
         {
             $Type: 'UI.DataField',
+            Label: 'Total Price',
+            Value: TotalPrice,
+        },
+        {
+            $Type: 'UI.DataField',
             Label: 'Unit Measure',
             Value: toItemProduct.UnitMeasure,
-        },
+        }
     ],
     UI.Facets         : [{
         $Type : 'UI.ReferenceFacet',
@@ -1417,3 +1422,9 @@ annotate service.Opportunity with {
         Label: 'Responsible Employee'
     };
 };
+
+annotate service.Opportunity with @( UI.UpdateHidden: true);
+annotate service.ServiceRequest with @( UI.UpdateHidden: true);
+// only for already created Opportunity
+annotate service.Item with @( UI.CreateHidden: {$edmJson: {$Ne: [{$Path: 'toOpportunity/InternalID'}, '']}});
+annotate service.Item with @( UI.DeleteHidden: {$edmJson: {$Ne: [{$Path: 'toOpportunity/InternalID'}, '']}});

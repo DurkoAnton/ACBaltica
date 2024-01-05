@@ -3,16 +3,16 @@ using customer from '../db/customer-data-model';
 
 service RequestApprovalService @(requires: 'authenticated-user') {
     @Capabilities : {
-         DeleteRestrictions.Deletable  : false,
+         DeleteRestrictions.Deletable  : true,
     }
     @odata.draft.enabled
     entity RequestApproval            as projection on approval.RequestApproval actions {
         @cds.odata.bindingparameter.name: '_it'
         @Common.SideEffects             : {
             $Type         : 'Common.SideEffectsType',
-            TargetEntities: ['_it/Status']
+            TargetEntities: ['_it']
         }
-        action sendRequestForApproval() returns RequestApproval;
+        action sendRequestForApproval();
         @cds.odata.bindingparameter.name: '_it'
         @Common.SideEffects             : {
             $Type         : 'Common.SideEffectsType',

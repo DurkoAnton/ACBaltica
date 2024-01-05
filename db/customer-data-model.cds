@@ -103,6 +103,7 @@ entity Item : cuid {
 	Quantity : Integer default 1;
 	NetPriceAmount : Decimal @Measures.ISOCurrency : NetPriceCurrency_code @readonly;
 	NetPriceCurrency : Currency @readonly;
+	TotalPrice : Decimal @Measures.ISOCurrency : NetPriceCurrency_code @readonly;
 	ObjectID : String;
 	toItemProduct : Association to ItemProduct on toItemProduct.ID = $self.ItemProductID;
 	virtual ProductStatusActiveDefault: Integer default 2;
@@ -190,7 +191,6 @@ entity CategoryCodes : sap.common.CodeList{
 }
 
 entity Attachment : cuid {
-	ObjectID : String;
 	@Core.MediaType   : mediaType content : LargeBinary @Core.ContentDisposition.Filename: fileName;
 	@Core.IsMediaType : true mediaType : String @readonly;
 	fileName  : String;
